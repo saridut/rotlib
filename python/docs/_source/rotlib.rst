@@ -1,7 +1,5 @@
-rotlib module
-==================
-
-.. autosummary::
+Rotlib
+======
 
 .. automodule:: rotlib
    :inherited-members:

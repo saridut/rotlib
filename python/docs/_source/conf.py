@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 import numpydoc
 
-srcdir = Path('../').resolve()
+srcdir = Path('../../rotlib').resolve()
 sys.path.insert(0, str(srcdir))
 
 
@@ -17,7 +17,7 @@ sys.path.insert(0, str(srcdir))
 project = 'rotlib'
 copyright = '2026, Sarit Dutta'
 author = 'Sarit Dutta'
-release = '1.0'
+release = '1.0.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -35,6 +35,11 @@ exclude_patterns = []
 
 autodoc_member_order = 'bysource'
 autosummary_generate = True
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": False,
+    "private-members": False,
+}
 toc_object_entries_show_parents = "hide"
 
 intersphinx_mapping = {'numpy': ('https://numpy.org/doc/stable/', None)}
