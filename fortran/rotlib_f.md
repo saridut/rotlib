@@ -1,7 +1,7 @@
 ---
 project: rotlib
 project_github: https://github.com/saridut/rotlib
-version: 1.0
+version: 1.0.0
 author: Sarit Dutta
 email: saridut@gmail.com
 github: https://github.com/saridut
