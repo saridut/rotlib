@@ -59,7 +59,7 @@ python/coverage.xml
 python/.pytest_cache/
 
 # Build and docs folder/files
-docs/*
+#docs/*
 python/build/*
 python/dist/*
 python/sdist/*
