@@ -1,0 +1,74 @@
+# Prerequisites
+*.d
+
+# Fortran module files
+*.mod
+*.smod
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Temporary and binary files
+*~
+*.py[cod]
+*.cfg
+!.isort.cfg
+!setup.cfg
+*.orig
+*.log
+*.pot
+__pycache__/*
+.cache/*
+.*.swp
+*/.ipynb_checkpoints/*
+.DS_Store
+
+# Project files
+python/.ropeproject
+python/.project
+python/.pydevproject
+python/.settings
+python/.idea
+python/.vscode
+python/tags
+
+# Package files
+*.egg
+*.eggs/
+python/.installed.cfg
+*.egg-info
+
+# Unittest and coverage
+python/htmlcov/*
+python/.coverage
+python/.coverage.*
+python/.tox
+python/junit*.xml
+python/coverage.xml
+python/.pytest_cache/
+
+# Build and docs folder/files
+python/build/*
+python/dist/*
+python/sdist/*
+python/docs/api/*
+python/docs/_rst/*
+python/docs/_build/*
+python/cover/*
+python/MANIFEST
+
+# Per-project virtualenvs
+python/.venv*/
+python/.conda*/
+python/.python-version
