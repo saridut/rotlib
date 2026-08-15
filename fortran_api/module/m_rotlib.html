@@ -1,0 +1,4636 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for rotlib">
+    <meta name="author" content="Sarit Dutta" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>m_rotlib &ndash; rotlib</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">rotlib <small>1.0.0</small></a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>m_rotlib
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+            <li class="list-inline-item" id="meta-license"><i class="fa fa-legal"></i> <a rel="license" href="https://opensource.org/licenses/MIT">MIT</a></li>
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title="70.6% of total for modules and submodules.">1013 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/m_rotlib.f90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/m_rotlib.f90.html'>m_rotlib.f90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">m_rotlib</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#funcs-0"
+         aria-expanded="false" aria-controls="funcs-0">
+         <h4 class="card-header bg-primary text-white">Functions</h4>
+      </a>
+      <div id="funcs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-mat_is_rotmat">mat_is_rotmat</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_is_normalized">quat_is_normalized</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_angle_between">quat_angle_between</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-mat_is_dcm">mat_is_dcm</a>
+        </div>
+      </div>
+    </div>
+
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#subs-0"
+         aria-expanded="false" aria-controls="subs-0">
+         <h4 class="card-header bg-primary text-white">Subroutines</h4>
+      </a>
+      <div id="subs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-align">align</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_rand">quat_rand</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_identity">quat_identity</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_conjugated">quat_conjugated</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_inverted">quat_inverted</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_normalized">quat_normalized</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_prod">quat_prod</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_interpolate">quat_interpolate</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_deriv_to_angvel_mat">quat_deriv_to_angvel_mat</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_deriv_to_angvel">quat_deriv_to_angvel</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_deriv_from_angvel_mat">quat_deriv_from_angvel_mat</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_deriv_from_angvel">quat_deriv_from_angvel</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_rotmat">quat_rotmat</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_shiftmat">quat_shiftmat</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_rotate_vectors">quat_rotate_vectors</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_shift_vectors">quat_shift_vectors</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_shift_tensor2">quat_shift_tensor2</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_shift_tensor3">quat_shift_tensor3</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_to_aa">quat_to_aa</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_to_dcm">quat_to_dcm</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-quat_to_euler">quat_to_euler</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-aa_fix">aa_fix</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-aa_rand">aa_rand</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-aa_rotmat">aa_rotmat</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-aa_from_rotmat">aa_from_rotmat</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-aa_rotate_vectors">aa_rotate_vectors</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-aa_shiftmat">aa_shiftmat</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-aa_shift_vectors">aa_shift_vectors</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-aa_shift_tensor2">aa_shift_tensor2</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-aa_shift_tensor3">aa_shift_tensor3</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-aa_to_quat">aa_to_quat</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-aa_to_dcm">aa_to_dcm</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-aa_to_euler">aa_to_euler</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-dcm_from_axes">dcm_from_axes</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-dcm_rotmat">dcm_rotmat</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-dcm_shiftmat">dcm_shiftmat</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-dcm_rotate_vectors">dcm_rotate_vectors</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-dcm_shift_vectors">dcm_shift_vectors</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-dcm_shift_tensor2">dcm_shift_tensor2</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-dcm_shift_tensor3">dcm_shift_tensor3</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-dcm_to_quat">dcm_to_quat</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-dcm_to_aa">dcm_to_aa</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-dcm_to_euler">dcm_to_euler</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-euler_rotmat">euler_rotmat</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-euler_shiftmat">euler_shiftmat</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-euler_rotate_vectors">euler_rotate_vectors</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-euler_shift_vectors">euler_shift_vectors</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-euler_shift_tensor2">euler_shift_tensor2</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-euler_shift_tensor3">euler_shift_tensor3</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-euler_to_quat">euler_to_quat</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-euler_to_aa">euler_to_aa</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-euler_to_dcm">euler_to_dcm</a>
+            <a class="list-group-item" href="../module/m_rotlib.html#proc-euler_to_euler">euler_to_euler</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <p>Euler angle ranges:</p>
+<ul>
+<li>XYZ, ZYX: phi in [-pi,   pi],   theta in [-pi/2, pi/2], psi in [-pi,   pi]  </li>
+<li>XZY, YZX: phi in [-pi,   pi],   theta in [-pi,   pi],   psi in [-pi/2, pi/2]</li>
+<li>ZXY, YXZ: phi in [-pi/2, pi/2], theta in [-pi,   pi],   psi in [-pi,   pi]  </li>
+</ul>
+<p>Euler angle sequence: XYZ (world). First rotation about X, second rotation
+about Y, and the third rotation about Z axis of the world(i.e. fixed) frame.
+This is the same as the sequence used in <em>Blender</em>.</p>
+<p>In contrast, the XYZ sequence is understood in the Aerospace community as:
+XYZ: First rotation about Z-axis, second rotation about Y-axis, and the third
+rotation about X-axis of the body frame.</p>
+<p><em>Reference</em>: <a href="http://www.geometrictools.com/Documentation/EulerAngles.pdf">http://www.geometrictools.com/Documentation/EulerAngles.pdf</a></p>
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='m_precision.html'>m_precision</a></li>
+                  <li class="list-inline-item"><a href='m_constants_math.html'>m_constants_math</a></li>
+                  <li class="list-inline-item"><a href='m_utils_math.html'>m_utils_math</a></li>
+              </ul>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      
+      <br>
+
+
+
+
+
+
+
+        <section>
+          <h2>Functions</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-mat_is_rotmat"></span> <h3>public  function <a href='../proc/mat_is_rotmat.html'>mat_is_rotmat</a>(mat)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns <code>.true.</code> if a (3,3) matrix is a rotation matrix.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mat~6"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>mat</strong></td>
+            <td>
+<p>(3,3). Matrix to check.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_is_normalized"></span> <h3>public  function <a href='../proc/quat_is_normalized.html'>quat_is_normalized</a>(q)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns <code>.true.</code> if quaternion is normalized, i.e. if it is a unit
+quaternion</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~7"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>A quaternion</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_angle_between"></span> <h3>public  function <a href='../proc/quat_angle_between.html'>quat_angle_between</a>(p, q) result(angle)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns the angle between two <em>unit</em> quaternions</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-p~3"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>p</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~9"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>real(kind=rp)</small>
+    </h4>
+    <p>Angle in radian.</p>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-mat_is_dcm"></span> <h3>public  function <a href='../proc/mat_is_dcm.html'>mat_is_dcm</a>(mat)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns <em>true</em> if a (3,3) matrix is a direction cosine matrix.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mat~11"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>mat</strong></td>
+            <td>
+<p>Matrix to check.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+        <section>
+          <h2>Subroutines</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-align"></span> <h3>public  subroutine <a href='../proc/align.html'>align</a>(v, old, new, valigned)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Rotates vectors such that a set of mutually orthogonal unit vectors
+aligns with another set of mutually orthogonal unit vectors.</p><a href="../proc/align.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>v</strong></td>
+            <td>
+<p><em>(3,n)</em>. Vectors to align.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-old"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>old</strong></td>
+            <td>
+<p><em>(3,m)</em>. A set of at most three mutually orthogonal unit vectors.
+ <code>m</code> must be one of 1, 2 or 3.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-new"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>new</strong></td>
+            <td>
+<p><em>(3,m)</em>. Another set of mutually orthogonal unit vectors of the same
+shape as <code>old</code>. The angles between the vectors must be the same as
+those of <code>old</code>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-valigned"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>valigned</strong></td>
+            <td>
+<p><em>(3,n)</em>. Aligned vectors, of the same shape as <code>v</code>.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_rand"></span> <h3>public  subroutine <a href='../proc/quat_rand.html'>quat_rand</a>(q)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns a random unit quaternion.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~2"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_identity"></span> <h3>public  subroutine <a href='../proc/quat_identity.html'>quat_identity</a>(q)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns the identity unit quaternion.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~3"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_conjugated"></span> <h3>public  subroutine <a href='../proc/quat_conjugated.html'>quat_conjugated</a>(q)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Conjugates a quaternion in-place.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~4"></span>
+              real(kind=rp),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>On entry, a quaternion. On return, the conjugated quaternion.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_inverted"></span> <h3>public  subroutine <a href='../proc/quat_inverted.html'>quat_inverted</a>(q)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Inverts a quaternion in-place.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~5"></span>
+              real(kind=rp),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>On entry, a quaternion. On return, the inverted quaternion.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_normalized"></span> <h3>public  subroutine <a href='../proc/quat_normalized.html'>quat_normalized</a>(q)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Normalizes a quaternion in-place.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~6"></span>
+              real(kind=rp),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>On entry, a quaternion. On return, the normalized quaternion.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_prod"></span> <h3>public  subroutine <a href='../proc/quat_prod.html'>quat_prod</a>(p, q, pq, normalize)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Calculates the product of two quaternions</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-p~2"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>p</strong></td>
+            <td>
+<p>Quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~8"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pq"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>pq</strong></td>
+            <td>
+<p>Product of <code>p</code> and <code>q</code>. This is a unit quaternion if <code>normalize</code>
+is <code>.true.</code>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-normalize"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>normalize</strong></td>
+            <td>
+<p>Whether to normalize the product, defaults to <code>.true.</code>.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_interpolate"></span> <h3>public  subroutine <a href='../proc/quat_interpolate.html'>quat_interpolate</a>(q1, q2, t, q)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Interpolates between two <em>unit</em> quaternions.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q1"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q1</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q2"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q2</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-t"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>t</strong></td>
+            <td>
+<p>Interpolation factor, <em>0 &lt;= t &lt;= 1</em>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~10"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Interpolated unit quaternion.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_deriv_to_angvel_mat"></span> <h3>public  subroutine <a href='../proc/quat_deriv_to_angvel_mat.html'>quat_deriv_to_angvel_mat</a>(qdot, mat)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns the matrix mapping the derivative of a unit quaternion to
+angular velocity.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qdot"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>qdot</strong></td>
+            <td>
+<p>Derivative of a unit quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mat~7"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,4)
+            </td>
+            <td>::</td>
+            <td><strong>mat</strong></td>
+            <td>
+<p>Angular velocity matrix.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_deriv_to_angvel"></span> <h3>public  subroutine <a href='../proc/quat_deriv_to_angvel.html'>quat_deriv_to_angvel</a>(q, qdot, angvel)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Calculates the angular velocity from a unit quaternion and its time
+derivative.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~11"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qdot~2"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>qdot</strong></td>
+            <td>
+<p>Derivative of <code>q</code>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angvel"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>angvel</strong></td>
+            <td>
+<p>Angular velocity.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_deriv_from_angvel_mat"></span> <h3>public  subroutine <a href='../proc/quat_deriv_from_angvel_mat.html'>quat_deriv_from_angvel_mat</a>(q, mat)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns the matrix mapping angular velocity to time derivative of a unit
+quaternion.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~12"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mat~9"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(4,3)
+            </td>
+            <td>::</td>
+            <td><strong>mat</strong></td>
+            <td>
+<p>Quaternion derivative matrix.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_deriv_from_angvel"></span> <h3>public  subroutine <a href='../proc/quat_deriv_from_angvel.html'>quat_deriv_from_angvel</a>(q, angvel, qdot)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Calculates the time derivative of a unit quaternion from angular velocity.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~13"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angvel~2"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>angvel</strong></td>
+            <td>
+<p>Angular velocity.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qdot~3"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>qdot</strong></td>
+            <td>
+<p>Time derivative of <code>q</code>.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_rotmat"></span> <h3>public  subroutine <a href='../proc/quat_rotmat.html'>quat_rotmat</a>(q, rotmat)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns the rotation matrix corresponding to a unit quaternion.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~14"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rotmat"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>rotmat</strong></td>
+            <td>
+<p>Rotation matrix.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_shiftmat"></span> <h3>public  subroutine <a href='../proc/quat_shiftmat.html'>quat_shiftmat</a>(q, forward, shiftmat)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns the shifter matrix corresponding to a unit quaternion.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~15"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forward"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>forward</strong></td>
+            <td>
+<p>Whether to shift forward, i.e., along the orientation or
+shift reverse.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-shiftmat"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>shiftmat</strong></td>
+            <td>
+<p>Shifter matrix.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_rotate_vectors"></span> <h3>public  subroutine <a href='../proc/quat_rotate_vectors.html'>quat_rotate_vectors</a>(v, q, vrot)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Rotates vectors by a unit quaternion.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~2"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>v</strong></td>
+            <td>
+<p><em>(3,n)</em>. Vectors to rotate.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~16"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vrot"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>vrot</strong></td>
+            <td>
+<p><em>(3,n)</em> Rotated vectors.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_shift_vectors"></span> <h3>public  subroutine <a href='../proc/quat_shift_vectors.html'>quat_shift_vectors</a>(v, q, forward, vshift)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Given two frames A and B such that the orientation of frame B with
+respect to frame A is given by a unit quaternion, shifts vectors from A
+to B or B to A.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~3"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>v</strong></td>
+            <td>
+<p><em>(3,n)</em>. Vectors to shift.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~17"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forward~2"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>forward</strong></td>
+            <td>
+<p>If <code>.true.</code>, shift from A to B. If <code>.false.</code>, shift from B to A.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vshift"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>vshift</strong></td>
+            <td>
+<p><em>(3,n)</em> Shifted vectors.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_shift_tensor2"></span> <h3>public  subroutine <a href='../proc/quat_shift_tensor2.html'>quat_shift_tensor2</a>(a, q, forward, ashift)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Given two frames A and B such that the orientation of frame B with respect
+to frame A is given by a unit quaternion, shifts second-order tensors from A
+to B or B to A.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~16"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+<p>A second-order tensor.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~18"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forward~3"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>forward</strong></td>
+            <td>
+<p>If <code>.true.</code>, shift from A to B. If <code>.false.</code>, shift from B to A.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ashift"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>ashift</strong></td>
+            <td>
+<p>Shifted second-order tensor.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_shift_tensor3"></span> <h3>public  subroutine <a href='../proc/quat_shift_tensor3.html'>quat_shift_tensor3</a>(a, q, forward, ashift)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Given two frames A and B such that the orientation of frame B with respect
+to frame A is given by a unit quaternion, shifts third-order tensors from A
+to B or B to A.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~17"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3,3)
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+<p>A third-order tensor.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~19"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forward~4"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>forward</strong></td>
+            <td>
+<p>If <code>.true.</code>, shift from A to B. If <code>.false.</code>, shift from B to A.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ashift~2"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3,3)
+            </td>
+            <td>::</td>
+            <td><strong>ashift</strong></td>
+            <td>
+<p>Shifted third-order tensor.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_to_aa"></span> <h3>public  subroutine <a href='../proc/quat_to_aa.html'>quat_to_aa</a>(q, axis, angle)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Converts a unit quaternion to an <em>axis-angle</em> representation.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~20"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-axis~3"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>axis</strong></td>
+            <td>
+<p>Unit vector along the axis of rotation.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angle~4"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>angle</strong></td>
+            <td>
+<p>Angle in radian.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_to_dcm"></span> <h3>public  subroutine <a href='../proc/quat_to_dcm.html'>quat_to_dcm</a>(q, dcm)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Converts a unit quaternion to a direction cosine matrix.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~21"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dcm~2"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>dcm</strong></td>
+            <td>
+<p>Direction cosine matrix.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-quat_to_euler"></span> <h3>public  subroutine <a href='../proc/quat_to_euler.html'>quat_to_euler</a>(q, seq, world, euler)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Converts a unit quaternion to an Euler angle sequence.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~22"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-seq"></span>
+              character(len=3),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>seq</strong></td>
+            <td>
+<p><code>'XYZ'</code>|<code>'XZY'</code> | <code>'YXZ'</code> | <code>'YZX'</code> | <code>'ZXY'</code> | <code>'ZYX'</code>.
+Euler angle sequence.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-world"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>world</strong></td>
+            <td>
+<p>Whether the Euler angles are with respect to the <em>world</em> frame or not.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-euler"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>euler</strong></td>
+            <td>
+<p>Euler angles.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-aa_fix"></span> <h3>public  subroutine <a href='../proc/aa_fix.html'>aa_fix</a>(axis, angle, normalize)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Modifies <code>axis</code> and <code>angle</code> to ensure a right handed rotation with
+<code>angle</code> <script type="math/tex">\in [0, \pi)</script>.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-axis~4"></span>
+              real(kind=rp),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>axis</strong></td>
+            <td>
+<p>Axis of rotation. If this is not a unit vector, set <code>normalize</code> to
+<code>True</code>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angle~5"></span>
+              real(kind=rp),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>angle</strong></td>
+            <td>
+<p>Angle in radian.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-normalize~2"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>normalize</strong></td>
+            <td>
+<p>Whether to normalize the axis to a unit vector.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-aa_rand"></span> <h3>public  subroutine <a href='../proc/aa_rand.html'>aa_rand</a>(axis, angle)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Generates a random orientation in <em>axis-angle</em> representation.
+The axis is a random vector drawn from a uniform distribution on the
+surface of a unit sphere. The current implementation in based on the
+algorithm from Allen &amp; Tildesley p. 349.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-axis~5"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>axis</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angle~6"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>angle</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-aa_rotmat"></span> <h3>public  subroutine <a href='../proc/aa_rotmat.html'>aa_rotmat</a>(axis, angle, rotmat)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns the rotation matrix corresponding to an <em>axis-angle</em>
+representation.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-axis~6"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>axis</strong></td>
+            <td>
+<p>Unit vector along the axis.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angle~7"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>angle</strong></td>
+            <td>
+<p>Angle of rotation in radian. <code>0 &lt;= angle &lt; pi</code>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rotmat~5"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>rotmat</strong></td>
+            <td>
+<p>Rotation matrix.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-aa_from_rotmat"></span> <h3>public  subroutine <a href='../proc/aa_from_rotmat.html'>aa_from_rotmat</a>(rotmat, axis, angle)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Extracts axis and angle from a rotation matrix.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rotmat~6"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>rotmat</strong></td>
+            <td>
+<p>Rotation matrix (must be orthonormal).</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-axis~7"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>axis</strong></td>
+            <td>
+<p>Unit vector along the axis.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angle~8"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>angle</strong></td>
+            <td>
+<p>Angle of rotation in radian.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-aa_rotate_vectors"></span> <h3>public  subroutine <a href='../proc/aa_rotate_vectors.html'>aa_rotate_vectors</a>(v, axis, angle, vrot)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Rotates vectors about <code>axis</code> by <code>angle</code>.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~4"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>v</strong></td>
+            <td>
+<p><em>(3,n)</em>. Vectors to rotate.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-axis~8"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>axis</strong></td>
+            <td>
+<p>Unit vector along the axis.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angle~9"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>angle</strong></td>
+            <td>
+<p>Angle of rotation in radian. <code>0 &lt;= angle &lt; pi</code>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vrot~2"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>vrot</strong></td>
+            <td>
+<p><em>(3,n)</em>. Rotated vectors.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-aa_shiftmat"></span> <h3>public  subroutine <a href='../proc/aa_shiftmat.html'>aa_shiftmat</a>(axis, angle, forward, shiftmat)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns the shifter matrix corresponding to an <em>axis-angle</em>
+representation.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-axis~9"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>axis</strong></td>
+            <td>
+<p>Unit vector along the axis.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angle~10"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>angle</strong></td>
+            <td>
+<p>Angle of rotation in radian. <code>0 &lt;= angle &lt; pi</code>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forward~5"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>forward</strong></td>
+            <td>
+<p>Whether to shift forward, i.e., along the orientation or shift reverse.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-shiftmat~5"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>shiftmat</strong></td>
+            <td>
+<p>Shifter matrix.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-aa_shift_vectors"></span> <h3>public  subroutine <a href='../proc/aa_shift_vectors.html'>aa_shift_vectors</a>(v, axis, angle, forward, vshift)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Given two frames A and B such that the orientation of frame B with
+respect to frame A is given by an <em>axis-angle</em> representation, shifts
+vectors from A to B or B to A.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~5"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>v</strong></td>
+            <td>
+<p><em>(3,n)</em>. Vectors to shift.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-axis~10"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>axis</strong></td>
+            <td>
+<p>Unit vector along the axis.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angle~11"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>angle</strong></td>
+            <td>
+<p>Angle of rotation in radian. <code>0 &lt;= angle &lt; pi</code>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forward~6"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>forward</strong></td>
+            <td>
+<p>If <code>True</code>, shift from A to B. If <code>False</code>, shift from B to A.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vshift~2"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>vshift</strong></td>
+            <td>
+<p><em>(3,n)</em>. Shifted vectors.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-aa_shift_tensor2"></span> <h3>public  subroutine <a href='../proc/aa_shift_tensor2.html'>aa_shift_tensor2</a>(a, axis, angle, forward, ashift)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Given two frames A and B such that the orientation of frame B with
+respect to frame A is given by an axis-angle representation, shifts
+second-order tensors from A to B or B to A.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~18"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+<p>Second-order tensor</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-axis~11"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>axis</strong></td>
+            <td>
+<p>Unit vector along the axis.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angle~12"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>angle</strong></td>
+            <td>
+<p>Angle of rotation in radian. <code>0 &lt;= angle &lt; pi</code>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forward~7"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>forward</strong></td>
+            <td>
+<p>If <code>True</code>, shift from A to B. If <code>False</code>, shift from B to A.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ashift~3"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>ashift</strong></td>
+            <td>
+<p>Shifted second-order tensor.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-aa_shift_tensor3"></span> <h3>public  subroutine <a href='../proc/aa_shift_tensor3.html'>aa_shift_tensor3</a>(a, axis, angle, forward, ashift)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Given two frames A and B such that the orientation of frame B with
+respect to frame A is given by an axis-angle representation, shifts
+third-order tensors from A to B or B to A.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~19"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3,3)
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+<p>Third-order tensor</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-axis~12"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>axis</strong></td>
+            <td>
+<p>Unit vector along the axis.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angle~13"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>angle</strong></td>
+            <td>
+<p>Angle of rotation in radian. <code>0 &lt;= angle &lt; pi</code>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forward~8"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>forward</strong></td>
+            <td>
+<p>If <code>True</code>, shift from A to B. If <code>False</code>, shift from B to A.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ashift~4"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3,3)
+            </td>
+            <td>::</td>
+            <td><strong>ashift</strong></td>
+            <td>
+<p>Shifted third-order tensor.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-aa_to_quat"></span> <h3>public  subroutine <a href='../proc/aa_to_quat.html'>aa_to_quat</a>(axis, angle, q)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Converts an <em>axis-angle</em> representation to a unit quaternion.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-axis~13"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>axis</strong></td>
+            <td>
+<p>Unit vector along the axis.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angle~14"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>angle</strong></td>
+            <td>
+<p>Angle of rotation in radian. <code>0 &lt;= angle &lt; pi</code>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~23"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-aa_to_dcm"></span> <h3>public  subroutine <a href='../proc/aa_to_dcm.html'>aa_to_dcm</a>(axis, angle, dcm)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Converts an <em>axis-angle</em> representation to a direction cosine matrix.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-axis~14"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>axis</strong></td>
+            <td>
+<p>Unit vector along  the axis.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angle~15"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>angle</strong></td>
+            <td>
+<p>Angle of rotation in radian. <code>0 &lt;= angle &lt; pi</code>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dcm~3"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>dcm</strong></td>
+            <td>
+<p>Direction cosine matrix.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-aa_to_euler"></span> <h3>public  subroutine <a href='../proc/aa_to_euler.html'>aa_to_euler</a>(axis, angle, seq, world, euler)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Coverts an <em>axis-angle</em> representation to <em>Euler angles</em>.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-axis~15"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>axis</strong></td>
+            <td>
+<p>Unit vector along the axis.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angle~16"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>angle</strong></td>
+            <td>
+<p>Angle in radian. <code>0 &lt;= angle &lt; pi</code>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-seq~2"></span>
+              character(len=3),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>seq</strong></td>
+            <td>
+<p><code>'XYZ'</code>|<code>'XZY'</code> | <code>'YXZ'</code> | <code>'YZX'</code> | <code>'ZXY'</code> | <code>'ZYX'</code>.
+Euler angle sequence.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-world~2"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>world</strong></td>
+            <td>
+<p>Whether the Euler angles are with respect to the <em>world</em> frame or not.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-euler~2"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>euler</strong></td>
+            <td>
+<p>Euler angles.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-dcm_from_axes"></span> <h3>public  subroutine <a href='../proc/dcm_from_axes.html'>dcm_from_axes</a>(A, B, dcm)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns the direction cosine matrix of axes(i.e. frame) B with
+respect to axes(i.e. frame) A.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~5"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>A</strong></td>
+            <td>
+<p>The columns of A represent the orthonormal basis vectors of frame A.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-b~2"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>B</strong></td>
+            <td>
+<p>The columns of B represent the orthonormal basis vectors of frame B.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dcm~4"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>dcm</strong></td>
+            <td>
+<p>Direction cosine matrix of frame B with respect to frame A</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-dcm_rotmat"></span> <h3>public  subroutine <a href='../proc/dcm_rotmat.html'>dcm_rotmat</a>(dcm, rotmat)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns the rotation matrix corresponding to a direction cosine matrix.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dcm~5"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>dcm</strong></td>
+            <td>
+<p>Direction cosine matrix.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rotmat~9"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>rotmat</strong></td>
+            <td>
+<p>Rotation matrix.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-dcm_shiftmat"></span> <h3>public  subroutine <a href='../proc/dcm_shiftmat.html'>dcm_shiftmat</a>(dcm, forward, shiftmat)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns the shifter matrix corresponding to a direction cosine matrix.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dcm~6"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>dcm</strong></td>
+            <td>
+<p>Direction cosine matrix.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forward~9"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>forward</strong></td>
+            <td>
+<p>Whether to shift forward, i.e., along the orientation or shift reverse.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-shiftmat~9"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>shiftmat</strong></td>
+            <td>
+<p>Shifter matrix.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-dcm_rotate_vectors"></span> <h3>public  subroutine <a href='../proc/dcm_rotate_vectors.html'>dcm_rotate_vectors</a>(v, dcm, vrot)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Rotates vectors by a direction cosine matrix.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~6"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>v</strong></td>
+            <td>
+<p><em>(3,n)</em>. Vectors to rotate.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dcm~7"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>dcm</strong></td>
+            <td>
+<p>Direction cosine matrix.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vrot~3"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>vrot</strong></td>
+            <td>
+<p><em>(3,n)</em>. Rotated vectors.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-dcm_shift_vectors"></span> <h3>public  subroutine <a href='../proc/dcm_shift_vectors.html'>dcm_shift_vectors</a>(v, dcm, forward, vshift)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Given two frames A and B such that the orientation of frame B with
+respect to frame A is given by a direction cosine matrix, shifts
+vectors from A to B or B to A.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~7"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>v</strong></td>
+            <td>
+<p><em>(3,n)</em>. Vectors to shift.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dcm~8"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>dcm</strong></td>
+            <td>
+<p>Direction cosine matrix.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forward~10"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>forward</strong></td>
+            <td>
+<p>If <code>True</code>, shift from A to B. If <code>False</code>, shift from B to A.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vshift~3"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>vshift</strong></td>
+            <td>
+<p><em>(3,n)</em>. Shifted vectors.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-dcm_shift_tensor2"></span> <h3>public  subroutine <a href='../proc/dcm_shift_tensor2.html'>dcm_shift_tensor2</a>(a, dcm, forward, ashift)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Given two frames A and B such that the orientation of frame B with
+respect to frame A is given by a direction cosine matrix, shifts
+second-order tesnors from A to B or B to A.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~20"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+<p>A second-order tensor.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dcm~9"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>dcm</strong></td>
+            <td>
+<p>Direction cosine matrix.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forward~11"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>forward</strong></td>
+            <td>
+<p>If <code>True</code>, shift from A to B. If <code>False</code>, shift from B to A.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ashift~5"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>ashift</strong></td>
+            <td>
+<p><em>(3,n)</em>. Shifted second-order tensor.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-dcm_shift_tensor3"></span> <h3>public  subroutine <a href='../proc/dcm_shift_tensor3.html'>dcm_shift_tensor3</a>(a, dcm, forward, ashift)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Given two frames A and B such that the orientation of frame B with
+respect to frame A is given by a direction cosine matrix, shifts
+third-order tesnors from A to B or B to A.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~21"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3,3)
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+<p>A second-order tensor.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dcm~10"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>dcm</strong></td>
+            <td>
+<p>Direction cosine matrix.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forward~12"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>forward</strong></td>
+            <td>
+<p>If <code>True</code>, shift from A to B. If <code>False</code>, shift from B to A.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ashift~6"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3,3)
+            </td>
+            <td>::</td>
+            <td><strong>ashift</strong></td>
+            <td>
+<p><em>(3,n)</em>. Shifted second-order tensor.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-dcm_to_quat"></span> <h3>public  subroutine <a href='../proc/dcm_to_quat.html'>dcm_to_quat</a>(dcm, q)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Converts a direction cosine matrix to a unit quaternion.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dcm~11"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>dcm</strong></td>
+            <td>
+<p>Direction cosine matrix.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~24"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-dcm_to_aa"></span> <h3>public  subroutine <a href='../proc/dcm_to_aa.html'>dcm_to_aa</a>(dcm, axis, angle)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Converts a direction cosine matrix to an <em>axis-angle</em> representation.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dcm~12"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>dcm</strong></td>
+            <td>
+<p>Direction cosine matrix.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-axis~17"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>axis</strong></td>
+            <td>
+<p>Unit vector along the axis.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angle~18"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>angle</strong></td>
+            <td>
+<p>Angle in radian.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-dcm_to_euler"></span> <h3>public  subroutine <a href='../proc/dcm_to_euler.html'>dcm_to_euler</a>(dcm, seq, world, euler)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Converts a direction cosine matrix to Euler angles.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dcm~13"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>dcm</strong></td>
+            <td>
+<p>Direction cosine matrix.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-seq~3"></span>
+              character(len=3),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>seq</strong></td>
+            <td>
+<p><code>'XYZ'</code>|<code>'XZY'</code> | <code>'YXZ'</code> | <code>'YZX'</code> | <code>'ZXY'</code> | <code>'ZYX'</code>.
+Euler angle sequence.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-world~3"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>world</strong></td>
+            <td>
+<p>Whether the Euler angles are with respect to the <em>world</em> frame or not.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-euler~3"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>euler</strong></td>
+            <td>
+<p>Euler angles</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-euler_rotmat"></span> <h3>public  subroutine <a href='../proc/euler_rotmat.html'>euler_rotmat</a>(euler, seq, world, rotmat)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns the rotation matrix for a set of Euler angles.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-euler~4"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>euler</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-seq~4"></span>
+              character(len=3),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>seq</strong></td>
+            <td>
+<p><code>'XYZ'</code>|<code>'XZY'</code> | <code>'YXZ'</code> | <code>'YZX'</code> | <code>'ZXY'</code> | <code>'ZYX'</code>.
+Euler angle sequence.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-world~4"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>world</strong></td>
+            <td>
+<p>Whether the Euler angles are with respect to the <em>world</em> frame or not.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rotmat~14"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>rotmat</strong></td>
+            <td>
+<p>Rotation matrix.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-euler_shiftmat"></span> <h3>public  subroutine <a href='../proc/euler_shiftmat.html'>euler_shiftmat</a>(euler, seq, world, forward, shiftmat)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns the shifter matrix for a set of Euler angles.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-euler~5"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>euler</strong></td>
+            <td>
+<p>Euler angles.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-seq~5"></span>
+              character(len=3),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>seq</strong></td>
+            <td>
+<p><code>'XYZ'</code>|<code>'XZY'</code> | <code>'YXZ'</code> | <code>'YZX'</code> | <code>'ZXY'</code> | <code>'ZYX'</code>.
+Euler angle sequence.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-world~5"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>world</strong></td>
+            <td>
+<p>Whether the Euler angles are with respect to the <em>world</em> frame or not.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forward~13"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>forward</strong></td>
+            <td>
+<p>Whether to shift forward, i.e., along the orientation or shift reverse.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-shiftmat~13"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>shiftmat</strong></td>
+            <td>
+<p>Shifter matrix.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-euler_rotate_vectors"></span> <h3>public  subroutine <a href='../proc/euler_rotate_vectors.html'>euler_rotate_vectors</a>(v, euler, seq, world, vrot)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Rotates vectors with a set of Euler angles.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~8"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>v</strong></td>
+            <td>
+<p><em>(3,n)</em>. Vectors to rotate.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-euler~6"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>euler</strong></td>
+            <td>
+<p>Euler angles.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-seq~6"></span>
+              character(len=3),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>seq</strong></td>
+            <td>
+<p><code>'XYZ'</code>|<code>'XZY'</code> | <code>'YXZ'</code> | <code>'YZX'</code> | <code>'ZXY'</code> | <code>'ZYX'</code>.
+Euler angle sequence.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-world~6"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>world</strong></td>
+            <td>
+<p>Whether the Euler angles are with respect to the <em>world</em> frame or not.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vrot~4"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>vrot</strong></td>
+            <td>
+<p><em>(3,n)</em>. Rotated vectors.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-euler_shift_vectors"></span> <h3>public  subroutine <a href='../proc/euler_shift_vectors.html'>euler_shift_vectors</a>(v, euler, seq, world, forward, vshift)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Given two frames A and B such that the orientation of frame B
+with respect to frame A is given by three Euler angles, shifts
+vectors from A to B or B to A.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v~9"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>v</strong></td>
+            <td>
+<p><em>(3,n)</em>. Vectors to rotate.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-euler~7"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>euler</strong></td>
+            <td>
+<p>Euler angles.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-seq~7"></span>
+              character(len=3),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>seq</strong></td>
+            <td>
+<p><code>'XYZ'</code>|<code>'XZY'</code> | <code>'YXZ'</code> | <code>'YZX'</code> | <code>'ZXY'</code> | <code>'ZYX'</code>.
+Euler angle sequence.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-world~7"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>world</strong></td>
+            <td>
+<p>Whether the Euler angles are with respect to the <em>world</em> frame or not.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forward~14"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>forward</strong></td>
+            <td>
+<p>If <code>.true.</code>, shift from A to B. If <code>.false.</code>, shift from B to A.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vshift~4"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>vshift</strong></td>
+            <td>
+<p><em>(3,n)</em>. Shifted vectors.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-euler_shift_tensor2"></span> <h3>public  subroutine <a href='../proc/euler_shift_tensor2.html'>euler_shift_tensor2</a>(a, euler, seq, world, forward, ashift)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Given two frames A and B such that the orientation of frame B
+with respect to frame A is given by three Euler angles, shifts
+second-order tensors from A to B or B to A.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~22"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+<p>Second-order tensor.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-euler~8"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>euler</strong></td>
+            <td>
+<p>Euler angles.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-seq~8"></span>
+              character(len=3),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>seq</strong></td>
+            <td>
+<p><code>'XYZ'</code>|<code>'XZY'</code> | <code>'YXZ'</code> | <code>'YZX'</code> | <code>'ZXY'</code> | <code>'ZYX'</code>.
+Euler angle sequence.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-world~8"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>world</strong></td>
+            <td>
+<p>Whether the Euler angles are with respect to the <em>world</em> frame or not.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forward~15"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>forward</strong></td>
+            <td>
+<p>If <code>.true.</code>, shift from A to B. If <code>.false.</code>, shift from B to A.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ashift~7"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>ashift</strong></td>
+            <td>
+<p>Shifted second-order tensor.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-euler_shift_tensor3"></span> <h3>public  subroutine <a href='../proc/euler_shift_tensor3.html'>euler_shift_tensor3</a>(a, euler, seq, world, forward, ashift)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Given two frames A and B such that the orientation of frame B
+with respect to frame A is given by three Euler angles, shifts
+third-order tensors from A to B or B to A.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~23"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3,3,3)
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+<p>Third-order tensor.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-euler~9"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>euler</strong></td>
+            <td>
+<p>Euler angles.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-seq~9"></span>
+              character(len=3),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>seq</strong></td>
+            <td>
+<p><code>'XYZ'</code>|<code>'XZY'</code> | <code>'YXZ'</code> | <code>'YZX'</code> | <code>'ZXY'</code> | <code>'ZYX'</code>.
+Euler angle sequence.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-world~9"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>world</strong></td>
+            <td>
+<p>Whether the Euler angles are with respect to the <em>world</em> frame or not.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forward~16"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>forward</strong></td>
+            <td>
+<p>If <code>.true.</code>, shift from A to B. If <code>.false.</code>, shift from B to A.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ashift~8"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3,3)
+            </td>
+            <td>::</td>
+            <td><strong>ashift</strong></td>
+            <td>
+<p>Shifted third-order tensor.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-euler_to_quat"></span> <h3>public  subroutine <a href='../proc/euler_to_quat.html'>euler_to_quat</a>(euler, seq, world, q)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Convert Euler angles to a unit quaternion.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-euler~10"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>euler</strong></td>
+            <td>
+<p>Euler angles.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-seq~10"></span>
+              character(len=3),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>seq</strong></td>
+            <td>
+<p><code>'XYZ'</code>|<code>'XZY'</code> | <code>'YXZ'</code> | <code>'YZX'</code> | <code>'ZXY'</code> | <code>'ZYX'</code>.
+Euler angle sequence.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-world~10"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>world</strong></td>
+            <td>
+<p>Whether the Euler angles are with respect to the <em>world</em> frame or not.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~25"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(4)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+<p>Unit quaternion.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-euler_to_aa"></span> <h3>public  subroutine <a href='../proc/euler_to_aa.html'>euler_to_aa</a>(euler, seq, world, axis, angle)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Convert Euler angles to an <em>axis-angle</em> representation.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-euler~11"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>euler</strong></td>
+            <td>
+<p>Euler angles.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-seq~11"></span>
+              character(len=3),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>seq</strong></td>
+            <td>
+<p><code>'XYZ'</code>|<code>'XZY'</code> | <code>'YXZ'</code> | <code>'YZX'</code> | <code>'ZXY'</code> | <code>'ZYX'</code>.
+Euler angle sequence.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-world~11"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>world</strong></td>
+            <td>
+<p>Whether the Euler angles are with respect to the <em>world</em> frame or not.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-axis~19"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>axis</strong></td>
+            <td>
+<p>Unit vector along the axis of rotation.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-angle~20"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>angle</strong></td>
+            <td>
+<p>Angle of rotation in radian.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-euler_to_dcm"></span> <h3>public  subroutine <a href='../proc/euler_to_dcm.html'>euler_to_dcm</a>(euler, seq, world, dcm)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Convert Euler angles to a direction cosine matrix.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-euler~12"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>euler</strong></td>
+            <td>
+<p>Euler angles.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-seq~12"></span>
+              character(len=3),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>seq</strong></td>
+            <td>
+<p><code>'XYZ'</code>|<code>'XZY'</code> | <code>'YXZ'</code> | <code>'YZX'</code> | <code>'ZXY'</code> | <code>'ZYX'</code>.
+Euler angle sequence.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-world~12"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>world</strong></td>
+            <td>
+<p>Whether the Euler angles are with respect to the <em>world</em> frame or not.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dcm~14"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>dcm</strong></td>
+            <td>
+<p>Direction cosine matrix.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-euler_to_euler"></span> <h3>public  subroutine <a href='../proc/euler_to_euler.html'>euler_to_euler</a>(euler, seq, world, to_seq, to_world, to_euler)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Convert one set of Euler angles to another.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-euler~13"></span>
+              real(kind=rp),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>euler</strong></td>
+            <td>
+<p>Euler angles.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-seq~13"></span>
+              character(len=3),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>seq</strong></td>
+            <td>
+<p><code>'XYZ'</code>|<code>'XZY'</code> | <code>'YXZ'</code> | <code>'YZX'</code> | <code>'ZXY'</code> | <code>'ZYX'</code>.
+Sequence for <code>euler</code>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-world~13"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>world</strong></td>
+            <td>
+<p>Whether the Euler angles are with respect to the <em>world</em> frame or not.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-to_seq"></span>
+              character(len=3),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>to_seq</strong></td>
+            <td>
+<p><code>'XYZ'</code>|<code>'XZY'</code> | <code>'YXZ'</code> | <code>'YZX'</code> | <code>'ZXY'</code> | <code>'ZYX'</code>.
+Convert <code>euler</code> with sequence <code>seq</code> to the sequence <code>to_seq</code>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-to_world"></span>
+              logical,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>to_world</strong></td>
+            <td>
+<p>Whether the converted euler angles are with respect to the <em>world</em> frame or not.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-to_euler"></span>
+              real(kind=rp),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(3)
+            </td>
+            <td>::</td>
+            <td><strong>to_euler</strong></td>
+            <td>
+<p>Converted Euler angles.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              rotlib
+ was developed by Sarit Dutta<br>              &copy; 2026 <a rel="license" href="https://opensource.org/licenses/MIT">MIT</a>
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+<br>&copy; <a rel="license" href="https://opensource.org/licenses/MIT">MIT</a>             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>
