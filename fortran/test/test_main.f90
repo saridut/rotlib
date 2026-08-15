@@ -37,7 +37,7 @@ subroutine test_quat_to_aa_roundtrip()
     !Convert axis angle back to quaternion
     call aa_to_quat(axis, angle, qb)
     write(*,'(a,1x,4(g0.8,1x))') " Quaternion from axis angle", qb
-    if ( allclose(qf, qb, 1e-8, 1e-14) ) then
+    if ( allclose(qf, qb, 1e-8_rp, 1e-14_rp) ) then
         write(*,*) "Passed"
     else
         write(*,*) "Failed"
@@ -65,7 +65,7 @@ subroutine test_quat_to_dcm_roundtrip()
     !Convert dcm back to quaternion
     call dcm_to_quat(dcm, qb)
     write(*,'(a,1x,4(g0.8,1x))') " Quaternion from dcm", qb
-    if ( allclose(qf, qb, 1e-8, 1e-14) ) then
+    if ( allclose(qf, qb, 1e-8_rp, 1e-14_rp) ) then
         write(*,*) "Passed"
     else
         write(*,*) "Failed"
@@ -100,7 +100,7 @@ subroutine test_quat_to_euler_roundtrip()
             !Convert euler back to quaternion
             call euler_to_quat(euler, seq(i), world(j), qb)
             write(*,'(a,1x,4(g0.8,1x))') " Quaternion from euler", qb
-            if ( allclose(qf, qb, 1e-8, 1e-14) ) then
+            if ( allclose(qf, qb, 1e-8_rp, 1e-14_rp) ) then
                 write(*,*) "Passed"
             else
                 write(*,*) "Failed"
@@ -132,8 +132,8 @@ subroutine test_aa_to_dcm_roundtrip()
     !Convert dcm back to axis angle
     call dcm_to_aa(dcm, axisb, angleb)
     write(*,'(a,1x,3(g0.8,1x),1x,a,1x,g0.8)') " Axis", axisb, "Angle", angleb
-    if ( allclose(axisf, axisb, 1e-8, 1e-14) .and. &
-        isclose(anglef, angleb, 1e-8, 1e-14) ) then
+    if ( allclose(axisf, axisb, 1e-8_rp, 1e-14_rp) .and. &
+        isclose(anglef, angleb, 1e-8_rp, 1e-14_rp) ) then
         write(*,*) "Passed"
     else
         write(*,*) "Failed"
@@ -170,8 +170,8 @@ subroutine test_aa_to_euler_roundtrip()
             call euler_to_aa(euler, seq(i), world(j), axisb, angleb)
             write(*,'(a,1x,3(g0.8,1x),1x,a,1x,g0.8)') " Axis", axisb,&
                 "Angle", angleb
-            if ( allclose(axisf, axisb, 1e-8, 1e-14) .and. &
-                isclose(anglef, angleb, 1e-8, 1e-14) ) then
+            if ( allclose(axisf, axisb, 1e-8_rp, 1e-14_rp) .and. &
+                isclose(anglef, angleb, 1e-8_rp, 1e-14_rp) ) then
                 write(*,*) "Passed"
             else
                 write(*,*) "Failed"
@@ -217,7 +217,7 @@ subroutine test_dcm_to_euler_roundtrip()
             write(*,'(1x,3(g0.8,1x))') dcmb(1,:)
             write(*,'(1x,3(g0.8,1x))') dcmb(2,:)
             write(*,'(1x,3(g0.8,1x))') dcmb(3,:)
-            if ( allclose(dcmf, dcmb, 1e-8, 1e-14) ) then
+            if ( allclose(dcmf, dcmb, 1e-8_rp, 1e-14_rp) ) then
                 write(*,*) "Passed"
             else
                 write(*,*) "Failed"
@@ -266,7 +266,7 @@ subroutine test_euler_to_euler_roundtrip()
                     write(*,'(a,1x,a,1x,a,1l)') " Euler", seq(i), &
                         "world=", world(j)
                     write(*,'(1x,3(g0.8,1x))') eulerb
-                    if ( allclose(eulerf, eulerb, 1e-8, 1e-14) ) then
+                    if ( allclose(eulerf, eulerb, 1e-8_rp, 1e-14_rp) ) then
                         write(*,*) "Passed"
                     else
                         write(*,*) "Failed"
@@ -302,7 +302,7 @@ subroutine test_angvel_to_qdot_roundtrip()
     !Convert qdot back to angular velocity
     call quat_deriv_to_angvel(q, qdot, omegab)
     write(*,'(a,1x,4(g0.8,1x))') " Omega from qdot", omegab
-    if ( allclose(omegaf, omegab, 1e-8, 1e-14) ) then
+    if ( allclose(omegaf, omegab, 1e-8_rp, 1e-14_rp) ) then
         write(*,*) "Passed"
     else
         write(*,*) "Failed"
