@@ -1,4 +1,4 @@
-module m_rotlib
+module rotlib_m
 !!
 !!  Euler angle ranges:
 !!
@@ -1781,4 +1781,4 @@ subroutine factor_rotmat_zyx (rotmat, euler)
 
 !******************************************************************************
 
-end module m_rotlib
+end module rotlib_m
