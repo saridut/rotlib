@@ -16,9 +16,8 @@ module m_rotlib
 !!
 !!  *Reference*: <http://www.geometrictools.com/Documentation/EulerAngles.pdf>
 
-use m_precision
-use m_constants_math, only: math_pi, math_pi_2
-use m_utils_math
+use constants_m, only: math_pi, math_pi_2
+use utils_math_m
 
 implicit none
 

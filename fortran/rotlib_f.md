@@ -7,6 +7,7 @@ email: saridut@gmail.com
 github: https://github.com/saridut
 src_dir: src
 output_dir: ../docs/fortran_api
+css: css/bootstrap.cosmo.css
 display: public
 sort: src
 source: true
