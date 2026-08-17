@@ -1,14 +1,37 @@
-module m_utils_math
-    !!display: none
+!********************************************************************************!
+!                                                                                !
+! The MIT License (MIT)                                                          !
+!                                                                                !
+! Copyright (c) 2020 Sarit Dutta                                                 !
+!                                                                                !
+! Permission is hereby granted, free of charge, to any person obtaining a copy   !
+! of this software and associated documentation files (the "Software"), to deal  !
+! in the Software without restriction, including without limitation the rights   !
+! to use, copy, modify, merge, publish, distribute, sublicense, and/or sell      !
+! copies of the Software, and to permit persons to whom the Software is          !
+! furnished to do so, subject to the following conditions:                       !
+!                                                                                !
+! The above copyright notice and this permission notice shall be included in all !
+! copies or substantial portions of the Software.                                !
+!                                                                                !
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR     !
+! IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,       !
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE    !
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         !
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,  !
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  !
+! SOFTWARE.                                                                      !
+!                                                                                !
+!********************************************************************************!
+
+module utils_math_m
+    !!Various (mostly linear algebra) functions, particularly for use with small
+    !!matrices.
+
 use, intrinsic :: ieee_arithmetic, only: ieee_is_nan, ieee_is_finite
-use m_constants_math
-use m_precision
+use constants_m
 
 implicit none
-
-public
-private :: allclose_rank1, allclose_rank2, allclose_rank3, &
-            swap_integer, swap_real, swap_complex
 
 interface allclose
     !! Checks if two arrays are elementwise close within tolerance
@@ -630,6 +653,35 @@ subroutine orth(a)
 
 !******************************************************************************
 
+subroutine invert_mat33(a, inv_a)
+    !! Inverts a 3x3 matrix.
+    !!
+    !!*Reference:* https://www.geometrictools.com/Documentation/LaplaceExpansionTheorem.pdf
+
+    real(rp), dimension(3,3),  intent(in) :: a
+    real(rp), dimension(3,3), intent(out) :: inv_a
+    real(rp) :: det_a
+
+    inv_a(1,1) =   a(2,2)*a(3,3) - a(2,3)*a(3,2)
+    inv_a(2,1) = -(a(2,1)*a(3,3) - a(2,3)*a(3,1))
+    inv_a(3,1) =   a(2,1)*a(3,2) - a(2,2)*a(3,1)
+
+    inv_a(1,2) = -(a(1,2)*a(3,3) - a(1,3)*a(3,2))
+    inv_a(2,2) =   a(1,1)*a(3,3) - a(1,3)*a(3,1)
+    inv_a(3,2) = -(a(1,1)*a(3,2) - a(1,2)*a(3,1))
+
+    inv_a(1,3) =   a(1,2)*a(2,3) - a(1,3)*a(2,2)
+    inv_a(2,3) = -(a(1,1)*a(2,3) - a(1,3)*a(2,1))
+    inv_a(3,3) =   a(1,1)*a(2,2) - a(1,2)*a(2,1)
+
+    !Determinant
+    det_a = a(1,1)*inv_a(1,1) + a(1,2)*inv_a(2,1) + a(1,3)*inv_a(3,1)
+    inv_a = inv_a/det_a
+    
+    end subroutine
+
+!******************************************************************************
+
 subroutine eigval_33rsym(a, ev)
     !! Calculates the eigenvalues of a 3 x 3 real symmetric matrix. The
     !! eigenvalues calculated are in decreasing order. Only the diagonal and
@@ -686,13 +738,16 @@ subroutine eigval_33rsym(a, ev)
 !******************************************************************************
 
 subroutine dsyevc3(a, w)
-
+    !!author: Joachim Kopp
+    !!date: 2006
+    !!
     !! Calculates the eigenvalues of a symmetric 3x3 matrix A using Cardano's
     !! analytical algorithm.
     !! Only the diagonal and upper triangular parts of A are accessed. The access
     !! is read-only.
     !!
     !! Copyright (C) 2006  Joachim Kopp
+    !  https://www.mpi-hd.mpg.de/personalhomes/globes/3x3/index.html
     ! ----------------------------------------------------------------------------
     ! Parameters:
     !   A: The symmetric input matrix
@@ -742,5 +797,4 @@ subroutine dsyevc3(a, w)
 
 !******************************************************************************
 
-end module m_utils_math
-
+end module utils_math_m

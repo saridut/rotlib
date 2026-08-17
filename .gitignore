@@ -34,15 +34,6 @@
 */.ipynb_checkpoints/*
 .DS_Store
 
-# Project files
-python/.ropeproject
-python/.project
-python/.pydevproject
-python/.settings
-python/.idea
-python/.vscode
-python/tags
-
 # Package files
 *.egg
 *.eggs/
@@ -59,12 +50,10 @@ python/coverage.xml
 python/.pytest_cache/
 
 # Build and docs folder/files
-#docs/*
-python/build/*
+docs/c_api
+docs/fortran_api
+docs/python_api
 python/dist/*
-python/sdist/*
-python/docs/api/*
-python/docs/_rst/*
 python/docs/_build/*
 python/cover/*
 python/MANIFEST

@@ -1,9 +1,34 @@
-module m_constants_math
+!> Predefined constants, including math constants.
+! TODO: Replace the names with equivalent macro names in glibc math.h
+! 
+module constants_m
 
-use m_precision
+use, intrinsic ::  iso_fortran_env, only: int32, int64, real64
 
 implicit none
 
+!> Default integer precision
+integer, parameter :: ip = int32
+
+!> Default long integer precision
+integer, parameter :: ip_long = int64
+
+!> Default real precision
+integer, parameter :: rp = real64
+
+!> Size of a char in bytes
+integer, parameter :: sizeof_char = 1
+
+!> Size of a default int in bytes
+integer, parameter :: sizeof_int  = 4
+
+!> Size of a default long int in bytes
+integer, parameter :: sizeof_long_int  = 8
+
+!> Size of a default real in bytes
+integer, parameter :: sizeof_real = 8
+
+!> `One third` : \( \frac{1}{3} \)
 real (rp), parameter :: math_third = 0.333333333333333_rp
 
 !> `pi` : \( \pi \)
@@ -57,4 +82,4 @@ real (rp), parameter :: math_ln2 = 0.69314718055994529_rp
 !>The natural logarithm of 10 : \( \ln 10 \)
 real (rp), parameter :: math_ln10 = 2.3025850929940459_rp
 
-end module m_constants_math
+end module constants_m

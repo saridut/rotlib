@@ -1,8 +1,8 @@
 program test_main
 
-use m_precision
-use m_utils_math
-use m_rotlib
+use constants_m
+use utils_math_m
+use rotlib_m
 
 implicit none
 
