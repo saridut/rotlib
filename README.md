@@ -28,7 +28,7 @@ _Euler angle ranges_
 Functions for converting from one euler sequence to another are also available.
 
 The above convention the same as the sequence used in the [Blender blenlib
-code](https://github.com/blender/blender/blob/7d641fe96810cdc2598b2f37ec4f6192e133e6d8/source/blender/blenlib/BLI_math_euler_types.hh>).
+code](https://github.com/blender/blender/blob/7d641fe96810cdc2598b2f37ec4f6192e133e6d8/source/blender/blenlib/BLI_math_euler_types.hh).
 
 In contrast, the 'XYZ' sequence is understood in the aerospace community as:
 First rotation about Z-axis, second rotation about Y-axis, and the third
