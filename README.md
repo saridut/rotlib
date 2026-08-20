@@ -17,11 +17,13 @@ the sequence 'XYZ' (in the world frame) = [*phi*, *theta*, *psi*] signifies
 first rotation by *phi* about X, second rotation by *theta* about Y, and the
 third rotation by *psi* about Z axis of the world (i.e. fixed) frame. 
 
-Euler angle ranges:
+_Euler angle ranges_
 
-* XYZ, ZYX: phi in [-pi,   pi],   theta in [-pi/2, pi/2], psi in [-pi,   pi]  
-* XZY, YZX: phi in [-pi,   pi],   theta in [-pi,   pi],   psi in [-pi/2, pi/2]
-* ZXY, YXZ: phi in [-pi/2, pi/2], theta in [-pi,   pi],   psi in [-pi,   pi]
+| Sequence | _phi_| _theta_ | _psi_ |
+|----------|------|---------|-------|
+| XYZ, ZYX | [-pi,   pi]   | [-pi/2, pi/2] |  [-pi,   pi]   |
+| XZY, YZX | [-pi,   pi]   | [-pi,   pi]   |  [-pi/2, pi/2] |
+| ZXY, YXZ | [-pi/2, pi/2] | [-pi,   pi]   |  [-pi,   pi]   |
 
 Functions for converting from one euler sequence to another are also available.
 
