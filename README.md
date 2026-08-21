@@ -156,6 +156,5 @@ call quat_to_euler(q, 'XYZ', .true., ea_)
 write(*,'(a,1l)') "ea == ea_? ", allclose(ea, ea_, 1e-8_rp, 1e-14_rp)
 ```
 
-
-For furthe examples, check the files `c/test/test_main.c`, `fortran/test/test_main.f90`, and
+For further examples, check the files `c/test/test_main.c`, `fortran/test/test_main.f90`, and
 `python/tests/test_main.py`.
