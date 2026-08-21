@@ -50,6 +50,7 @@ python/coverage.xml
 python/.pytest_cache/
 
 # Build and docs folder/files
+gh-pages/*
 docs/c_api
 docs/fortran_api
 docs/python_api
