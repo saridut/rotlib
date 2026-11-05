@@ -31,7 +31,7 @@ vpath %.f90 $(SRC_DIR) $(TEST_DIR)
 
 INCS = -I$(SRC_DIR) -I$(TEST_DIR)
 
-SRC_OBJ_NAMES = constants_m _utils_math_m rotlib_m
+SRC_OBJ_NAMES = constants_m utils_math_m rotlib_m
 
 TEST_OBJ_NAMES = test_main
 

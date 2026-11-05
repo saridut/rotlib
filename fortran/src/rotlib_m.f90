@@ -117,7 +117,6 @@ logical function mat_is_rotmat(mat)
 
     real(rp), dimension(3,3), intent(in) :: mat
         !! (3,3). Matrix to check.
-    real(rp), dimension(3,3) :: mat_trans
     real(rp), dimension(3,3) :: mat_prod
     logical :: det_is_one
     logical :: is_orthogonal
@@ -227,10 +226,13 @@ subroutine quat_prod (p, q, pq, normalize)
         !! is `.true.`.
     logical, intent(in), optional :: normalize
         !! Whether to normalize the product, defaults to `.true.`.
-    logical :: normalize_ = .true.
-    real(rp), dimension(4,4) :: prod_mat
+    logical :: normalize_
 
-    if (present(normalize)) normalize_ = normalize
+    if (present(normalize)) then
+        normalize_ = normalize
+    else
+        normalize_ = .true. !Default value of normalize
+    end if
 
     pq(1) = p(1)*q(1) - p(2)*q(2) - p(3)*q(3) - p(4)*q(4)
     pq(2) = p(2)*q(1) + p(1)*q(2) - p(4)*q(3) + p(3)*q(4)
@@ -575,10 +577,12 @@ subroutine aa_fix (axis, angle, normalize)
     logical, intent(in), optional :: normalize
         !! Whether to normalize the axis to a unit vector.
     logical :: normalize_
-    real(rp) :: norm
 
-    normalize_ = .true.
-    if (present(normalize)) normalize_ = normalize
+    if (present(normalize)) then
+        normalize_ = normalize
+    else
+        normalize_ = .true.
+    end if
     if (normalize_) call unitize(axis)
     angle = mod(angle, 2*math_pi)
     if (angle < 0.0_rp) then
@@ -1301,7 +1305,6 @@ subroutine euler_to_dcm (euler, seq, world, dcm)
         !! Whether the Euler angles are with respect to the *world* frame or not.
     real(rp), dimension(3,3),   intent(out) :: dcm
         !! Direction cosine matrix.
-    real(rp), dimension(3,3) :: rotmat
 
     call euler_shiftmat (euler, seq, world, .true., dcm)
 
