@@ -1,5 +1,81 @@
 """
-**Euler angle ranges**
+**Active and passive rotations**
+
+In the following, all functions dealing with rotations perform *active*
+rotations following the right-hand rule. E.g., ``aa_rotate_vectors`` actively
+rotates vectors about an axis through an angle in a given frame.
+
+*Passive* rotation operations are referred to as *shifting*. They are performed
+using a *shifter* matrix. Conceptually, these can be thought of as transforming
+(or shifting) the components of a fixed vector (or tensor) from one frame to
+another. E.g. ``aa_shift_vectors`` transforms the components of a set of
+vectors from frame A to frame B, where frame B is obtained by rotating frame A
+about an axis through an angle and the set of vectors as well as the axis are
+resolved in frame A. The transformation from A to B is referred to as the
+*forward* direction, whereas that from B to A is called the *reverse*
+direction. Note that the axis is resolved in frame A irrespective of the
+direction.
+
+**Quaternions**
+
+Quaternions are represented by a vector of four elements, where the first
+element represents the scalar part and the latter three represent the
+vector part. Thus ``q = q[0] + q[1]*i + q[2]*j + q[3]*k``.
+
+A unit (or normalized) quaternion, used for representing orientations (or
+rotations) in 3-space is a quaternion whose magnitude is unity. It is related
+to a 3-D rotation about an axis ``u`` through an angle ``theta`` via the
+following relations: ::
+
+    q[0] = cos(theta/2)
+    q[1] = u[0] * sin(theta/2)
+    q[2] = u[1] * sin(theta/2)
+    q[3] = u[2] * sin(theta/2)
+
+In the canonical form, the first non-zero element of a unit quaternion is
+positive.
+
+Multiplication of quaternions and rotations by unit quaternions follow
+Hamilton's convention. See, e.g.,
+* Kuipers, J. B., *Quaternions and Rotation Sequences*, 1999, Princeton
+  University Press, Princeton, NJ
+* Hanson, A. J., *Visualizing Quaternions*, 2006, Morgan Kaufmann Publishers,
+  San Francisco, CA
+
+**Axis-angle**
+
+The axis-angle representation consists of a unit vector pointing along the axis
+of rotation and an angle (in radian) of rotation. The rotation follows the
+right-hand rule for positive angles. In the canonical form the angle is
+restricted to lie in [0, pi].
+
+**Direction cosine matrix (DCM)**
+
+The DCM gives the orientation of a frame B with respect to another frame A, and
+transforms vector components from A to B. Its entries are the dot products of
+B's basis vectors with A's basis vectors, with both sets expressed in the same
+orthonormal frame F. Let `a_i` be the basis vectors of frame A and `b_i` those
+of frame B resolved in a fixed frame F. The DCM is ``D_ij = b_i . a_j``. In
+matrix notation, ``D = B .  A^T`` for row-wise storage of the basis vectors and
+``D = B^T . A`` assuming column-wise storage. If A and F coincide, then ``D =
+B`` (row-based) or ``D = B^T`` (column-based).
+
+
+**Euler angles**
+
+Euler angles are represented as three-element vectors, along with a rotation
+sequence and a boolean flag ``world`` specifying the frame of rotation. The
+elements represent rotations about X, Y, and Z, respectively. The order of
+rotations is specified by a separate argument `seq`.
+
+E.g.  ``ea = [phi, theta, psi], seq = 'YZX', world=True`` indicates a rotation
+by `theta` along 'Y', followed by another rotation by `psi` along 'Z', and
+finally a third rotation about 'X' by `phi`, where the rotations are with
+respect to a fixed frame called the *world* frame. If ``world=False``, the
+rotations are performed with respect to the moving *body* frame.
+
+The following table describes ranges of returned principal representations,
+they do not restrict angles accepted by the construction functions.
 
 =============   ===============   ================  ================
  Sequence            phi               theta           psi
@@ -9,18 +85,22 @@
   ZXY,   YXZ     [-pi/2, pi/2]      [-pi,  pi]        [-pi, pi]
 =============   ===============   ================  ================
 
-Euler angle sequence: 'XYZ' (world). First rotation by *phi* about X, second
-rotation by *theta* about Y, and the third rotation by *psi* about Z axis of
-the world (i.e. fixed) frame.
+Functions that extract Euler angles accept a non-negative tolerance parameter
+`tol`. In factorizing a rotation matrix near a singularity, if the absolute
+value of the cosine of the middle angle is less than or equal to `tol`, one of
+the outer angles is set to zero as per the following table.
 
-This is the same as the sequence used in the `Blender blenlib code
-<https://github.com/blender/blender/blob/
-7d641fe96810cdc2598b2f37ec4f6192e133e6d8/
-source/blender/blenlib/BLI_math_euler_types.hh>`__.
+=============   ===================   
+ Sequence        angle set to zero
+=============   ===================  
+  XYZ,   XZY           phi    
+  YXZ,   YZX          theta   
+  ZXY,   ZYX           psi 
+=============   =================== 
 
-In contrast, the 'XYZ' sequence is understood in the Aerospace community as:
-First rotation about Z-axis, second rotation about Y-axis, and the third
-rotation about X-axis of the body frame.
+Note that applying the above convention near, but not exactly at a singularity,
+can introduce reconstruction error of the order of `tol`; it is not a
+guaranteed reconstruction-error bound.
 
 *Reference:* D. Eberly, `Euler angle formulas.
 <http://www.geometrictools.com/Documentation/EulerAngles.pdf>`__
@@ -28,8 +108,26 @@ rotation about X-axis of the body frame.
 """
 
 import math
-
 import numpy as np
+
+def _normalize(v):
+    """
+    Normalizes a vector in-place such that its magnitude is unity.
+
+    Parameters
+    ----------
+    v : (n,) ndarray
+        On entry, a finite non-zero vector. On exit, the normalized vector.
+
+    Returns
+    -------
+    None
+    """
+    scale = np.max(np.abs(v))
+    if scale == 0.0:
+        raise ValueError("Cannot normalize a zero vector.")
+    v /= scale
+    v /= np.linalg.norm(v)
 
 # *****************************************************************************#
 #                               UTILITY FUNCTIONS                             #
@@ -38,29 +136,41 @@ import numpy as np
 
 def align(v, old, new):
     """
-    Rotate vectors such that a set of mutually orthogonal unit vectors aligns
-    with another set of mutually orthogoanl unit vectors.
+    Rotate vectors such that a set of at most three mutually orthogonal unit
+    vectors aligns with another set of mutually orthogonal unit vectors. The
+    two sets of mutually orthogonal unit vectors must contain the same number
+    of unit vectors.
 
-    The vectors `v` are rotated using a rotation matrix that, when applied to
-    the unit vectors `old`, aligns them in the direction of the unit vectors
-    `new`.
+    `v`, `old`, and `new` store their constituent vectors row-wise, with
+    all vectors resolved in the same fixed underlying basis.
+
+    The vectors in `v` are rotated using a rotation matrix R such that
+    `new[i,:] = old[i,:] @ R.T`, for each unit vector `i` (stored in the `i`th
+    row), with the single vector (`n=1`) case treated equivalently.
+
+    If `old` is a single vector, a unique rotation cannot be defined.  In this
+    case, the shortest rotation mapping `old` to `new` is chosen. For
+    anti-parallel directions, this is a half-turn about a chosen axis
+    perpendicular to `old`.
 
     Parameters
     ----------
-    v : (3,) | (n,3) ndarray
+    v : (3,) | (m,3) ndarray
         Vectors to align.
-    old : (3,) | (m,3) ndarray
-        A set of at most three mutually orthogonal unit vectors. A single
-        vector can be of shape (3,) or (1,3). Else `m` must be 2 or 3.
-    new : (3,) | (m,3) ndarray
-        Another set of mutually orthogonal unit vectors of the same
-        shape as `old`. The angles between the vectors must be the same as
-        those of `old`.
+    old : (3,) | (1,3) | (3,1) | (n,3) ndarray
+        A set of at most three mutually orthogonal unit vectors. A single unit
+        vector can be of shape (3,), (1,3), or (3,1). Else `n` must be 2 or 3.
+        If `n = 3`, the three unit vectors must form a right-handed basis.
+    new : (3,) | (1,3) | (3,1) | (n,3) ndarray
+        Another set of mutually orthogonal unit vectors of the same shape as
+        `old`. If `n = 3`, the three unit vectors must form a right-handed
+        basis.
 
     Returns
     -------
     out : ndarray
-        Aligned vectors. `out` is of the same shape as `v`.
+        Aligned vectors. `out` is of the same shape as `v`. The components in
+        `out` are resolved in the same underlying basis as the vectors in `v`.
     """
     if np.any(old.shape != new.shape):
         raise ValueError(
@@ -68,51 +178,62 @@ def align(v, old, new):
         )
     n = old.size // 3
     if n == 1:
+        old_ = old.ravel()
+        new_ = new.ravel()
         # Angle between old and new
-        cos_angle = np.dot(old, new)
-        if (cos_angle > 1.0) or (cos_angle < -1.0):
-            if np.isclose(abs(cos_angle), 1.0, rtol=1e-9, atol=1e-15):
-                cos_angle = math.copysign(1.0, cos_angle)
-            else:
-                raise ValueError(
-                    f"Cosine of angle(= {cos_angle}) between"
-                    f" `old`(= {old}) and `new`(= {new}) out-of-range."
-                )
-        if np.isclose(cos_angle, 1.0, rtol=1e-9, atol=1e-15):
-            # Angle = zero: No rotation needed
-            out = v
-        elif np.isclose(cos_angle, -1.0, rtol=1e-9, atol=1e-15):
-            # Angle = pi: Rotation axis not unique. We flip the
-            # vectors `v` to align.
-            out = -v
-        else:
-            angle = math.acos(cos_angle)
-            # Axis of rotation
-            axis = np.cross(old, new)
-            axis_nrm = np.linalg.norm(axis)
-            axis /= axis_nrm
+        cos_angle = np.dot(old_, new_)
+        axis = np.cross(old_, new_)
+        sin_angle = math.hypot(*axis) #always non-negative
+        #angle will be in [0, pi] as sin_angle >= 0.
+        angle = math.atan2(sin_angle, cos_angle)
+        #try normalizing the axis
+        try:
+            _normalize(axis)
+            estat = 0
+        except ValueError:
+            estat = 1
+
+        if estat == 0:
+            #Non-collinear vectors: standard case
             out = aa_rotate_vectors(v, axis, angle)
+        else:
+            #Collinear vectors: parallel or anti-parallel
+            if cos_angle > 0.0:
+                #angle = 0; no rotation necessary
+                out = v.copy()
+            else:
+                #angle = pi: Rotation axis not unique. Pick a vector by
+                #crossing old_ with a cartesian direction least parallel to it.
+                #1. Find cartesian direction least parallel to old_.
+                min_idx = np.argmin(abs(old_))
+                #2. Create that basis vector
+                vtmp = np.zeros((3,), dtype=np.float64)
+                vtmp[min_idx] = 1.0
+                #3. Cross old_ with vtmp and normalize to get the rotation
+                # axis
+                axis = np.cross(old_, vtmp) #axis will always have +ve norm.
+                axis, angle = aa_fix(axis, angle, True)
+                #Rotate
+                out = aa_rotate_vectors(v, axis, angle)
         return out
     elif n == 2:
         # The third vector orthogonal to `old`
-        z_old = np.cross(old[0, :], old[1, :])
-        z_old_nrm = np.linalg.norm(z_old)
-        z_old /= z_old_nrm
+        z_old = np.cross(old[0,:], old[1,:])
+        _normalize(z_old)
         # The third vector orthogonal to `new`
-        z_new = np.cross(new[0, :], new[1, :])
-        z_new_nrm = np.linalg.norm(z_new)
-        z_new /= z_new_nrm
+        z_new = np.cross(new[0,:], new[1,:])
+        _normalize(z_new)
         # The `old` and new `frames`
         axes_old = np.vstack((old, z_old))
         axes_new = np.vstack((new, z_new))
-        dcm = dcm_from_axes(axes_old, axes_new)
-        return dcm_rotate_vectors(v, dcm)
+        mat = np.dot(axes_new.T, axes_old)
+        return np.dot(v, mat.T)
     elif n == 3:
-        dcm = dcm_from_axes(old, new)
-        return dcm_rotate_vectors(v, dcm)
+        mat = np.dot(new.T, old)
+        return np.dot(v, mat.T)
 
 
-def mat_is_rotmat(mat):
+def mat_is_rotmat(mat, tol=1e-14):
     """
     Checks if `mat` is a rotation matrix or not.
 
@@ -120,25 +241,50 @@ def mat_is_rotmat(mat):
     ----------
     mat : (3,3) ndarray
         Array to check.
+    tol : float
+        Absolute tolerance for comparing determinant and orthogonality.
 
     Returns
     -------
     bool
         ``True`` if `mat` is a rotation matrix, ``False`` otherwise.
     """
-    det_is_one = math.isclose(
-        np.linalg.det(mat), 1.0, abs_tol=1e-12, rel_tol=1e-12
-    )
-    is_orthogonal = np.allclose(np.dot(mat, mat.T), np.identity(3))
+    det_mat = np.linalg.det(mat)
+    det_is_one = abs(det_mat-1.0) <= tol
+    is_orthogonal = np.abs(mat @ mat.T - np.identity(3)).max() <= tol
     return is_orthogonal and det_is_one
 
 
 # QUATERNION-----------------------------------------------------------
 
+def quat_canonicalized(q):
+    """
+    Modifies a non-canonical unit quaternion in-place to bring it to the
+    canonical form.
+
+    No modifications are performed if the input is already in canonical form.
+
+    Parameters
+    ----------
+    q : (4,) ndarray
+        On entry, a unit quaternion. If `q` is not in canonical form, on return, 
+        `q` is modified to bring it to the canonical form, else `q` is left as
+        is.
+
+    Returns
+    -------
+    None
+
+    """
+    inz = np.nonzero(q)[0][0]
+    if q[inz] < 0.0:
+        q[:] = -q 
+
 
 def quat_rand(rng):
     """
-    Returns a random unit quaternion.
+    Returns a unit quaternion from a uniform distribution on the space of
+    rotations in 3D.
 
     Parameters
     ----------
@@ -148,10 +294,18 @@ def quat_rand(rng):
     Returns
     -------
     (4,) ndarray
-        Unit quaternion.
+        A unit quaternion in canonical form.
     """
-    axis, angle = aa_rand(rng)
-    q = aa_to_quat(axis, angle)
+    u = rng.random(size=(3,), dtype=np.float64)
+    sqrt_u0 = math.sqrt(u[0])
+    sqrt_1mu0 = math.sqrt(1.0 - u[0])
+    cos_u1 = math.cos(2*math.pi*u[1])
+    sin_u1 = math.sin(2*math.pi*u[1])
+    cos_u2 = math.cos(2*math.pi*u[2])
+    sin_u2 = math.sin(2*math.pi*u[2])
+    q = np.array([sqrt_1mu0*cos_u1, sqrt_1mu0*sin_u1, sqrt_u0*sin_u2,
+                  sqrt_u0*cos_u2], dtype=np.float64)
+    quat_canonicalized(q)
     return q
 
 
@@ -174,7 +328,7 @@ def quat_conjugated(q):
     Parameters
     ----------
     q : (4,) ndarray
-        Quaternion.
+        On entry, a quaternion. On return, the conjugated quaternion.
 
     Returns
     -------
@@ -192,60 +346,73 @@ def quat_inverted(q):
     Parameters
     ----------
     q : (4,) ndarray
-        Quaternion.
+        On entry, a non-zero quaternion. On return, the inverted quaternion.
 
     Returns
     -------
     (4,) ndarray
         Inverted quaternion.
+
     """
-    quat_conjugated(q)
-    nrm = np.linalg.norm(q)
-    q /= nrm
+    scale = np.max(np.abs(q))
+    if scale == 0.0:
+        raise ValueError("Cannot invert a zero quaternion.")
+    q_scaled = q/scale
+    d = np.dot(q_scaled, q_scaled)
+    quat_conjugated(q_scaled)
+    q[:] = (q_scaled/d)/scale
     return q
 
 
-def quat_normalized(q):
+def quat_normalized(q, canonicalize=False):
     """
     Normalizes a quaternion in-place and returns it.
 
     Parameters
     ----------
     q : (4,) ndarray
-        Quaternion.
+        On entry, a non-zero quaternion. On return, the normalized quaternion
+        (in canonical form if `canonicalize` is ``True``).
+    canonicalize : bool
+        Whether to canonicalize the output.
 
     Returns
     -------
     (4,) ndarray
-        Normalized quaternion.
+        Normalized quaternion (in canonical form if `canonicalize` is ``True``).
     """
-    nrm = np.linalg.norm(q)
-    q /= nrm
+    _normalize(q)
+    if canonicalize:
+        quat_canonicalized(q)
     return q
 
 
-def quat_is_normalized(q):
+def quat_is_normalized(q, tol=1e-14):
     """
     Checks whether a quaternion is normalized, i.e. whether it is a unit
-    quaternion.
+    quaternion, within a tolerance `tol`.
 
     Parameters
     ----------
     q : (4,) ndarray
-        Quaternion.
+        Quaternion
+    tol : float
+        Absolute allowable deviation of the norm from one.
 
     Returns
     -------
     bool
-        ``True`` if `q` is normalized, ``False`` otherwise.
+        ``True`` if `q` is normalized within tolerance, ``False`` otherwise.
     """
-    norm = np.linalg.norm(q)
-    return math.isclose(norm, 1.0, rel_tol=1e-14)
+    norm = math.hypot(*q)
+    return abs(norm - 1.0) <= tol
 
 
-def quat_prod(p, q, normalize=True):
+def quat_prod(p, q):
     """
-    Returns the product of two quaternions.
+    Returns the product of two quaternions following Hamilton's convention. In
+    case of unit quaternions describing rotations in a common frame, `q`'s
+    rotation is applied first, followed by that of `p`.
 
     Parameters
     ----------
@@ -253,14 +420,11 @@ def quat_prod(p, q, normalize=True):
         Quaternion.
     q : (4,) ndarray
         Quaternion.
-    normalize : bool
-        Whether to normalize the product.
 
     Returns
     -------
     (4,) ndarray
-        Product of two quaternions. If `normalize` is ``True``, this is also
-        a unit quaternion.
+        Product of two quaternions.
 
     """
     p0, p1, p2, p3 = tuple(p)
@@ -269,14 +433,13 @@ def quat_prod(p, q, normalize=True):
                          [p2,  p3,  p0, -p1],
                          [p3, -p2,  p1,  p0]])  # fmt: skip
     pq = np.dot(prod_mat, q)
-    if normalize:
-        quat_normalized(pq)
     return pq
 
 
 def quat_angle_between(p, q):
     """
-    Returns the angle between two unit quaternions p and q.
+    Returns the smallest rotation angle between the orientations represented by
+    two unit quaternions.
 
     Parameters
     ----------
@@ -288,24 +451,30 @@ def quat_angle_between(p, q):
     Returns
     -------
     float
-        Angle in radian.
+        Relative rotation angle in radians, in the interval [0, pi]. 
+        Opposite-sign quaternions representing the same orientation have zero
+        separation.
     """
-    cos_angle = np.dot(p, q)
-    if (cos_angle > 1.0) or (cos_angle < -1.0):
-        if np.isclose(abs(cos_angle), 1.0, rtol=1e-9, atol=1e-15):
-            cos_angle = math.copysign(1.0, cos_angle)
-        else:
-            raise ValueError(
-                f"Cosine of angle(= {cos_angle}) between"
-                f" `p`(= {p}) and `q`(= {q}) out-of-range."
-            )
-    angle = np.acos(cos_angle)
+    q_ = q.copy()
+    cos_angle = np.dot(p, q_)
+    if cos_angle < 0.0:
+        #Negate q_ to ensure both p and q_ lie on the same hemisphere
+        q_[:] = -q_[:]
+    d_mag = math.hypot(*(p-q_))
+    s_mag = math.hypot(*(p+q_))
+    angle = 4*math.atan2(d_mag, s_mag)
     return angle
 
 
 def quat_interpolate(q1, q2, t):
     """
-    Interpolate between two unit quaternions.
+    Performs spherical linear interpolation between two unit quaternions
+    following the shortest path.
+
+    The second endpoint may be negated to select the shortest path.
+
+    At a relative orientation (physical) of exactly *pi*, two equally short
+    paths exist; the supplied endpoint signs determine which is selected.
 
     Parameters
     ----------
@@ -322,22 +491,40 @@ def quat_interpolate(q1, q2, t):
     (4,) ndarray
         Interpolated unit quaternion.
     """
-    theta = quat_angle_between(q1, q2)
-    q = (
-        q1 * math.sin((1.0 - t) * theta) + q2 * math.sin(t * theta)
-    ) / math.sin(theta)
-    return quat_normalized(q)
+    q2_ = q2.copy()
+    cos_angle = np.dot(q1, q2_)
+    if cos_angle < 0.0:
+        #Negate q2_ to ensure both q1 and q2_ lie on the same hemisphere
+        q2_[:] = -q2_[:]
+    d_mag = math.hypot(*(q1 - q2_))
+    s_mag = math.hypot(*(q1 + q2_))
+    theta = 2*math.atan2(d_mag, s_mag)
+    #SLERP
+    c = np.sinc(theta/np.pi)
+    a = (1 - t) * np.sinc( (1-t)*theta/np.pi ) / c
+    b = t * np.sinc(t*theta/np.pi) / c
+    q = a*q1 + b*q2_
+    return quat_normalized(q, canonicalize=False)
 
 
-def quat_deriv_to_angvel_mat(q):
+def quat_deriv_to_angvel_mat(q, world=False):
     """
     Returns the matrix mapping the derivative of a unit quaternion to angular
     velocity.
 
+    Let A (world frame) and B (body frame) be reference frames such that an
+    active rotation in A by a unit quaternion ``q`` aligns its basis vectors
+    with those of frame B.  Then the matrix M returned is such that ``omega_i =
+    M_ij * qdot_j``, where ``omega_i`` is the angular velocity of B relative to
+    A resolved in A (or B) and ``qdot_j`` is the time derivative of ``q``.
+
     Parameters
     ----------
-    qdot : (4,) ndarray
-        Derivative of a unit quaternion.
+    q : (4,) ndarray
+        Unit quaternion.
+    world : bool
+        If ``True``, the angular velocity is resolved in frame A (world frame),
+        else, it is resolved in frame B (body frame). Default is ``False``.
 
     Returns
     -------
@@ -345,41 +532,67 @@ def quat_deriv_to_angvel_mat(q):
         Angular velocity matrix.
     """
     q0, q1, q2, q3 = tuple(q)
-    return 2*np.array([[-q1,  q0,  q3, -q2],
-                       [-q2, -q3,  q0,  q1],
-                       [-q3,  q2, -q1,  q0]])  # fmt: skip
+    if world:
+        M = 2*np.array([[-q1,  q0, -q3,  q2],
+                        [-q2,  q3,  q0, -q1],
+                        [-q3, -q2,  q1,  q0]])  # fmt: skip
+    else:
+        M = 2*np.array([[-q1,  q0,  q3, -q2],
+                        [-q2, -q3,  q0,  q1],
+                        [-q3,  q2, -q1,  q0]])  # fmt: skip
+    return M
 
 
-def quat_deriv_to_angvel(q, qdot):
+def quat_deriv_to_angvel(q, qdot, world=False):
     """
     Calculates the angular velocity from a unit quaternion and its time
     derivative.
+
+    Let A (world frame) and B (body frame) be reference frames such that an
+    active rotation in A by a unit quaternion ``q`` aligns its basis vectors
+    with those of frame B. Let ``qdot`` be the time derivative of ``q``. The
+    quantity returned is the angular velocity of B relative to A resolved in A
+    (or B).
 
     Parameters
     ----------
     q : (4,) ndarray
         Unit quaternion.
     qdot : (4,) ndarray
-        Derivative of `q`. In general, this is not a unit vector.
+        Time derivative of `q`. In general, this is not a unit vector. Note that
+        `qdot` is orthogonal to `q`, i.e. ``q . qdot = 0``.
+    world : bool
+        If ``True``, the angular velocity is resolved in frame A (world frame),
+        else, it is resolved in frame B (body frame). Default is ``False``.
 
     Returns
     -------
     (3,) ndarray
-        Angular velocity.
+        Angular velocity resolved in A (world frame) if `world=True`, or in B
+        (body frame) otherwise.
     """
-    mat = quat_deriv_to_angvel_mat(q)
+    mat = quat_deriv_to_angvel_mat(q, world)
     return np.dot(mat, qdot)
 
 
-def quat_deriv_from_angvel_mat(q):
+def quat_deriv_from_angvel_mat(q, world=False):
     """
     Returns the matrix mapping angular velocity to time derivative of a unit
     quaternion.
+
+    Let A (world frame) and B (body frame) be reference frames such that an
+    active rotation in A by a unit quaternion ``q`` aligns its basis vectors
+    with those of frame B. Then the matrix M returned is such that ``qdot_i =
+    M_ij * omega_j``, where ``omega_j`` is the angular velocity of B relative
+    to A resolved in A (or B) and ``qdot_i`` is the time derivative of ``q``.
 
     Parameters
     ----------
     q : (4,) ndarray
         Unit quaternion.
+    world : bool
+        If ``True``, the angular velocity is resolved in frame A (world frame),
+        else, it is resolved in frame B (body frame). Default is ``False``.
 
     Returns
     -------
@@ -387,35 +600,61 @@ def quat_deriv_from_angvel_mat(q):
         Quaternion derivative matrix.
     """
     q0, q1, q2, q3 = tuple(q)
-    return 0.5*np.array([[-q1, -q2, -q3],
-                         [ q0, -q3,  q2],
-                         [ q3,  q0, -q1],
-                         [-q2,  q1,  q0]])  # fmt: skip
+    if world:
+        M = 0.5*np.array([[-q1, -q2, -q3],
+                          [ q0,  q3, -q2],
+                          [-q3,  q0,  q1],
+                          [ q2, -q1,  q0]])  # fmt: skip
+    else:
+        M = 0.5*np.array([[-q1, -q2, -q3],
+                          [ q0, -q3,  q2],
+                          [ q3,  q0, -q1],
+                          [-q2,  q1,  q0]])  # fmt: skip
+    return M
 
 
-def quat_deriv_from_angvel(q, ang_vel):
+def quat_deriv_from_angvel(q, ang_vel, world=False):
     """
     Calculates the time derivative of a unit quaternion from angular velocity.
+
+    Let A (world frame) and B (body frame) be reference frames such that an
+    active rotation in A by a unit quaternion ``q`` aligns its basis vectors
+    with those of frame B. Let ``ang_vel`` be the angular velocity of B
+    relative to A resolved in A (or B). The quantity returned is the time
+    derivative of ``q``.
 
     Parameters
     ----------
     q : (4,) ndarray
-        Unit quaternion.
+        Unit quaternion. An active rotation of frame A by ``q`` aligns it with
+        frame B.
     ang_vel : (3,) ndarray
-        Angular velocity.
+        Angular velocity of frame B relative to frame A resolved in A if
+        ``world=True``, or in B otherwise.
+    world : bool
+        If ``True``, the angular velocity is resolved in frame A (world frame),
+        else, it is resolved in frame B (body frame). Default is ``False``.
 
     Returns
     -------
-    (3,) ndarray
-        Derivative of `q`. In general, this is not a unit vector.
+    (4,) ndarray
+        Derivative of `q`. It is orthogonal to `q` and not a unit vector in
+        general.
     """
-    mat = quat_deriv_from_angvel_mat(q)
+    mat = quat_deriv_from_angvel_mat(q, world)
     qdot = np.dot(mat, ang_vel)
     return qdot
 
 
 def quat_rotmat(q):
-    """Returns the rotation matrix corresponding to a unit quaternion.
+    """
+    Returns the matrix for an active rotation corresponding to a unit
+    quaternion.
+
+    For a column vector v of length 3, the rotated vector ``v' = R v``, where
+    ``R`` is the returned matrix.  The components of ``v`` and ``v'`` are
+    expressed in the same fixed orthonormal basis. For a row vector, the
+    equivalent rotated vector ``v' = v R^T``.
 
     Parameters
     ----------
@@ -456,12 +695,20 @@ def quat_shiftmat(q, forward=False):
     """
     Returns the shifter matrix corresponding to a unit quaternion.
 
+    The orientation of frame B relative to frame A is specified by a unit
+    quaternion ``q``, such that an active rotation in A of its basis vectors
+    aligns them with those of B. The shifter matrix ``S`` transforms the
+    components of a fixed vector resolved in A to those resolved in B or
+    vice-versa according to ``v_B_i = S_ij * v_A_j`` or ``v_A_i = S_ij *
+    v_B_j``.
+
     Parameters
     ----------
     q : (4,) ndarray
         Unit quaternion.
     forward : bool
-       Whether to shift forward, i.e., along the orientation or shift reverse.
+        If ``True``, transform components from A to B. If ``False``, transform
+        components from B to A. Default is ``False``.
 
     Returns
     -------
@@ -480,10 +727,13 @@ def quat_rotate_vectors(v, q):
     """
     Rotates vectors by a unit quaternion.
 
+    The components of `v` and the rotated vectors are all expressed in the same
+    fixed basis.
+
     Parameters
     ----------
     v : (3,) or (n,3) ndarray
-        A single 3-vector or *n* 3-vectors (the rows of `v`) to rotate.
+        Components of a single vector or n vectors stored as rows.
     q : (4,) ndarray
         Unit quaternion.
 
@@ -498,79 +748,95 @@ def quat_rotate_vectors(v, q):
 
 def quat_shift_vectors(v, q, forward=False):
     """
-    Given two frames A and B such that the orientation of frame B with respect
-    to frame A is given by a unit quaternion, shifts vectors from A
-    to B or B to A.
-
+    Transform vector components between frames A and B.
+    
+    The orientation of B relative to A is specified by a unit quaternion `q`.
+    This orientation is used for both transformation directions.  The vectors
+    remain unchanged; only their components are expressed in a different frame.
+    
     Parameters
     ----------
     v : (3,) or (n,3) ndarray
-        A single 3-vector or *n* 3-vectors (the rows of `v`) to shift.
+        Components of a single vector or n vectors stored as rows.
+        Expressed in A if `forward` is ``True``, or in B otherwise.
     q : (4,) ndarray
-        Unit quaternion.
-    forward : bool
-        If ``True``, shift from A to B. If ``False``, shift from B to A.
-
+        Unit quaternion expressed in A, regardless of `forward`.
+    forward : bool, optional
+        If ``True``, transform components from A to B. If ``False``, transform
+        components from B to A. Default is ``False``.
+    
     Returns
     -------
     (3,) or (n,3) ndarray
-        Shifted vectors.
+        Components of the same vectors expressed in B if `forward` is ``True``,
+        or in A otherwise. Has the same shape as `v`.
     """
     shiftmat = quat_shiftmat(q, forward=forward)
     return np.dot(v, shiftmat.T)
 
 
-def quat_shift_tensor2(a, quat, forward=False):
+def quat_shift_tensor2(a, q, forward=False):
     """
-    Given two frames A and B such that the orientation of frame B with respect
-    to frame A is given by a unit quaternion, shifts second-order tensors from A
-    to B or B to A.
-
+    Transform second-order tensor components between frames A and B.
+    
+    The orientation of B relative to A is specified by a unit quaternion `q`.
+    This orientation is used for both transformation directions.  The tensor
+    remains unchanged; only its components are expressed in a different frame.
+    
     Parameters
     ----------
     a : (3,3) ndarray
-        A second-order tensor.
+        Components of a second-order tensor.  Expressed in A if `forward` is
+        ``True``, or in B otherwise.
     q : (4,) ndarray
-        Unit quaternion.
-    forward : bool
-        If ``True``, shift from A to B. If ``False``, shift from B to A.
-
+        Unit quaternion expressed in A, regardless of `forward`.
+    forward : bool, optional
+        If ``True``, transform components from A to B. If ``False``, transform
+        components from B to A. Default is ``False``.
+    
     Returns
     -------
     (3,3) ndarray
-        Shifted second-order tensor.
+        Components of the same second-order tensor expressed in B if `forward`
+        is ``True``, or in A otherwise.
     """
-    shiftmat = quat_shiftmat(quat, forward=forward)
+    shiftmat = quat_shiftmat(q, forward=forward)
     return np.einsum("ip,jq,pq", shiftmat, shiftmat, a)
 
 
-def shift_tensor3_quat(a, quat, forward=False):
+def quat_shift_tensor3(a, q, forward=False):
     """
-    Given two frames A and B such that the orientation of frame B with respect
-    to frame A is given by a unit quaternion, shifts third-order tensors from A
-    to B or B to A.
-
+    Transform third-order tensor components between frames A and B.
+    
+    The orientation of B relative to A is specified by a unit quaternion `q`.
+    This orientation is used for both transformation directions. The tensor
+    remains unchanged; only its components are expressed in a different frame.
+    
     Parameters
     ----------
     a : (3,3,3) ndarray
-        A third-order tensor.
+        Components of a third-order tensor.  Expressed in A if `forward` is
+        ``True``, or in B otherwise.
     q : (4,) ndarray
-        Unit quaternion.
-    forward : bool
-        If ``True``, shift from A to B. If ``False``, shift from B to A.
-
+        Unit quaternion expressed in A, regardless of `forward`.
+    forward : bool, optional
+        If ``True``, transform components from A to B. If ``False``, transform
+        components from B to A. Default is ``False``.
+    
     Returns
     -------
     (3,3,3) ndarray
-        Shifted third-order tensor.
+        Components of the same third-order tensor expressed in B if `forward`
+        is ``True``, or in A otherwise.
     """
-    shiftmat = quat_shiftmat(quat, forward=forward)
+    shiftmat = quat_shiftmat(q, forward=forward)
     return np.einsum("ip,jq,kr,pqr", shiftmat, shiftmat, shiftmat, a)
 
 
 def quat_to_aa(q):
     """
     Converts a unit quaternion to an *axis-angle* representation.
+    Note that an identity quaternion will return axis [1,0,0].
 
     Parameters
     ----------
@@ -582,19 +848,23 @@ def quat_to_aa(q):
     axis : (3,) ndarray
         Unit vector along the axis of rotation.
     angle : float
-        Angle in radian.
+        Angle in radian (lies in [0, *pi*]).
     """
-    angle = 2 * math.acos(q[0])
-    sin = math.sqrt(1.0 - q[0] ** 2)
-    if angle > 0.0:
-        if angle < math.pi:
-            axis = q[1:4] / sin
-        else:
-            rotmat = quat_rotmat(q)
-            axis, angle = aa_from_rotmat(rotmat)
-    else:
+    q_ = q.copy()
+    if q_[0] < 0.0:
+        q_[:] = -q_
+    s = np.max(np.abs(q_[1:4]))
+    if s == 0:
+        #Identity rotation (angle = 0)
         axis = np.array([1.0, 0.0, 0.0])
-    return aa_fix(axis, angle, normalize=True)
+        angle = 0.0
+    else:
+        #Usual case
+        p = q_[1:4]/s
+        r = math.hypot(*p)
+        axis = p/r
+        angle = 2*math.atan2(s*r, q_[0])
+    return (axis, angle)
 
 
 def quat_to_dcm(q):
@@ -614,7 +884,7 @@ def quat_to_dcm(q):
     return quat_shiftmat(q, forward=True)
 
 
-def quat_to_euler(q, seq="XYZ", world=True):
+def quat_to_euler(q, seq="XYZ", world=True, tol=1e-14):
     """
     Converts a unit quaternion to an Euler angle sequence.
 
@@ -626,6 +896,8 @@ def quat_to_euler(q, seq="XYZ", world=True):
         Euler angle sequence.
     world : bool
         Whether the Euler angles are with respect to the *world* frame or not.
+    tol : float
+        Tolerance (must be >= 0) for setting one outer angle to zero.
 
     Returns
     -------
@@ -633,7 +905,7 @@ def quat_to_euler(q, seq="XYZ", world=True):
         Euler angles.
     """
     rotmat = quat_rotmat(q)
-    return euler_factor_rotmat(rotmat, seq=seq, world=world)
+    return euler_factor_rotmat(rotmat, seq=seq, world=world, tol=tol)
 
 
 def quat_from_any(orientation):
@@ -646,15 +918,15 @@ def quat_from_any(orientation):
     orientation : dict
         The keys and values are:
 
-        - `'repr'`  = ``'quat'`` | ``'euler'`` | ``'axis_angle'`` | ``'dcm'``
-        - `'quat'`  = (4,) *ndarray*
-        - `'euler'` = (3,) *ndarray*
-        - `'seq'` = ``'XYZ'`` | ``'XZY'`` | ``'YXZ'`` | ``'YZX'``
+        * `'repr'`  = ``'quat'`` | ``'euler'`` | ``'axis_angle'`` | ``'dcm'``
+        * `'quat'`  = (4,) *ndarray* representing a unit quaternion.
+        * `'euler'` = (3,) *ndarray*
+        * `'seq'` = ``'XYZ'`` | ``'XZY'`` | ``'YXZ'`` | ``'YZX'``
           | ``'ZXY'`` | ``'ZYX'``
-        - `'world'` = ``True`` | ``False``
-        - `'axis'` = (3,) *ndarray*
-        - `'angle'` = *float*
-        - `'dcm'` = (3,3) *ndarray*
+        * `'world'` = ``True`` | ``False``
+        * `'axis'` = (3,) *ndarray* representing a unit vector.
+        * `'angle'` = *float*
+        * `'dcm'` = (3,3) *ndarray* representing a direction cosine matrix.
 
         For any value of `'repr'`, only the relevant keys are accessed, the
         rest are ignored. E.g., if `'repr'` = ``'quat'``, only the `'quat'` key
@@ -686,16 +958,17 @@ def quat_from_any(orientation):
 
 
 # AXIS-ANGLE------------------------------------------------------------
+
 def aa_fix(axis, angle, normalize=True):
     """
-    Returns a copy of `axis` and `angle` by modifying their values
-    to ensure a right handed rotation with `angle` in [0, *pi*).
+    For a given orientation in *axis-angle* representation, returns a modified
+    `axis` and `angle` to ensure that `angle` lies in [0, *pi*] while
+    preserving the rotation. 
 
     Parameters
     ----------
     axis : (3,) ndarray
-        Axis of rotation. If this is not a unit vector, set `normalize` to
-        ``True``.
+        A non-zero vector representing the axis of rotation.
     angle : float
         Angle in radian.
     normalize : bool
@@ -703,33 +976,30 @@ def aa_fix(axis, angle, normalize=True):
 
     Returns
     -------
-    axis : (3,) ndarray
-        Modified axis of rotation, possibly normalized.
-    angle : float
-        Modified angle in radian.
+    ax : (3,) ndarray
+        Modified axis of rotation. If `normalize`=``True``, `ax` is normalized,
+        else, it has the same magnitude as `axis` and may need to be normalized
+        before using other axis-angle functions.
+    ang : float
+        Modified angle in radian (lies in [0, *pi*]).
 
     """
+    ax = axis.copy()
     if normalize:
-        norm = np.linalg.norm(axis)
-        if not math.isclose(norm, 1.0, abs_tol=1e-14, rel_tol=1e-14):
-            axis /= norm
-    angle = math.fmod(angle, 2 * math.pi)
-    if angle < 0.0:
-        angle = -angle
-        axis = -axis
-    if angle > math.pi:
-        angle = 2 * math.pi - angle
-        axis = -axis
-    return (axis, angle)
+        _normalize(ax)
+    #Get principal signed angle in [-pi, pi]
+    ang = math.atan2(math.sin(angle), math.cos(angle))
+    #Make the angle non-negative
+    if ang < 0.0:
+        ang = -ang
+        ax[:] = -ax
+    return (ax, ang)
 
 
 def aa_rand(rng):
     """
-    Generates a random orientation in *axis-angle* representation.
-
-    The axis is a random vector drawn from a uniform distribution on the
-    surface of a unit sphere. The current implementation in based on the
-    algorithm from Allen & Tildesley p. 349.
+    Generates a random orientation in *axis-angle* representation drawn from a
+    uniform distribution on the space of rotations in 3D.
 
     Parameters
     ----------
@@ -739,37 +1009,32 @@ def aa_rand(rng):
     Returns
     -------
     axis : (3,) ndarray
-        Axis of rotation. This is a unit vector.
+        A unit vector along the axis of rotation.
     angle : float
-        Angle in radian.
+        Angle in radian (lies in [0, *pi*]).
     """
-    axis = np.zeros((3,))
-    # Generate angle: A uniform random number from [0.0, 2*pi)
-    angle = 2.0 * math.pi * rng.random()
-    while True:
-        # Generate two uniform random numbers from [-1, 1)
-        zeta1 = 2.0 * rng.random() - 1.0
-        zeta2 = 2.0 * rng.random() - 1.0
-        zetasq = zeta1**2 + zeta2**2
-        if zetasq <= 1.0:
-            break
-    rt = np.sqrt(1.0 - zetasq)
-    axis[0] = 2.0 * zeta1 * rt
-    axis[1] = 2.0 * zeta2 * rt
-    axis[2] = 1.0 - 2.0 * zetasq
-    return aa_fix(axis, angle)
+    q = quat_rand(rng)
+    axis, angle = quat_to_aa(q) 
+    return axis, angle
 
 
 def aa_rotmat(axis, angle):
-    """Returns the rotation matrix corresponding to an *axis-angle*
-    representation.
+    """
+    Returns the matrix for an active rotation about `axis` through `angle`,
+    with positive angles following the right-hand rule.
+
+    For a column vector v of length 3, the rotated vector v' = R v, where R is
+    the returned matrix.  The components of v, v', and `axis` are expressed in
+    the same fixed orthonormal basis. For a row vector, the equivalent rotated
+    vector v' = v R^T.
 
     Parameters
     ----------
     axis : (3,) ndarray
         Unit vector along the axis.
     angle : float
-        Angle of rotation in radian. ``0 <= angle < pi``.
+        Angle of rotation in radian. Positive angles follow the right-hand
+        rule.
 
     Returns
     -------
@@ -778,9 +1043,10 @@ def aa_rotmat(axis, angle):
 
     """
     R = np.zeros((3, 3))
-    sin = np.sin(angle)
-    cos = np.cos(angle)
-    icos = 1.0 - cos
+    sin = math.sin(angle)
+    cos = math.cos(angle)
+    sin_2 = math.sin(angle/2)
+    icos = 2*sin_2*sin_2 # equals 1.0 - cos
     R[0, 0] = axis[0] * axis[0] * icos + cos
     R[0, 1] = axis[0] * axis[1] * icos - axis[2] * sin
     R[0, 2] = axis[0] * axis[2] * icos + axis[1] * sin
@@ -797,72 +1063,84 @@ def aa_from_rotmat(rotmat):
     """
     Extracts axis and angle from a rotation matrix.
 
+    If `rotmat` is an identity matrix, the axis returned is [1,0,0]. If the
+    angle is exactly *pi*, either sign of the axis is valid.
+
     Parameters
     ----------
     rotmat : (3,3) ndarray
-        Rotation matrix (must be orthonormal).
+        Rotation matrix (must be orthonormal with determinant equal to one).
 
     Returns
     -------
     axis : (3,) ndarray
         Unit vector along the axis.
     angle : float
-        Angle of rotation in radian.
+        Angle of rotation in radian within [0, *pi*].
 
     """
+    axis = np.zeros((3,), dtype=np.float64)
+    #Cos of the angle from the trace
     trace = np.trace(rotmat)
-    angle = math.acos((trace - 1) / 2)
-    if angle > 0:
-        if angle < math.pi:
-            u0 = rotmat[2, 1] - rotmat[1, 2]
-            u1 = rotmat[0, 2] - rotmat[2, 0]
-            u2 = rotmat[1, 0] - rotmat[0, 1]
+    cos_angle = (trace-1)/2
+    #Clamp cos_angle to [-1, 1]
+    cos_angle = max(-1, min(1, cos_angle))
+    #Sine of the angle from the anti-symmetric vector w
+    w = 0.5*np.array([ rotmat[2,1]-rotmat[1,2],
+                       rotmat[0,2]-rotmat[2,0],
+                       rotmat[1,0]-rotmat[0,1] ])
+    sin_angle = math.hypot(*w)
+    #Calculate the angle
+    angle = math.atan2(sin_angle, cos_angle)
+
+    if cos_angle >= 0.0:
+        #Angle lies in [0, pi/2]
+        if sin_angle > 0.0:
+            axis[:] = w/sin_angle
         else:
-            # Find the largest entry in the diagonal of rotmat
-            k = np.argmax(np.diag(rotmat))
-            if k == 0:
-                u0 = (
-                    math.sqrt(rotmat[0, 0] - rotmat[1, 1] - rotmat[2, 2] + 1)
-                    / 2
-                )
-                s = 1.0 / (2 * u0)
-                u1 = s * rotmat[0, 1]
-                u2 = s * rotmat[0, 2]
-            elif k == 1:
-                u1 = (
-                    math.sqrt(rotmat[1, 1] - rotmat[0, 0] - rotmat[2, 2] + 1)
-                    / 2
-                )
-                s = 1.0 / (2 * u1)
-                u0 = s * rotmat[0, 1]
-                u2 = s * rotmat[1, 2]
-            elif k == 2:
-                u2 = (
-                    math.sqrt(rotmat[2, 2] - rotmat[0, 0] - rotmat[1, 1] + 1)
-                    / 2
-                )
-                s = 1.0 / (2 * u2)
-                u0 = s * rotmat[0, 2]
-                u1 = s * rotmat[1, 2]
+            #angle = 0, axis non-unique
+            angle = 0.0
+            axis[:] = np.array([1.0, 0.0, 0.0])
     else:
-        u0 = 1.0
-        u1 = 0.0
-        u2 = 0.0
-    return aa_fix(np.array([u0, u1, u2]), angle, normalize=True)
+        # Find the largest entry on the diagonal of rotmat
+        k = np.argmax(np.diag(rotmat))
+        if k == 0:
+            axis[0] = math.sqrt((rotmat[0,0]-cos_angle)/(1.0-cos_angle))
+            s = 1.0/(2*(1.0-cos_angle)*axis[0])
+            axis[1] = s*(rotmat[1,0]+rotmat[0,1])
+            axis[2] = s*(rotmat[2,0]+rotmat[0,2])
+        elif k == 1:
+            axis[1] = math.sqrt((rotmat[1,1]-cos_angle)/(1.0-cos_angle))
+            s = 1.0/(2*(1.0-cos_angle)*axis[1])
+            axis[0] = s*(rotmat[0,1]+rotmat[1,0])
+            axis[2] = s*(rotmat[2,1]+rotmat[1,2])
+        elif k == 2:
+            axis[2] = math.sqrt((rotmat[2,2]-cos_angle)/(1.0-cos_angle))
+            s = 1.0/(2*(1.0-cos_angle)*axis[2])
+            axis[0] = s*(rotmat[0,2]+rotmat[2,0])
+            axis[1] = s*(rotmat[1,2]+rotmat[2,1])
+
+    #Resolve axis sign
+    if np.dot(axis, w) < 0.0:
+        axis[:] = -axis
+    return aa_fix(axis, angle, normalize=True)
 
 
 def aa_rotate_vectors(v, axis, angle):
     """
     Rotates vectors about `axis` by `angle`.
 
+    The components of `axis`, `v`, and the rotated vectors are all expressed in
+    the same fixed basis.
+
     Parameters
     ----------
     v : (3,) or (n,3) ndarray
-        A single 3-vector or *n* 3-vectors (the rows of `v`) to rotate.
+        Components of a single vector or n vectors stored as rows.
     axis : (3,) ndarray
         Unit vector along the axis.
     angle : float
-        Angle of rotation in radian. ``0 <= angle < pi``.
+        Angle of rotation in radian. Positive angles follow the right-hand rule.
 
     Returns
     -------
@@ -875,17 +1153,18 @@ def aa_rotate_vectors(v, axis, angle):
 
 
 def aa_shiftmat(axis, angle, forward=False):
-    """Returns the shifter matrix corresponding to an *axis-angle*
-    representation.
+    """
+    Returns the shifter matrix corresponding to an *axis-angle* representation.
 
     Parameters
     ----------
     axis : (3,) ndarray
         Unit vector along the axis.
     angle : float
-        Angle of rotation in radian. ``0 <= angle < pi``.
-    forward: bool
-        Whether to shift forward, i.e., along the orientation or shift reverse.
+        Angle of rotation in radian. Positive angles follow the right-hand rule.
+    forward : bool, optional
+        If ``True``, transform components from A to B. If ``False``, transform
+        components from B to A. Default is ``False``.
 
     Returns
     -------
@@ -901,25 +1180,33 @@ def aa_shiftmat(axis, angle, forward=False):
 
 def aa_shift_vectors(v, axis, angle, forward=False):
     """
-    Given two frames A and B such that the orientation of frame B with respect
-    to frame A is given by an axis-angle representation, shifts vectors from A
-    to B or B to A.
-
+    Transform vector components between frames A and B.
+    
+    The orientation of B relative to A is specified by `axis` and `angle`,
+    with `axis` expressed in A and positive angles following the right-hand
+    rule. This orientation is used for both transformation directions.
+    The vectors remain unchanged; only their components are expressed in a
+    different frame.
+    
     Parameters
     ----------
     v : (3,) or (n,3) ndarray
-        A single 3-vector or *n* 3-vectors (the rows of `v`) to shift.
+        Components of a single vector or n vectors stored as rows.
+        Expressed in A if `forward` is ``True``, or in B otherwise.
     axis : (3,) ndarray
-        Unit vector along the axis.
+        Unit axis vector expressed in A, regardless of `forward`.
     angle : float
-        Angle of rotation in radian. ``0 <= angle < pi``.
-    forward : bool
-        If ``True``, shift from A to B. If ``False``, shift from B to A.
-
+        Angle specifying the orientation of B relative to A, in radians.
+        Positive angles follow the right-hand rule.
+    forward : bool, optional
+        If ``True``, transform components from A to B. If ``False``, transform
+        components from B to A. Default is ``False``.
+    
     Returns
     -------
     (3,) or (n,3) ndarray
-        Shifted vectors.
+        Components of the same vectors expressed in B if `forward` is ``True``,
+        or in A otherwise. Has the same shape as `v`.
     """
     shiftmat = aa_shiftmat(axis, angle, forward=forward)
     return np.dot(v, shiftmat.T)
@@ -927,25 +1214,34 @@ def aa_shift_vectors(v, axis, angle, forward=False):
 
 def aa_shift_tensor2(a, axis, angle, forward=False):
     """
-    Given two frames A and B such that the orientation of frame B with respect
-    to frame A is given by an axis-angle representation, shifts second order
-    tensors from A to B or B to A.
-
+    Transforms second-order tensor components between frames A and B.
+    
+    The orientation of B relative to A is specified by `axis` and `angle`,
+    with `axis` expressed in A and positive angles following the right-hand
+    rule. This orientation is used for both transformation directions.
+    The tensor remains unchanged; only its components are expressed in a
+    different frame.
+    
     Parameters
     ----------
     a : (3,3) ndarray
-        A second-order tensor.
+        Components of a second-order tensor, expressed in A if `forward` is
+        ``True``, or in B otherwise.
     axis : (3,) ndarray
-        Unit vector along the axis.
+        Unit axis vector expressed in A, regardless of `forward`.
     angle : float
-        Angle of rotation in radian. ``0 <= angle < pi``.
-    forward : bool
-        If ``True``, shift from A to B. If ``False``, shift from B to A.
-
+        Angle specifying the orientation of B relative to A, in radians.
+        Positive angles follow the right-hand rule.
+    forward : bool, optional
+        If ``True``, transform components from A to B. If ``False``, transform
+        components from B to A. Default is ``False``.
+    
     Returns
     -------
     (3,3) ndarray
-        Shifted second order tensor.
+        Components of the second-order tensor expressed in B if `forward` is
+        ``True``, or in A otherwise.
+
     """
     shiftmat = aa_shiftmat(axis, angle, forward=forward)
     return np.einsum("ip,jq,pq", shiftmat, shiftmat, a)
@@ -953,25 +1249,34 @@ def aa_shift_tensor2(a, axis, angle, forward=False):
 
 def aa_shift_tensor3(a, axis, angle, forward=False):
     """
-    Given two frames A and B such that the orientation of frame B with respect
-    to frame A is given by an axis-angle representation, shifts third order
-    tensors from A to B or B to A.
-
+    Transforms third-order tensor components between frames A and B.
+    
+    The orientation of B relative to A is specified by `axis` and `angle`,
+    with `axis` expressed in A and positive angles following the right-hand
+    rule. This orientation is used for both transformation directions.
+    The tensor remains unchanged; only its components are expressed in a
+    different frame.
+    
     Parameters
     ----------
     a : (3,3,3) ndarray
-        A third-order tensor.
+        Components of a third-order tensor, expressed in A if `forward` is
+        ``True``, or in B otherwise.
     axis : (3,) ndarray
-        Unit vector along the axis.
+        Unit axis vector expressed in A, regardless of `forward`.
     angle : float
-        Angle of rotation in radian. ``0 <= angle < pi``.
-    forward : bool
-        If ``True``, shift from A to B. If ``False``, shift from B to A.
-
+        Angle specifying the orientation of B relative to A, in radians.
+        Positive angles follow the right-hand rule.
+    forward : bool, optional
+        If ``True``, transform components from A to B. If ``False``, transform
+        components from B to A. Default is ``False``.
+    
     Returns
     -------
     (3,3,3) ndarray
-        Shifted third order tensor.
+        Components of the third-order tensor expressed in B if `forward` is
+        ``True``, or in A otherwise.
+
     """
     shiftmat = aa_shiftmat(axis, angle, forward=forward)
     return np.einsum("ip,jq,kr,pqr", shiftmat, shiftmat, shiftmat, a)
@@ -986,18 +1291,19 @@ def aa_to_quat(axis, angle):
     axis : (3,) ndarray
         Axis of rotation. This must be a unit vector.
     angle : float
-        Angle in radian. ``0 <= angle < pi``.
+        Angle in radian.
 
     Returns
     -------
     q : (4,) ndarray
-        Unit quaternion.
+        Unit quaternion in the canonical form.
 
     """
     w = math.cos(angle / 2)
     v = math.sin(angle / 2) * axis
     q = np.array([w, v[0], v[1], v[2]])
-    return quat_normalized(q)
+    quat_normalized(q, canonicalize=True)
+    return q
 
 
 def aa_to_dcm(axis, angle):
@@ -1008,7 +1314,7 @@ def aa_to_dcm(axis, angle):
     axis : (3,) ndarray
         Unit vector along the axis.
     angle : float
-        Angle in radian. ``0 <= angle < pi``.
+        Angle in radian.
 
     Returns
     -------
@@ -1019,19 +1325,21 @@ def aa_to_dcm(axis, angle):
     return dcm
 
 
-def aa_to_euler(axis, angle, seq="XYZ", world=True):
-    """Coverts an *axis-angle* representation to *Euler angles*.
+def aa_to_euler(axis, angle, seq="XYZ", world=True, tol=1e-14):
+    """Converts an *axis-angle* representation to *Euler angles*.
 
     Parameters
     ----------
     axis : (3,) ndarray
         Unit vector along the axis.
     angle : float
-        Angle in radian. ``0 <= angle < pi``.
+        Angle in radian.
     seq : {'XYZ', 'XZY', 'YXZ', 'YZX', 'ZXY', 'ZYX'}
         Euler angle sequence.
     world : bool
         Whether the Euler angles are with respect to the *world* frame or not.
+    tol : float
+        Tolerance (must be >= 0) for setting one outer angle to zero.
 
     Returns
     -------
@@ -1039,7 +1347,7 @@ def aa_to_euler(axis, angle, seq="XYZ", world=True):
         Euler angles.
     """
     rotmat = aa_rotmat(axis, angle)
-    euler = euler_factor_rotmat(rotmat, seq=seq, world=world)
+    euler = euler_factor_rotmat(rotmat, seq=seq, world=world, tol=tol)
     return euler
 
 
@@ -1051,14 +1359,14 @@ def aa_from_any(orientation):
     Parameters
     ----------
     orientation : dict
-        See :func:`.any_to_quat`.
+        See :func:`.quat_from_any`.
 
     Returns
     -------
     axis : (3,) ndarray
         Axis of rotation. This is a unit vector.
     angle : float
-        Angle in radian.
+        Angle in radian (lies in [0, *pi*]).
 
     """
     ori_repr = orientation["repr"]
@@ -1073,6 +1381,7 @@ def aa_from_any(orientation):
     elif ori_repr == "axis_angle":
         axis = np.array(orientation["axis"])
         angle = orientation["angle"]
+        axis, angle = aa_fix(axis, angle, normalize=True)
     elif ori_repr == "dcm":
         axis, angle = dcm_to_aa(orientation["dcm"])
     else:
@@ -1081,7 +1390,7 @@ def aa_from_any(orientation):
 
 
 # DIRECTION COSINE MATRIX-----------------------------------------------
-def mat_is_dcm(mat):
+def mat_is_dcm(mat, tol=1e-14):
     """
     Checks if `mat` is a direction cosine matrix or not.
 
@@ -1089,39 +1398,50 @@ def mat_is_dcm(mat):
     ----------
     mat : (3,3) ndarray
         Array to check.
+    tol : float
+        Absolute tolerance for comparing determinant and orthogonality.
 
     Returns
     -------
     bool
         ``True`` if `mat` is a direction cosine matrix, ``False`` otherwise.
     """
-    return mat_is_rotmat(mat)
+    return mat_is_rotmat(mat, tol=tol)
 
 
-def dcm_from_axes(A, B):
+def dcm_from_frames(A, B):
     """
-    Returns the direction cosine matrix of axes(i.e. frame) B with respect to
-    axes(i.e. frame) A.
+    Returns the direction cosine matrix of frame B with respect to frame A,
+    where the bases of the frames are resolved in an underlying fixed frame F.
+    If F coincides with A, then `A` reduces to an identity matrix.
 
     Parameters
     ----------
     A : (3,3) ndarray
-        The rows of A represent the orthonormal basis vectors of frame A.
+        The rows of A represent the orthonormal basis vectors of a right-handed 
+        frame A resolved in F.
 
     B : (3,3) ndarray
-        The rows of B represent the orthonormal basis vectors of frame B.
+        The rows of B represent the orthonormal basis vectors of a right-handed
+        frame B resolved in F.
 
     Returns
     -------
     (3,3) ndarray
-        The dcm of frame B w.r.t. frame A.
+        The dcm of frame B with respect to frame A.
 
     """
     return np.dot(B, A.T)
 
 
 def dcm_rotmat(dcm):
-    """Returns the rotation matrix corresponding to a direction cosine matrix.
+    """
+    Returns the rotation matrix corresponding to a direction cosine matrix.
+
+    Let D be the direction cosine matrix of frame B relative to frame A.  The
+    rotation matrix R corresponding to D rotates vectors resolved in A such
+    that the bases of A align with those of B, when all the bases are resolved
+    in A.
 
     Parameters
     ----------
@@ -1133,25 +1453,31 @@ def dcm_rotmat(dcm):
     (3,3) ndarray
         Rotation matrix.
     """
-    return dcm.T
+    return dcm.copy().T
 
 
 def dcm_shiftmat(dcm, forward=False):
-    """Returns the shifter matrix corresponding to a direction cosine matrix.
+    """
+    Returns the shifter matrix corresponding to a direction cosine matrix.
+
+    Let D be the direction cosine matrix of frame B relative to frame A. The
+    shifter matrix S corresponding to D transforms components of vectors (or
+    tensors) resolved in A to those in B (or vice-versa).
 
     Parameters
     ----------
     dcm : (3,3) ndarray
         Direction cosine matrix.
-    forward : bool
-       Whether to shift forward, i.e., along the orientation or shift reverse.
+    forward : bool, optional
+       If ``True``, transform components from A to B. If ``False``, transform
+       components from B to A. Default is ``False``.
 
     Returns
     -------
     (3,3) ndarray
         Shifter matrix.
     """
-    shiftmat = dcm
+    shiftmat = dcm.copy()
     if not forward:
         shiftmat = shiftmat.T
     return shiftmat
@@ -1161,10 +1487,14 @@ def dcm_rotate_vectors(v, dcm):
     """
     Rotates vectors by a direction cosine matrix.
 
+    Let D be the direction cosine matrix of frame B relative to frame A.
+    Vectors resolved in A are rotated such that the bases of A align with those
+    of B, when all the bases are resolved in A.
+
     Parameters
     ----------
     v : (3,) or (n,3) ndarray
-        A single 3-vector or *n* 3-vectors (the rows of `v`) to rotate.
+        Components of a single vector or n vectors stored as rows.
     dcm : (3,3) ndarray
         Direction cosine matrix.
 
@@ -1179,23 +1509,28 @@ def dcm_rotate_vectors(v, dcm):
 
 def dcm_shift_vectors(v, dcm, forward=False):
     """
-    Given two frames A and B such that the orientation of frame B with respect
-    to frame A is given by a direction cosine matrix, shifts vectors from A
-    to B or B to A.
+    Transform vector components between frames A and B.
 
+    The orientation of B relative to A is specified by `dcm`. This orientation
+    is used for both transformation directions. The vectors remain unchanged;
+    only their components are expressed in a different frame.
+    
     Parameters
     ----------
     v : (3,) or (n,3) ndarray
-        A single 3-vector or *n* 3-vectors (the rows of `v`) to shift.
+        Components of a single vector or n vectors stored as rows. Expressed
+        in A if `forward` is ``True``, or in B otherwise.
     dcm : (3,3) ndarray
-        Direction cosine matrix.
+        Direction cosine matrix of frame B with respect to frame A.
     forward : bool
-        If ``True``, shift from A to B. If ``False``, shift from B to A.
+        If ``True``, transform components from A to B. If ``False``, transform
+        components from B to A. Default is ``False``.
 
     Returns
     -------
     (3,) or (n,3) ndarray
-        Shifted vectors.
+        Components of the same vectors expressed in B if `forward` is ``True``,
+        or in A otherwise. Has the same shape as `v`.
     """
     shiftmat = dcm_shiftmat(dcm, forward=forward)
     return np.dot(v, shiftmat.T)
@@ -1203,23 +1538,28 @@ def dcm_shift_vectors(v, dcm, forward=False):
 
 def dcm_shift_tensor2(a, dcm, forward=False):
     """
-    Given two frames A and B such that the orientation of frame B with respect
-    to frame A is given by a direction cosine matrix, shifts second-order
-    tesnors from A to B or B to A.
+    Transform second-order tensor components between frames A and B.
+
+    The orientation of B relative to A is specified by `dcm`. This orientation
+    is used for both transformation directions. The tensor remains unchanged;
+    only its components are expressed in a different frame.
 
     Parameters
     ----------
     a : (3,3) ndarray
-        A second-order tensor.
+        A second-order tensor, resolved in A if `forward` is ``True``, or in B
+        otherwise.
     dcm : (3,3) ndarray
-        Direction cosine matrix.
+        Direction cosine matrix of frame B with respect to frame A.
     forward : bool
-        If ``True``, shift from A to B. If ``False``, shift from B to A.
+        If ``True``, transform components from A to B. If ``False``, transform
+        components from B to A. Default is ``False``.
 
     Returns
     -------
     (3,3) ndarray
-        Shifted second-order tensor.
+        Components of the same tensor expressed in B if `forward` is ``True``,
+        or in A otherwise.
     """
     shiftmat = dcm_shiftmat(dcm, forward=forward)
     return np.einsum("ip,jq,pq", shiftmat, shiftmat, a)
@@ -1227,23 +1567,28 @@ def dcm_shift_tensor2(a, dcm, forward=False):
 
 def dcm_shift_tensor3(a, dcm, forward=False):
     """
-    Given two frames A and B such that the orientation of frame B with respect
-    to frame A is given by a direction cosine matrix, shifts third-order
-    tesnors from A to B or B to A.
+    Transform third-order tensor components between frames A and B.
+
+    The orientation of B relative to A is specified by `dcm`.  This orientation
+    is used for both transformation directions. The tensor remains unchanged;
+    only its components are expressed in a different frame.
 
     Parameters
     ----------
     a : (3,3,3) ndarray
-        A third-order tensor.
+        A third-order tensor, resolved in A if `forward` is ``True``, or in B
+        otherwise.
     dcm : (3,3) ndarray
-        Direction cosine matrix.
+        Direction cosine matrix of frame B with respect to frame A.
     forward : bool
-        If ``True``, shift from A to B. If ``False``, shift from B to A.
+        If ``True``, transform components from A to B. If ``False``, transform
+        components from B to A. Default is ``False``.
 
     Returns
     -------
     (3,3,3) ndarray
-        Shifted third-order tensor.
+        Components of the same tensor expressed in B if `forward` is ``True``,
+        or in A otherwise.
     """
     shiftmat = dcm_shiftmat(dcm, forward=forward)
     return np.einsum("ip,jq,kr,pqr", shiftmat, shiftmat, shiftmat, a)
@@ -1282,16 +1627,16 @@ def dcm_to_aa(dcm):
     axis : (3,) ndarray
         Axis of rotation. This is a unit vector.
     angle : float
-        Angle in radian.
+        Angle in radian (lies in [0, *pi*]).
     """
     mat = dcm_rotmat(dcm)
     axis, angle = aa_from_rotmat(mat)
     return (axis, angle)
 
 
-def dcm_to_euler(dcm, seq="XYZ", world=True):
+def dcm_to_euler(dcm, seq="XYZ", world=True, tol=1e-14):
     """
-    Converts a direction cosine matrix to a Euler angles.
+    Converts a direction cosine matrix to *Euler angles*.
 
     Parameters
     ----------
@@ -1301,6 +1646,8 @@ def dcm_to_euler(dcm, seq="XYZ", world=True):
         Euler angle sequence.
     world : bool
         Whether the Euler angles are with respect to the *world* frame or not.
+    tol : float
+        Tolerance (must be >= 0) for setting one outer angle to zero.
 
     Returns
     -------
@@ -1309,7 +1656,7 @@ def dcm_to_euler(dcm, seq="XYZ", world=True):
         about Y), and ``psi`` (rotation about Z).
     """
     mat = dcm_rotmat(dcm)
-    euler = euler_factor_rotmat(mat, seq=seq, world=world)
+    euler = euler_factor_rotmat(mat, seq=seq, world=world, tol=tol)
     return euler
 
 
@@ -1321,7 +1668,7 @@ def dcm_from_any(orientation):
     Parameters
     ----------
     orientation : dict
-        See :func:`.any_to_quat`.
+        See :func:`.quat_from_any`.
 
     Returns
     -------
@@ -1342,7 +1689,7 @@ def dcm_from_any(orientation):
         angle = orientation["angle"]
         dcm = aa_to_dcm(axis, angle)
     elif ori_repr == "dcm":
-        dcm = dcm_to_quat(orientation["dcm"])
+        dcm = orientation["dcm"].copy()
     else:
         raise ValueError(f"Unrecognized orientation repr {ori_repr}")
     return dcm
@@ -1357,51 +1704,67 @@ def euler_rotmat(euler, seq="XYZ", world=True):
 
     Parameters
     ----------
-    euler : (3,)
+    euler : (3,) ndarray
         Euler angles in radian.
     seq : {'XYZ', 'XZY', 'YXZ', 'YZX', 'ZXY', 'ZYX'}
         Sequence of Euler angles.
     world : bool
          Whether the euler angles are with respect to the *world* frame or not.
+
+    Returns
+    -------
+    (3,3) ndarray
+        Rotation matrix
     """
     return _rotmat_euler(euler, seq=seq, world=world)
 
 
-def euler_factor_rotmat(rotmat, seq="XYZ", world=True):
+def euler_factor_rotmat(rotmat, seq="XYZ", world=True, tol=1e-14):
     """Factorize a rotation matrix to obtain the three Euler angles.
 
     Parameters
     ----------
     rotmat : (3,3) ndarray
-        Rotation matrix
+        Rotation matrix (must be orthonormal with determinant equal to one).
     seq : {'XYZ', 'XZY', 'YXZ', 'YZX', 'ZXY', 'ZYX'}
         Euler angle sequence.
     world : bool
         Whether the Euler angles are with respect to the *world* frame or not.
+    tol : float
+        Tolerance (must be >= 0) for setting one outer angle to zero.
+
+    Returns
+    -------
+    (3,) ndarray
+        Euler angles in radian.
     """
-    return _factor_rotmat(rotmat, seq=seq, world=world)
+    return _factor_rotmat(rotmat, seq=seq, world=world, tol=tol)
 
 
 def euler_shiftmat(euler, seq="XYZ", world=True, forward=False):
-    """Returns the shifter matrix for a set of Euler angles.
+    """Returns the shifter matrix corresponding to a set of Euler angles.
+
+    The orientation of frame B relative to frame A is specified by a set of
+    Euler angles. The shifter matrix S transforms components of vectors (or
+    tensors) resolved in A to those in B (or vice-versa).
 
     Parameters
     ----------
-    euler : (3,)
+    euler : (3,) ndarray
         Euler angles in radian.
     seq : {'XYZ', 'XZY', 'YXZ', 'YZX', 'ZXY', 'ZYX'}
         Sequence of Euler angles.
     world : bool
          Whether the euler angles are with respect to the *world* frame or not.
     forward : bool
-        Whether to shift forward, i.e., along the orientation or shift reverse.
+       If ``True``, transform components from A to B. If ``False``, transform
+       components from B to A. Default is ``False``.
 
     Returns
     -------
     (3,3) ndarray
         Shifter matrix.
     """
-
     rotmat = euler_rotmat(euler, seq=seq, world=world)
     if forward:
         shiftmat = rotmat.T
@@ -1414,10 +1777,13 @@ def euler_rotate_vectors(v, euler, seq="XYZ", world=True):
     """
     Rotates vectors with a set of Euler angles.
 
+    The components of `v` and the rotated vectors are all expressed in the same
+    fixed basis.
+
     Parameters
     ----------
     v : (3,) or (n,3) ndarray
-        A single 3-vector or *n* 3-vectors (the rows of `v`) to rotate.
+        Components of a single vector or n vectors stored as rows.
     euler : (3,) ndarray
         Euler angles.
     seq : {'XYZ', 'XZY', 'YXZ', 'YZX', 'ZXY', 'ZYX'}
@@ -1436,85 +1802,100 @@ def euler_rotate_vectors(v, euler, seq="XYZ", world=True):
 
 def euler_shift_vectors(v, euler, seq="XYZ", world=True, forward=False):
     """
-    Given two frames A and B such that the orientation of frame B with respect
-    to frame A is given by three Euler angles, shifts vectors from A
-    to B or B to A.
+    Transform vector components between frames A and B.
+
+    The orientation of B relative to A is specified by Euler angles. This
+    orientation is used for both transformation directions. The vectors remain
+    unchanged; only their components are expressed in a different frame.
 
     Parameters
     ----------
     v : (3,) or (n,3) ndarray
-        A single 3-vector or *n* 3-vectors (the rows of `v`) to shift.
-    euler : (3,)
+        Components of a single vector or n vectors stored as rows. Expressed
+        in A if `forward` is ``True``, or in B otherwise.
+    euler : (3,) ndarray
         Euler angles in radian.
     seq : {'XYZ', 'XZY', 'YXZ', 'YZX', 'ZXY', 'ZYX'}
         Sequence of Euler angles.
     world : bool
          Whether the euler angles are with respect to the *world* frame or not.
     forward : bool
-        If ``True``, shift from A to B. If ``False``, shift from B to A.
+        If ``True``, transform components from A to B. If ``False``, transform
+        components from B to A. Default is ``False``.
 
     Returns
     -------
     (3,) or (n,3) ndarray
-        Shifted vectors.
+        Components of the same vectors expressed in B if `forward` is ``True``,
+        or in A otherwise. Has the same shape as `v`.
     """
     shiftmat = euler_shiftmat(euler, seq=seq, world=world, forward=forward)
     return np.dot(v, shiftmat.T)
 
 
-def euler_shift_tensor2(a, euler, forward=False):
+def euler_shift_tensor2(a, euler, seq="XYZ", world=True, forward=False):
     """
-    Given two frames A and B such that the orientation of frame B with respect
-    to frame A is given by three Euler angles, shifts second-order tensors from A
-    to B or B to A.
+    Transform second-order tensor components between frames A and B.
+
+    The orientation of B relative to A is specified by Euler angles. This
+    orientation is used for both transformation directions. The tensor remains
+    unchanged; only its components are expressed in a different frame.
 
     Parameters
     ----------
     a : (3,3) ndarray
-        A second-order tensor
-    euler : (3,)
+        A second-order tensor. Expressed in A if `forward` is ``True``, or in B
+        otherwise.
+    euler : (3,) ndarray
         Euler angles in radian.
     seq : {'XYZ', 'XZY', 'YXZ', 'YZX', 'ZXY', 'ZYX'}
         Sequence of Euler angles.
     world : bool
          Whether the euler angles are with respect to the *world* frame or not.
     forward : bool
-        If ``True``, shift from A to B. If ``False``, shift from B to A.
+        If ``True``, transform components from A to B. If ``False``, transform
+        components from B to A. Default is ``False``.
 
     Returns
     -------
     (3,3) ndarray
-        Shifted second order tensor.
+        Components of the same tensor expressed in B if `forward` is ``True``,
+        or in A otherwise.
     """
-    shiftmat = euler_shiftmat(euler, forward=forward)
+    shiftmat = euler_shiftmat(euler, seq=seq, world=world, forward=forward)
     return np.einsum("ip,jq,pq", shiftmat, shiftmat, a)
 
 
-def euler_shift_tensor3(a, euler, forward=False):
+def euler_shift_tensor3(a, euler, seq="XYZ", world=True, forward=False):
     """
-    Given two frames A and B such that the orientation of frame B with respect
-    to frame A is given by three Euler angles, shifts third-order tensors from A
-    to B or B to A.
+    Transform third-order tensor components between frames A and B.
+
+    The orientation of B relative to A is specified by Euler angles. This
+    orientation is used for both transformation directions. The tensor remains
+    unchanged; only its components are expressed in a different frame.
 
     Parameters
     ----------
     a : (3,3,3) ndarray
-        A third-order tensor
-    euler : (3,)
+        A third-order tensor. Expressed in A if `forward` is ``True``, or in B
+        otherwise.
+    euler : (3,) ndarray
         Euler angles in radian.
     seq : {'XYZ', 'XZY', 'YXZ', 'YZX', 'ZXY', 'ZYX'}
         Sequence of Euler angles.
     world : bool
          Whether the euler angles are with respect to the *world* frame or not.
     forward : bool
-        If ``True``, shift from A to B. If ``False``, shift from B to A.
+        If ``True``, transform components from A to B. If ``False``, transform
+        components from B to A. Default is ``False``.
 
     Returns
     -------
     (3,3,3) ndarray
-        Shifted third-order tensor.
+        Components of the same tensor expressed in B if `forward` is ``True``,
+        or in A otherwise.
     """
-    shiftmat = euler_shiftmat(euler, forward=forward)
+    shiftmat = euler_shiftmat(euler, seq=seq, world=world, forward=forward)
     return np.einsum("ip,jq,kr,pqr", shiftmat, shiftmat, shiftmat, a)
 
 
@@ -1533,7 +1914,7 @@ def euler_to_quat(euler, seq="XYZ", world=True):
     Returns
     -------
     (4,) ndarray
-        Unit quaternion.
+        Unit quaternion in canonical form.
     """
     axis, angle = euler_to_aa(euler, seq=seq, world=world)
     return aa_to_quat(axis, angle)
@@ -1556,7 +1937,7 @@ def euler_to_aa(euler, seq="XYZ", world=True):
     axis : (3,) ndarray
         Unit vector along the direction of the axis.
     angle : float
-        Angle in radian.
+        Angle in radian (lies in [0, *pi*]).
     """
     rotmat = euler_rotmat(euler, seq=seq, world=world)
     axis, angle = aa_from_rotmat(rotmat)
@@ -1584,7 +1965,7 @@ def euler_to_dcm(euler, seq="XYZ", world=True):
     return dcm
 
 
-def euler_to_euler(euler, seq, world, to_seq, to_world):
+def euler_to_euler(euler, seq, world, to_seq, to_world, tol=1e-14):
     """Convert one set of Euler angles to another.
 
     Parameters
@@ -1598,7 +1979,10 @@ def euler_to_euler(euler, seq, world, to_seq, to_world):
     to_seq : {'XYZ', 'XZY', 'YXZ', 'YZX', 'ZXY', 'ZYX'}
         Convert `euler` with sequence `seq` to the sequence `to_seq`.
     to_world : bool
-        Whether the converted euler angles are with respect to the *world* frame or not.
+        Whether the converted euler angles are with respect to the *world*
+        frame or not.
+    tol : float
+        Tolerance (must be >= 0) for setting one outer angle to zero.
 
     Returns
     -------
@@ -1606,10 +1990,10 @@ def euler_to_euler(euler, seq, world, to_seq, to_world):
         Euler angles.
     """
     rotmat = euler_rotmat(euler, seq=seq, world=world)
-    return euler_factor_rotmat(rotmat, seq=to_seq, world=to_world)
+    return euler_factor_rotmat(rotmat, seq=to_seq, world=to_world, tol=tol)
 
 
-def euler_from_any(orientation, to_seq, to_world):
+def euler_from_any(orientation, to_seq, to_world, tol=1e-14):
     """Converts to Euler angles from any of the following: (1)
     Quaternion, (2) Euler angles, (3) Axis-angle, or (4) Direction cosine
     matrix.
@@ -1617,28 +2001,36 @@ def euler_from_any(orientation, to_seq, to_world):
     Parameters
     ----------
     orientation : dict
-        See :func:`.any_to_quat`.
+        See :func:`.quat_from_any`.
+    to_seq : {'XYZ', 'XZY', 'YXZ', 'YZX', 'ZXY', 'ZYX'}
+        Sequence of the returned Euler angles.
+    to_world : bool
+        Whether the returned Euler angles are with respect to the *world* frame
+        or not.
+    tol : float
+        Tolerance (must be >= 0) for setting one outer angle to zero.
 
     Returns
     -------
-    (3,) ndarray
+    euler : (3,) ndarray
         Euler angles.
     """
     ori_repr = orientation["repr"]
     if ori_repr == "quat":
         quat = np.array(orientation["quat"])
-        euler = quat_to_euler(quat, seq=to_seq, world=to_world)
+        euler = quat_to_euler(quat, seq=to_seq, world=to_world, tol=tol)
     elif ori_repr == "euler":
         euler = np.array(orientation["euler"])
         seq = orientation["seq"]
         world = orientation["world"]
-        euler = euler_to_euler(euler, seq, world, to_seq, to_world)
+        euler = euler_to_euler(euler, seq, world, to_seq, to_world, tol=tol)
     elif ori_repr == "axis_angle":
         axis = np.array(orientation["axis"])
         angle = orientation["angle"]
-        euler = aa_to_euler(axis, angle, seq=to_seq, world=to_world)
+        euler = aa_to_euler(axis, angle, seq=to_seq, world=to_world, tol=tol)
     elif ori_repr == "dcm":
-        euler = dcm_to_euler(orientation["dcm"], seq=to_seq, world=to_world)
+        euler = dcm_to_euler(orientation["dcm"], seq=to_seq, world=to_world,
+                             tol=tol)
     else:
         raise ValueError(f"Unrecognized orientation repr {ori_repr}")
     return euler
@@ -1674,7 +2066,7 @@ def _rotmat_euler(euler, seq="XYZ", world=True):
     return rotmat
 
 
-def _factor_rotmat(rotmat, seq="XYZ", world=True):
+def _factor_rotmat(rotmat, seq="XYZ", world=True, tol=1e-14):
     factor_rotmat_funcs = {
         "XYZ": _factor_rotmat_XYZ,
         "XZY": _factor_rotmat_XZY,
@@ -1685,7 +2077,7 @@ def _factor_rotmat(rotmat, seq="XYZ", world=True):
     }
     if not world:
         rotmat = rotmat.T
-    factors = factor_rotmat_funcs[seq](rotmat)
+    factors = factor_rotmat_funcs[seq](rotmat, tol=tol)
     if not world:
         factors = -factors
     return factors
@@ -1711,22 +2103,21 @@ def _rotmat_XYZ(phi, theta, psi):
     return rotmat
 
 
-def _factor_rotmat_XYZ(rotmat):
-    if rotmat[2, 0] < 1.0:
-        if rotmat[2, 0] > -1.0:
-            theta = math.asin(-rotmat[2, 0])
-            psi = math.atan2(rotmat[1, 0], rotmat[0, 0])
-            phi = math.atan2(rotmat[2, 1], rotmat[2, 2])
-        else:
-            # Not unique: phi - psi = atan2(-rotmat[1,2], rotmat[1,1])
-            theta = math.pi / 2
-            psi = -math.atan2(-rotmat[1, 2], rotmat[1, 1])
-            phi = 0.0
+def _factor_rotmat_XYZ(rotmat, tol=1e-14):
+    # Recover the middle angle theta
+    s = -rotmat[2,0]
+    c = math.hypot(rotmat[0,0], rotmat[1,0]) # = abs(cos theta))
+    theta = math.atan2(s,c) #Returns in [-pi/2, pi/2]
+    #Calculate phi (accounting for gimbal lock)
+    if c > tol:
+        phi = math.atan2(rotmat[2,1], rotmat[2,2])
     else:
-        # Not unique: phi + psi = atan2(-rotmat[1,2], rotmat[1,1])
         phi = 0.0
-        theta = -math.pi / 2
-        psi = math.atan2(-rotmat[1, 2], rotmat[1, 1])
+    #Calculate psi using phi
+    sphi = math.sin(phi)
+    cphi = math.cos(phi)
+    psi = math.atan2(sphi*rotmat[0,2]-cphi*rotmat[0,1], 
+                     cphi*rotmat[1,1]-sphi*rotmat[1,2])
     return np.array([phi, theta, psi])
 
 
@@ -1750,22 +2141,21 @@ def _rotmat_XZY(phi, theta, psi):
     return rotmat
 
 
-def _factor_rotmat_XZY(rotmat):
-    if rotmat[1, 0] < 1.0:
-        if rotmat[1, 0] > -1.0:
-            phi = math.atan2(-rotmat[1, 2], rotmat[1, 1])
-            theta = math.atan2(-rotmat[2, 0], rotmat[0, 0])
-            psi = math.asin(rotmat[1, 0])
-        else:
-            # Not unique: phi - theta = atan2(rotmat[2,1], rotmat[2,2])
-            phi = 0.0
-            theta = -math.atan2(rotmat[2, 1], rotmat[2, 2])
-            psi = -math.pi / 2
+def _factor_rotmat_XZY(rotmat, tol=1e-14):
+    #Recover angle psi
+    s = rotmat[1,0]
+    c = math.hypot(rotmat[0,0], rotmat[2,0]) # = abs(cos psi))
+    psi = math.atan2(s,c) #Returns in [-pi/2, pi/2]
+    #Calculate phi (accounting for gimbal lock)
+    if c > tol:
+        phi = math.atan2(-rotmat[1,2], rotmat[1,1])
     else:
-        # Not unique: phi + theta = atan2(rotmat[2,1], rotmat[2,2])
         phi = 0.0
-        theta = math.atan2(rotmat[2, 1], rotmat[2, 1])
-        psi = math.pi / 2
+    #Calculate theta using phi
+    sphi = math.sin(phi)
+    cphi = math.cos(phi)
+    theta = math.atan2(sphi*rotmat[0,1]+cphi*rotmat[0,2], 
+                       sphi*rotmat[2,1]+cphi*rotmat[2,2])
     return np.array([phi, theta, psi])
 
 
@@ -1789,22 +2179,21 @@ def _rotmat_YXZ(phi, theta, psi):
     return rotmat
 
 
-def _factor_rotmat_YXZ(rotmat):
-    if rotmat[2, 1] < 1.0:
-        if rotmat[2, 1] > -1.0:
-            phi = math.asin(rotmat[2, 1])
-            theta = math.atan2(-rotmat[2, 0], rotmat[2, 2])
-            psi = math.atan2(-rotmat[0, 1], rotmat[1, 1])
-        else:
-            # Not unique: theta - psi = atan2(rotmat[0,2], rotmat[0,0])
-            phi = -math.pi / 2
-            theta = 0.0
-            psi = -math.atan2(rotmat[0, 2], rotmat[0, 0])
+def _factor_rotmat_YXZ(rotmat, tol=1e-14):
+    #Recover middle angle phi
+    s = rotmat[2,1]
+    c = math.hypot(rotmat[0,1], rotmat[1,1]) # = abs(cos phi))
+    phi = math.atan2(s,c) #Returns in [-pi/2, pi/2]
+    #Calculate theta (accounting for gimbal lock)
+    if c > tol:
+        theta = math.atan2(-rotmat[2,0], rotmat[2,2])
     else:
-        # Not unique: theta + psi = atan2(rotmat[0,2], rotmat[0,0])
-        phi = math.pi / 2
         theta = 0.0
-        psi = math.atan2(rotmat[0, 2], rotmat[0, 0])
+    #Calculate psi using theta
+    stheta = math.sin(theta)
+    ctheta = math.cos(theta)
+    psi = math.atan2(ctheta*rotmat[1,0]+stheta*rotmat[1,2], 
+                     ctheta*rotmat[0,0]+stheta*rotmat[0,2])
     return np.array([phi, theta, psi])
 
 
@@ -1828,22 +2217,21 @@ def _rotmat_YZX(phi, theta, psi):
     return rotmat
 
 
-def _factor_rotmat_YZX(rotmat):
-    if rotmat[0, 1] < 1.0:
-        if rotmat[0, 1] > -1.0:
-            phi = math.atan2(rotmat[2, 1], rotmat[1, 1])
-            theta = math.atan2(rotmat[0, 2], rotmat[0, 0])
-            psi = math.asin(-rotmat[0, 1])
-        else:
-            # Not unique: theta - phi = atan2(-rotmat[2,0], rotmat[2,2])
-            phi = -math.atan2(-rotmat[2, 0], rotmat[2, 2])
-            theta = 0.0
-            psi = math.pi / 2
+def _factor_rotmat_YZX(rotmat, tol=1e-14):
+    #Recover middle angle psi
+    s = -rotmat[0,1]
+    c = math.hypot(rotmat[1,1], rotmat[2,1]) # = abs(cos psi))
+    psi = math.atan2(s,c) #Returns in [-pi/2, pi/2]
+    #Calculate theta (accounting for gimbal lock)
+    if c > tol:
+        theta = math.atan2(rotmat[0,2], rotmat[0,0])
     else:
-        # Not unique: theta + phi = atan2(-rotmat[2,0], rotmat[2,2])
-        phi = math.atan2(-rotmat[2, 0], rotmat[2, 2])
         theta = 0.0
-        psi = -math.pi / 2
+    #Calculate phi using theta
+    stheta = math.sin(theta)
+    ctheta = math.cos(theta)
+    phi = math.atan2(stheta*rotmat[1,0]-ctheta*rotmat[1,2], 
+                     ctheta*rotmat[2,2]-stheta*rotmat[2,0])
     return np.array([phi, theta, psi])
 
 
@@ -1867,22 +2255,21 @@ def _rotmat_ZXY(phi, theta, psi):
     return rotmat
 
 
-def _factor_rotmat_ZXY(rotmat):
-    if rotmat[1, 2] < 1.0:
-        if rotmat[1, 2] > -1.0:
-            phi = math.asin(-rotmat[1, 2])
-            theta = math.atan2(rotmat[0, 2], rotmat[2, 2])
-            psi = math.atan2(rotmat[1, 0], rotmat[1, 1])
-        else:
-            # Not unique: psi - theta = atan2(-rotmat[0,1], rotmat[0,0])
-            phi = math.pi / 2
-            theta = -math.atan2(-rotmat[0, 1], rotmat[0, 0])
-            psi = 0.0
+def _factor_rotmat_ZXY(rotmat, tol=1e-14):
+    #Recover middle angle phi
+    s = -rotmat[1,2]
+    c = math.hypot(rotmat[0,2], rotmat[2,2]) # = abs(cos phi))
+    phi = math.atan2(s,c) #Returns in [-pi/2, pi/2]
+    #Calculate psi (accounting for gimbal lock)
+    if c > tol:
+        psi = math.atan2(rotmat[1,0], rotmat[1,1])
     else:
-        # Not unique: psi + theta = atan2(-rotmat[0,1], rotmat[0,0])
-        phi = -math.pi / 2
-        theta = math.atan2(-rotmat[0, 1], rotmat[0, 0])
         psi = 0.0
+    #Calculate theta using psi
+    spsi = math.sin(psi)
+    cpsi = math.cos(psi)
+    theta = math.atan2(spsi*rotmat[2,1]-cpsi*rotmat[2,0], 
+                       cpsi*rotmat[0,0]-spsi*rotmat[0,1])
     return np.array([phi, theta, psi])
 
 
@@ -1906,20 +2293,19 @@ def _rotmat_ZYX(phi, theta, psi):
     return rotmat
 
 
-def _factor_rotmat_ZYX(rotmat):
-    if rotmat[0, 2] < 1.0:
-        if rotmat[0, 2] > -1.0:
-            phi = math.atan2(-rotmat[1, 2], rotmat[2, 2])
-            theta = math.asin(rotmat[0, 2])
-            psi = math.atan2(-rotmat[0, 1], rotmat[0, 0])
-        else:
-            # Not unique: psi - phi = atan2(rotmat[1,0], rotmat[1,1])
-            phi = -math.atan2(rotmat[1, 0], rotmat[1, 1])
-            theta = -math.pi / 2
-            psi = 0.0
+def _factor_rotmat_ZYX(rotmat, tol=1e-14):
+    # Recover the middle angle theta
+    s = rotmat[0,2]
+    c = math.hypot(rotmat[1,2], rotmat[2,2]) # = abs(cos theta))
+    theta = math.atan2(s,c) #Returns in [-pi/2, pi/2]
+    #Calculate psi (accounting for gimbal lock)
+    if c > tol:
+        psi = math.atan2(-rotmat[0,1], rotmat[0,0])
     else:
-        # Not unique: psi + phi = atan2(rotmat[1,0], rotmat[1,1])
-        phi = math.atan2(rotmat[1, 0], rotmat[1, 1])
-        theta = math.pi / 2
         psi = 0.0
+    #Calculate phi using psi
+    spsi = math.sin(psi)
+    cpsi = math.cos(psi)
+    phi = math.atan2(spsi*rotmat[2,0]+cpsi*rotmat[2,1], 
+                     spsi*rotmat[1,0]+cpsi*rotmat[1,1])
     return np.array([phi, theta, psi])
