@@ -1,17 +1,13 @@
 #include "rotlib.h"
 #include "utils_math.h"
+#include <float.h>
 #include <math.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 /* Euler angle sequence: XYZ (world). First rotation about X, second rotation   */
 /* about Y, and the third rotation about Z axis of the world(i.e. fixed) frame. */
-/* This is the same as the sequence used in Blender.                            */
-/* In contrast, the XYZ sequence is understood in the Aerospace community as:   */
-/* First rotation about Z-axis, second rotation about Y-axis, and the third     */
-/* rotation about X-axis of the body frame.                                     */
 
 
 /******************************************************************************/
@@ -43,6 +39,35 @@ static void rotmat_XYZ(const double* euler, double* rotmat){
 
 /******************************************************************************/
 
+static void factor_rotmat_XYZ(const double* rotmat, const double tol, 
+        double* euler){
+
+    const int n = 3;
+    double phi, theta, psi;
+
+    /* Recover the middle angle theta */
+    double s = -rotmat[n*2+0];
+    double c = hypot(rotmat[n*0+0], rotmat[n*1+0]); /* = abs(cos theta) */
+    theta = atan2(s,c); /* Returns in [-pi/2, pi/2] */
+
+    /* Calculate phi (accounting for gimbal lock) */
+    if (c > tol){
+        phi = atan2(rotmat[n*2+1], rotmat[n*2+2]);
+    }
+    else {
+        phi = 0.0;
+    }
+    /* Calculate psi using phi */
+    double sphi = sin(phi);
+    double cphi = cos(phi);
+    psi = atan2(sphi*rotmat[n*0+2] - cphi*rotmat[n*0+1], 
+                cphi*rotmat[n*1+1] - sphi*rotmat[n*1+2]);
+
+    euler[0] = phi; euler[1] = theta; euler[2] = psi;
+}
+
+/******************************************************************************/
+
 static void rotmat_XZY(const double* euler, double* rotmat){
 
     const int n = 3;
@@ -64,6 +89,35 @@ static void rotmat_XZY(const double* euler, double* rotmat){
     rotmat[n*2+0] = -sin_theta*cos_psi;
     rotmat[n*2+1] = sin_phi*cos_theta + cos_phi*sin_theta*sin_psi;
     rotmat[n*2+2] = cos_phi*cos_theta - sin_phi*sin_theta*sin_psi;
+}
+
+/******************************************************************************/
+
+static void factor_rotmat_XZY(const double* rotmat, const double tol,
+        double* euler){
+
+    const int n = 3;
+    double phi, theta, psi;
+
+    /* Recover the middle angle psi */
+    double s = rotmat[n*1+0];
+    double c = hypot(rotmat[n*0+0], rotmat[n*2+0]); /* = abs(cos psi) */
+    psi = atan2(s,c); /* Returns in [-pi/2, pi/2] */
+
+    /* Calculate phi (accounting for gimbal lock) */
+    if (c > tol){
+        phi = atan2(-rotmat[n*1+2], rotmat[n*1+1]);
+    }
+    else {
+        phi = 0.0;
+    }
+    /* Calculate theta using phi */
+    double sphi = sin(phi);
+    double cphi = cos(phi);
+    theta = atan2(sphi*rotmat[n*0+1] + cphi*rotmat[n*0+2], 
+                  sphi*rotmat[n*2+1] + cphi*rotmat[n*2+2]);
+
+    euler[0] = phi; euler[1] = theta; euler[2] = psi;
 }
 
 /******************************************************************************/
@@ -93,6 +147,35 @@ static void rotmat_YXZ(const double* euler, double* rotmat){
 
 /******************************************************************************/
 
+static void factor_rotmat_YXZ(const double* rotmat, const double tol, 
+        double* euler){
+
+    const int n = 3;
+    double phi, theta, psi;
+
+    /* Recover the middle angle phi */
+    double s = rotmat[n*2+1];
+    double c = hypot(rotmat[n*0+1], rotmat[n*1+1]); /* = abs(cos phi) */
+    phi = atan2(s,c); /* Returns in [-pi/2, pi/2] */
+    
+    /* Calculate theta (accounting for gimbal lock) */
+    if (c > tol){
+        theta = atan2(-rotmat[n*2+0], rotmat[n*2+2]);
+    }
+    else {
+        theta = 0.0;
+    }
+    /* Calculate psi using theta */
+    double stheta = sin(theta);
+    double ctheta = cos(theta);
+    psi = atan2(ctheta*rotmat[n*1+0] + stheta*rotmat[n*1+2], 
+                ctheta*rotmat[n*0+0] + stheta*rotmat[n*0+2]);
+
+    euler[0] = phi; euler[1] = theta; euler[2] = psi;
+}
+
+/******************************************************************************/
+
 static void rotmat_YZX(const double* euler, double* rotmat){
 
     const int n = 3;
@@ -114,6 +197,35 @@ static void rotmat_YZX(const double* euler, double* rotmat){
     rotmat[n*2+0] = sin_phi*cos_theta*sin_psi - cos_phi*sin_theta;
     rotmat[n*2+1] = sin_phi*cos_psi;
     rotmat[n*2+2] = sin_phi*sin_theta*sin_psi + cos_phi*cos_theta;
+}
+
+/******************************************************************************/
+
+static void factor_rotmat_YZX(const double* rotmat, const double tol,
+        double* euler){
+
+    const int n = 3;
+    double phi, theta, psi;
+
+    /* Recover the middle angle psi */
+    double s = -rotmat[n*0+1];
+    double c = hypot(rotmat[n*1+1], rotmat[n*2+1]); /* = abs(cos psi) */
+    psi = atan2(s,c); /* Returns in [-pi/2, pi/2] */
+    
+    /* Calculate theta (accounting for gimbal lock) */
+    if (c > tol){
+        theta = atan2(rotmat[n*0+2], rotmat[n*0+0]);
+    }
+    else {
+        theta = 0.0;
+    }
+    /* Calculate phi using theta */
+    double stheta = sin(theta);
+    double ctheta = cos(theta);
+    phi = atan2(stheta*rotmat[n*1+0] - ctheta*rotmat[n*1+2], 
+                ctheta*rotmat[n*2+2] - stheta*rotmat[n*2+0]);
+
+    euler[0] = phi; euler[1] = theta; euler[2] = psi;
 }
 
 /******************************************************************************/
@@ -143,6 +255,35 @@ static void rotmat_ZXY(const double* euler, double* rotmat){
 
 /******************************************************************************/
 
+static void factor_rotmat_ZXY(const double* rotmat, const double tol,
+        double* euler){
+
+    const int n = 3;
+    double phi, theta, psi;
+
+    /* Recover the middle angle phi */
+    double s = -rotmat[n*1+2];
+    double c = hypot(rotmat[n*0+2], rotmat[n*2+2]); /* = abs(cos phi) */
+    phi = atan2(s,c); /* Returns in [-pi/2, pi/2] */
+    
+    /* Calculate psi (accounting for gimbal lock) */
+    if (c > tol){
+        psi = atan2(rotmat[n*1+0], rotmat[n*1+1]);
+    }
+    else {
+        psi = 0.0;
+    }
+    /* Calculate theta using psi */
+    double spsi = sin(psi);
+    double cpsi = cos(psi);
+    theta = atan2(spsi*rotmat[n*2+1] - cpsi*rotmat[n*2+0], 
+                  cpsi*rotmat[n*0+0] - spsi*rotmat[n*0+1]);
+
+    euler[0] = phi; euler[1] = theta; euler[2] = psi;
+}
+
+/******************************************************************************/
+
 static void rotmat_ZYX(const double* euler, double* rotmat){
 
     const int n = 3;
@@ -168,180 +309,29 @@ static void rotmat_ZYX(const double* euler, double* rotmat){
 
 /******************************************************************************/
 
-static void factor_rotmat_XYZ(const double* rotmat, double* euler){
+static void factor_rotmat_ZYX(const double* rotmat, const double tol,
+        double* euler){
 
     const int n = 3;
     double phi, theta, psi;
 
-    if (rotmat[n*2+0] < 1.0){
-        if (rotmat[n*2+0] > -1.0){
-            theta = asin(-rotmat[n*2+0]);
-            psi = atan2(rotmat[n*1+0], rotmat[n*0+0]);
-            phi = atan2(rotmat[n*2+1], rotmat[n*2+2]);
-        }
-        else {
-            /* Not unique: phi - psi = atan2(-rotmat[1][2], rotmat[1][1]) */
-            theta = M_PI_2;
-            psi = -atan2(-rotmat[n*1+2], rotmat[n*1+1]);
-            phi = 0.0;
-        }
+    /* Recover the middle angle theta */
+    double s = rotmat[n*0+2];
+    double c = hypot(rotmat[n*1+2], rotmat[n*2+2]); /* = abs(cos theta) */
+    theta = atan2(s,c); /* Returns in [-pi/2, pi/2] */
+    
+    /* Calculate psi (accounting for gimbal lock) */
+    if (c > tol){
+        psi = atan2(-rotmat[n*0+1], rotmat[n*0+0]);
     }
     else {
-        /* Not unique: phi + psi = atan2(-rotmat[1][2], rotmat[1][1]) */
-        phi = 0.0;
-        theta = -M_PI_2;
-        psi = atan2(-rotmat[n*1+2], rotmat[n*1+1]);
-    }
-
-    euler[0] = phi; euler[1] = theta; euler[2] = psi;
-}
-
-/******************************************************************************/
-
-static void factor_rotmat_XZY(const double* rotmat, double* euler){
-
-    const int n = 3;
-    double phi, theta, psi;
-
-    if (rotmat[n*1+0] < 1.0){
-        if (rotmat[n*1+0] > -1.0){
-            phi = atan2(-rotmat[n*1+2], rotmat[n*1+1]);
-            theta = atan2(-rotmat[n*2+0], rotmat[n*0+0]);
-            psi = asin(rotmat[n*1+0]);
-        }
-        else {
-            /* Not unique: phi - theta = atan2(rotmat[2][1], rotmat[2][2]) */
-            phi = 0.0;
-            theta = -atan2(rotmat[n*2+1], rotmat[n*2+2]);
-            psi = -M_PI_2;
-        }
-    }
-    else {
-        /* Not unique: phi + theta = atan2(rotmat[2][1], rotmat[2][2]) */
-        phi = 0.0;
-        theta = atan2(rotmat[n*2+1], rotmat[n*2+2]);
-        psi = M_PI_2;
-    }
-
-    euler[0] = phi; euler[1] = theta; euler[2] = psi;
-}
-
-/******************************************************************************/
-
-static void factor_rotmat_YXZ(const double* rotmat, double* euler){
-
-    const int n = 3;
-    double phi, theta, psi;
-
-    if (rotmat[n*2+1] < 1.0) {
-        if (rotmat[n*2+1] > -1.0) {
-            phi = asin(rotmat[n*2+1]);
-            theta = atan2(-rotmat[n*2+0], rotmat[n*2+2]);
-            psi = atan2(-rotmat[n*0+1], rotmat[n*1+1]);
-        }
-        else {
-            /* Not unique: theta - psi = atan2(rotmat[0][2], rotmat[0][0]) */
-            phi = -M_PI_2;
-            theta = 0.0;
-            psi = -atan2(rotmat[n*0+2], rotmat[n*0+0]);
-        }
-    }
-    else {
-        /* Not unique: theta + psi = atan2(rotmat[0][2], rotmat[0][0]) */
-        phi = M_PI_2;
-        theta = 0.0;
-        psi = atan2(rotmat[n*0+2], rotmat[n*0+0]);
-    }
-
-    euler[0] = phi; euler[1] = theta; euler[2] = psi;
-}
-
-/******************************************************************************/
-
-static void factor_rotmat_YZX(const double* rotmat, double* euler){
-
-    const int n = 3;
-    double phi, theta, psi;
-
-    if (rotmat[n*0+1] < 1.0) {
-        if (rotmat[n*0+1] > -1.0) {
-            phi = atan2(rotmat[n*2+1], rotmat[n*1+1]);
-            theta = atan2(rotmat[n*0+2], rotmat[n*0+0]);
-            psi = asin(-rotmat[n*0+1]);
-        }
-        else {
-            /* Not unique: theta - phi = atan2(-rotmat[2][0], rotmat[2][2]) */
-            phi = -atan2(-rotmat[n*2+0], rotmat[n*2+2]);
-            theta = 0.0;
-            psi = M_PI_2;
-        }
-    }
-    else {
-        /* Not unique: theta + phi = atan2(-rotmat[2][0], rotmat[2][2]) */
-        phi = atan2(-rotmat[n*2+0], rotmat[n*2+2]);
-        theta = 0.0;
-        psi = -M_PI_2;
-    }
-
-    euler[0] = phi; euler[1] = theta; euler[2] = psi;
-}
-
-/******************************************************************************/
-
-static void factor_rotmat_ZXY(const double* rotmat, double* euler){
-
-    const int n = 3;
-    double phi, theta, psi;
-
-    if (rotmat[n*1+2] < 1.0) {
-        if (rotmat[n*1+2] > -1.0) {
-            phi = asin(-rotmat[n*1+2]);
-            theta = atan2(rotmat[n*0+2], rotmat[n*2+2]);
-            psi = atan2(rotmat[n*1+0], rotmat[n*1+1]);
-        }
-        else {
-            /* Not unique: psi - theta = atan2(-rotmat[0][1], rotmat[0][0]) */
-            phi = M_PI_2;
-            theta = -atan2(-rotmat[n*0+1], rotmat[n*0+0]);
-            psi = 0.0;
-        }
-    }
-    else {
-        /* Not unique: psi + theta = atan2(-rotmat[0][1], rotmat[0][0]) */
-        phi = -M_PI_2;
-        theta = atan2(-rotmat[n*0+1], rotmat[n*0+0]);
         psi = 0.0;
     }
-
-    euler[0] = phi; euler[1] = theta; euler[2] = psi;
-}
-
-/******************************************************************************/
-
-static void factor_rotmat_ZYX(const double* rotmat, double* euler){
-
-    const int n = 3;
-    double phi, theta, psi;
-
-    if (rotmat[n*0+2] < 1.0) {
-        if (rotmat[n*0+2] > -1.0) {
-            phi = atan2(-rotmat[n*1+2], rotmat[n*2+2]);
-            theta = asin(rotmat[n*0+2]);
-            psi = atan2(-rotmat[n*0+1], rotmat[n*0+0]);
-        }
-        else {
-            /* Not unique: psi - phi = atan2(rotmat[1][0], rotmat[1][1]) */
-            phi = -atan2(rotmat[n*1+0], rotmat[n*1+1]);
-            theta = -M_PI_2;
-            psi = 0.0;
-        }
-    }
-    else {
-        /* Not unique: psi + phi = atan2(rotmat[1][0], rotmat[1][1]) */
-        phi = atan2(rotmat[n*1+0], rotmat[n*1+1]);
-        theta = M_PI_2;
-        psi = 0.0;
-    }
+    /* Calculate phi using psi */
+    double spsi = sin(psi);
+    double cpsi = cos(psi);
+    phi = atan2(spsi*rotmat[n*2+0] + cpsi*rotmat[n*2+1], 
+                spsi*rotmat[n*1+0] + cpsi*rotmat[n*1+1]);
 
     euler[0] = phi; euler[1] = theta; euler[2] = psi;
 }
@@ -397,7 +387,7 @@ static void rotmat_euler(const double* euler, enum EulangSeq seq, const bool wor
 /******************************************************************************/
 
 static void factor_rotmat(const double* rotmat, enum EulangSeq seq,
-        const bool world, double* euler){
+        const bool world, const double tol, double* euler){
 
     double rotmat_[9]; /* 3 x 3 matrix as an 1-D array */
 
@@ -410,22 +400,22 @@ static void factor_rotmat(const double* rotmat, enum EulangSeq seq,
 
     switch (seq){
         case ES_XYZ :
-            factor_rotmat_XYZ(rotmat_, euler);
+            factor_rotmat_XYZ(rotmat_, tol, euler);
             break;
         case ES_XZY :
-            factor_rotmat_XZY(rotmat_, euler);
+            factor_rotmat_XZY(rotmat_, tol, euler);
             break;
         case ES_YXZ :
-            factor_rotmat_YXZ(rotmat_, euler);
+            factor_rotmat_YXZ(rotmat_, tol, euler);
             break;
         case ES_YZX :
-            factor_rotmat_YZX(rotmat_, euler);
+            factor_rotmat_YZX(rotmat_, tol, euler);
             break;
         case ES_ZXY :
-            factor_rotmat_ZXY(rotmat_, euler);
+            factor_rotmat_ZXY(rotmat_, tol, euler);
             break;
         case ES_ZYX :
-            factor_rotmat_ZYX(rotmat_, euler);
+            factor_rotmat_ZYX(rotmat_, tol, euler);
             break;
     }
 
@@ -441,35 +431,25 @@ static void factor_rotmat(const double* rotmat, enum EulangSeq seq,
 static void rotate_vectors (const int n, const double* v, const double* rotmat,
         double* vrot) {
 
-    double rotmat_trans[9]; /* 3 x 3 array as an 1-D array*/ 
-
-    transpose(3, 3, rotmat, rotmat_trans);
-    mm_mult(n, 3, v, 3, rotmat_trans, vrot);
+    mm_mult(n, 3, v, false, 3, 3, rotmat, true, vrot);
 }
 
 /******************************************************************************/
 
 static void shift_vectors (const int n, const double* v, const double* shiftmat,
-        const bool forward, double* vshift){
+        double* vshift){
 
-    double shiftmat_trans[9]; /* 3 x 3 array as an 1-D array*/ 
-
-    transpose(3,3, shiftmat, shiftmat_trans);
-    mm_mult(n, 3, v, 3, shiftmat_trans, vshift);
+    mm_mult(n, 3, v, false, 3, 3, shiftmat, true, vshift);
 }
 
 /******************************************************************************/
 
 static void shift_tensor2 (const double* A, const double* shiftmat,
-        const bool forward, double* Ashift){
+        double* Ashift){
 
     const int n=3;
 
-    for (int i=0; i<n; ++i){
-        for (int j=0; j<n; ++j){
-            Ashift[n*i+j] = 0.0;
-        }
-    }
+    zero_out(n*n, Ashift); // Zero out the output buffer
 
     for (int i=0; i<n; ++i){
         for (int j=0; j<n; ++j){
@@ -486,17 +466,11 @@ static void shift_tensor2 (const double* A, const double* shiftmat,
 /******************************************************************************/
 
 static void shift_tensor3 (const double* A, const double* shiftmat,
-        const bool forward, double* Ashift){
+        double* Ashift){
 
     const int n = 3;
 
-    for (int i=0; i<n; ++i){
-        for (int j=0; j<n; ++j){
-            for (int k=0; k<n; ++k){
-                Ashift[n*n*i+n*j+k] = 0.0;
-            }
-        }
-    }
+    zero_out(n*n*n, Ashift); // Zero out the output buffer
 
     for (int i=0; i<n; ++i){
         for (int j=0; j<n; ++j){
@@ -520,50 +494,61 @@ static void shift_tensor3 (const double* A, const double* shiftmat,
                             /* UTILITY FUNCTIONS */
 /******************************************************************************/
 
-void align(const int n, const double* v, const int m, const double* old, 
+void align(const int m, const double* v, const int n, const double* old, 
         const double* new, double* valigned){
 
-    double cos_angle, angle;
+    double sin_angle, cos_angle, angle;
     double axis[3], z_old[3], z_new[3];
-    double dcm[9], axes_old[9], axes_new[9];
+    double mat[9], axes_old[9], axes_new[9];
+    int estat;
 
-    if (m == 1) {
+    if (n == 1) {
         //Angle between old and new
         cos_angle = dot(3, old, new);
+        cross(old, new, axis);
+        sin_angle = norm(3, axis); // always non-negative
+        // angle will be in [0, pi] as sin_angle >= 0
+        angle = atan2(sin_angle, cos_angle);
+        // try normalizing the axis
+        estat = normalize(3, axis);
+        if (estat == EXIT_SUCCESS){
+            // Non-collinear vectors: standard case
+            aa_rotate_vectors(m, v, axis, angle, valigned);
+        } 
+        else {
+            // Collinear vectors: parallel or anti-parallel
+            if (cos_angle > 0.0){
+                // angle = 0; no rotation necessary
+                memcpy(valigned, v, 3*m*sizeof(double));
+            }
+            else {
+                //angle = pi: Rotation axis not unique. Pick a vector by
+                //crossing old with a cartesian direction least parallel to it.  
+                //
+                //1. Find cartesian direction least parallel to old.
+                int min_idx = fabs(old[0]) < fabs(old[1]) ? 0 : 1;
+                min_idx = fabs(old[min_idx]) < fabs(old[2]) ? min_idx : 2;
 
-        if ( (cos_angle > 1.0) || (cos_angle < -1.0) ){
-            if (isclose(fabs(cos_angle), 1.0, 1e-9, 1e-15)){
-                cos_angle = copysign(1.0, cos_angle);
-            } else {
-                printf("Cos of angle out-of-range.\n");
-                abort();
+                //2. Create that basis vector
+                double vtmp[3] = {0.0, 0.0, 0.0};
+                vtmp[min_idx] = 1.0;
+
+                //3. Cross old with vtmp and normalize to get the rotation axis
+                cross(old, vtmp, axis); //axis will always have +ve norm
+                aa_fix(axis, &angle, true);
+
+                //Rotate
+                aa_rotate_vectors(m, v, axis, angle, valigned);
             }
         }
-        if (isclose(cos_angle, 1.0, 1e-9, 1e-15)){
-            //Angle = zero: No rotation needed
-            memcpy(valigned, v, 3*n*sizeof(double));
-        } else if (isclose(cos_angle, -1.0, 1e-9, 1e-15)){
-            //Angle = pi: Rotation axis not unique. We flip the
-            //vectors `v` to align.
-            memcpy(valigned, v, 3*n*sizeof(double));
-            for (int i=0; i<3*n; ++i){
-                *valigned = -*valigned;
-                ++valigned;
-            }
-        } else {
-            angle = acos(cos_angle);
-            //Axis of rotation
-            cross(old, new, axis);
-            unitize(3, axis);
-            aa_rotate_vectors(n, v, axis, angle, valigned);
-        }
-    } else if (m == 2) {
-        //The third vector orthogonal to `old`
+    }
+    else if (n == 2) {
+        //The third vector orthogonal to `old`. 
         cross(old, old+3, z_old);
-        unitize(3, z_old);
+        estat = normalize(3, z_old); // Norm always +ve
         //The third vector orthogonal to `new`
         cross(new, new+3, z_new);
-        unitize(3, z_new);
+        estat = normalize(3, z_new); // Norm always +ve
         //The `old` and new `frames`
         memcpy(axes_old, old, 6*sizeof(double));
         memcpy(axes_old+6, z_old, 3*sizeof(double));
@@ -571,34 +556,42 @@ void align(const int n, const double* v, const int m, const double* old,
         memcpy(axes_new, new, 6*sizeof(double));
         memcpy(axes_new+6, z_new, 3*sizeof(double));
 
-        dcm_from_axes(axes_old, axes_new, dcm);
-        dcm_rotate_vectors(n, v, dcm, valigned);
-    } else if (m == 3) {
-        dcm_from_axes(old, new, dcm);
-        dcm_rotate_vectors(n, v, dcm, valigned);
-    } else {
-        printf("`m`(= %d) must be 1, 2, or 3.\n", m);
+        mm_mult(3, 3, axes_new, true, 3, 3, axes_old, false, mat);
+        mm_mult(m, 3, v, false, 3, 3, mat, true, valigned);
+    }
+    else if (n == 3) {
+        mm_mult(3, 3, new, true, 3, 3, old, false, mat);
+        mm_mult(m, 3, v, false, 3, 3, mat, true, valigned);
+    }
+    else {
+        printf("`n`(= %d) must be 1, 2, or 3.\n", n);
         abort();
     }
 }
 
 /******************************************************************************/
 
-bool mat_is_rotmat(const double* mat){
+bool mat_is_rotmat(const double* mat, const double tol){
 
-    double identity[9];  /* 3 x 3 matrix as 1-D array */
-    double mt[9];        /* 3 x 3 matrix as 1-D array */
-    double mmt[9];       /* 3 x 3 matrix as 1-D array */
+    double tmp[9]; /* 3 x 3 matrix as 1-D array */
+    double maxval;
 
     double determinant = det(3, mat);
-    bool det_is_one = isclose(determinant, 1.0, 1e-12, 1e-12);
+    bool det_is_one = fabs(determinant-1.0) <= tol;
 
-    eye(3, identity);
+    // tmp = mat @ mat^T
+    mm_mult(3, 3, mat, false, 3, 3, mat, true, tmp);
+    //Subtract the identity matrix
+    for(int i=0; i<3; ++i){
+        tmp[3*i+i] -= 1.0;
+    }
+    //Find maximum absolute value of tmp
+    maxval = 0.0;
+    for(int i=0; i<9; ++i){
+        maxval = fmax(maxval, fabs(tmp[i]));
+    }
 
-    transpose(3, 3, mat, mt);
-    mm_mult(3, 3, mat, 3, mt, mmt);
-
-    bool is_orthogonal = allclose(9, mmt, identity, 1e-12, 1e-12);
+    bool is_orthogonal = maxval <= tol;
 
     return (is_orthogonal && det_is_one);
 }
@@ -607,13 +600,41 @@ bool mat_is_rotmat(const double* mat){
                                /* QUATERNIONS */
 /******************************************************************************/
 
+void quat_canonicalized(double q[4]){
+
+    for(int i=0; i<4; ++i){
+        if (q[i] > 0.0){
+            break;
+        }
+        else if (q[i] < 0.0){
+            q[0] = -q[0]; q[1] = -q[1]; q[2] = -q[2]; q[3] = -q[3];
+            break;
+        }
+    }
+}
+
+/******************************************************************************/
+
 void quat_rand(double q[4]){
 
-    double axis[3];
-    double angle;
+    double u0 = (double) rand() / (double) RAND_MAX;
+    double u1 = (double) rand() / (double) RAND_MAX;
+    double u2 = (double) rand() / (double) RAND_MAX;
 
-    aa_rand(axis, &angle);
-    aa_to_quat(axis, angle, q);
+    double sqrt_u0 = sqrt(u0);
+    double sqrt_1mu0 = sqrt(1.0 - u0);
+
+    double cos_u1 = cos(2.0*M_PI*u1);
+    double sin_u1 = sin(2.0*M_PI*u1);
+    double cos_u2 = cos(2.0*M_PI*u2);
+    double sin_u2 = sin(2.0*M_PI*u2);
+
+    q[0] = sqrt_1mu0*cos_u1;
+    q[1] = sqrt_1mu0*sin_u1;
+    q[2] = sqrt_u0*sin_u2;
+    q[3] = sqrt_u0*cos_u2;
+
+    quat_canonicalized(q);
 }
 
 /******************************************************************************/
@@ -634,58 +655,89 @@ void quat_conjugated(double q[4]){
 /******************************************************************************/
 
 /* Performs in-place inversion of a quaternion */
-void quat_inverted(double q[4]){
+int quat_inverted(double q[4]){
 
-    quat_conjugated(q);
-    quat_normalized(q);
+    double q_scaled[4];
+
+    // Scale the quaternion
+    double scale = 0.0;
+    for(int i=0; i<4; ++i){
+        scale = fmax(scale, fabs(q[i]));
+    }
+    if (scale == 0.0){
+        printf("Cannot invert a zero quaternion.");
+        return EXIT_FAILURE;
+    }
+    for(int i=0; i<4; ++i){
+        q_scaled[i] = q[i]/scale;
+    }
+
+    double d = dot(4, q_scaled, q_scaled);
+    quat_conjugated(q_scaled);
+
+    for(int i=0; i<4; ++i){
+        q[i] = (q_scaled[i]/d)/scale;
+    }
+    return EXIT_SUCCESS;
 }
 
 /******************************************************************************/
 
 /* Performs in-place normalization of a quaternion */
-void quat_normalized(double q[4]){
+int quat_normalized(double q[4], const bool canonicalize){
 
-    double nrm = norm(4, q);
-
-    for (int i=0; i<4; ++i){
-        q[i] /= nrm;
+    int estat = normalize(4, q);
+    if (estat == EXIT_FAILURE){
+        return estat;
     }
+    if (canonicalize){
+        quat_canonicalized(q);
+    }
+    return EXIT_SUCCESS;
 }
 
 /******************************************************************************/
 
-/* Returns true if a quaternion is normalized */
-bool quat_is_normalized(const double q[4]){
+/* Returns true if a quaternion is normalized within tolerance*/
+bool quat_is_normalized(const double q[4], const double tol){
 
-    double nrm = norm(4, q);
-
-    if (isclose(nrm, 1.0, 1e-14, 0.0)){
-        return true;
-    }
-    else {
-        return false;
-    }
+    return fabs(norm(4,q) - 1.0) <= tol;
 }
 
 /******************************************************************************/
 
 /* Calculates the product of two quaternions */
-void quat_prod(const double p[4], const double q[4], double pq[4],
-        bool normalize){
+void quat_prod(const double p[4], const double q[4], double pq[4]){
 
-    pq[0] = p[0]*q[0] - p[1]*q[1] -p [2]*q[2] -p [3]*q[3];
-    pq[1] = p[1]*q[0] + p[0]*q[1] -p [3]*q[2] +p [2]*q[3];
-    pq[2] = p[2]*q[0] + p[3]*q[1] +p [0]*q[2] -p [1]*q[3];
-    pq[3] = p[3]*q[0] - p[2]*q[1] +p [1]*q[2] +p [0]*q[3];
-
-    if (normalize) quat_normalized(pq);
+    pq[0] = p[0]*q[0] - p[1]*q[1] - p[2]*q[2] - p[3]*q[3];
+    pq[1] = p[1]*q[0] + p[0]*q[1] - p[3]*q[2] + p[2]*q[3];
+    pq[2] = p[2]*q[0] + p[3]*q[1] + p[0]*q[2] - p[1]*q[3];
+    pq[3] = p[3]*q[0] - p[2]*q[1] + p[1]*q[2] + p[0]*q[3];
 }
 
 /******************************************************************************/
 
 double quat_angle_between(const double p[4], const double q[4]){
 
-    return acos(dot(4, p, q));
+    double q_[4] = {q[0], q[1], q[2], q[3]};
+    double tmp[4];
+    double cos_angle = dot(4, p, q_);
+    if (cos_angle < 0.0){
+        // Negate q_ to ensure both p and q_ lie on the same hemisphere
+        q_[0] = -q_[0]; q_[1] = -q_[1]; q_[2] = -q_[2]; q_[3] = -q_[3];
+    }
+
+    for(int i=0; i<4; ++i){
+        tmp[i] = p[i] - q_[i];
+    }
+    double d_mag = norm(4, tmp);
+
+    for(int i=0; i<4; ++i){
+        tmp[i] = p[i] + q_[i];
+    }
+    double s_mag = norm(4, tmp);
+
+    return 4.0*atan2(d_mag, s_mag);
 }
 
 /******************************************************************************/
@@ -693,26 +745,55 @@ double quat_angle_between(const double p[4], const double q[4]){
 void quat_interpolate(const double q1[4], const double q2[4], const double t,
         double q[4]){
 
-    double theta = quat_angle_between(q1, q2);
-    double sin_theta = sin(theta);
-    double sin_t_theta = sin(t*theta);
-    double sin_it_theta = sin((1.0-t)*theta);
+    double q2_[4] = {q2[0], q2[1], q2[2], q2[3]};
+    double tmp[4];
+    double cos_angle = dot(4, q1, q2_);
+    if (cos_angle < 0.0){
+        // Negate q2_ to ensure both q1 and q2_ lie on the same hemisphere
+        q2_[0] = -q2_[0]; q2_[1] = -q2_[1]; q2_[2] = -q2_[2]; q2_[3] = -q2_[3];
+    }
+
+    for(int i=0; i<4; ++i){
+        tmp[i] = q1[i] - q2_[i];
+    }
+    double d_mag = norm(4, tmp);
+
+    for(int i=0; i<4; ++i){
+        tmp[i] = q1[i] + q2_[i];
+    }
+    double s_mag = norm(4, tmp);
+
+    double theta = 2.0*atan2(d_mag, s_mag);
+
+    // SLERP
+    double c = sinc(theta);
+    double a = (1.0 - t) * sinc ( (1.0-t)*theta ) / c;
+    double b = t * sinc(t*theta) / c;
 
     for (int i=0; i<4; ++i){
-        q[i] = ( sin_it_theta*q1[i] + sin_t_theta*q2[i] )/sin_theta;
+        q[i] = a*q1[i] + b*q2_[i];
     }
+    quat_normalized(q, false);
 }
 
 /******************************************************************************/
 
-void quat_deriv_to_angvel_mat(const double q[4], double* mat){
+void quat_deriv_to_angvel_mat(const double q[4], const bool world, double* mat){
 
     /* mat is 3 x 4 */
     const int n = 4;
 
-    mat[n*0+0] = -q[1]; mat[n*0+1] =  q[0]; mat[n*0+2] = -q[3]; mat[n*0+3] =  q[2];
-    mat[n*1+0] = -q[2]; mat[n*1+1] =  q[3]; mat[n*1+2] =  q[0]; mat[n*1+3] = -q[1];
-    mat[n*2+0] = -q[3]; mat[n*2+1] = -q[2]; mat[n*2+2] =  q[1]; mat[n*2+3] =  q[0];
+    if (world){
+        mat[n*0+0] = -q[1]; mat[n*0+1] =  q[0]; mat[n*0+2] = -q[3]; mat[n*0+3] =  q[2];
+        mat[n*1+0] = -q[2]; mat[n*1+1] =  q[3]; mat[n*1+2] =  q[0]; mat[n*1+3] = -q[1];
+        mat[n*2+0] = -q[3]; mat[n*2+1] = -q[2]; mat[n*2+2] =  q[1]; mat[n*2+3] =  q[0];
+    }
+    else
+    {
+        mat[n*0+0] = -q[1]; mat[n*0+1] =  q[0]; mat[n*0+2] =  q[3]; mat[n*0+3] = -q[2];
+        mat[n*1+0] = -q[2]; mat[n*1+1] = -q[3]; mat[n*1+2] =  q[0]; mat[n*1+3] =  q[1];
+        mat[n*2+0] = -q[3]; mat[n*2+1] =  q[2]; mat[n*2+2] = -q[1]; mat[n*2+3] =  q[0];
+    }
 
     for (int i=0; i<3; ++i){
         for (int j=0; j<4; ++j){
@@ -724,25 +805,35 @@ void quat_deriv_to_angvel_mat(const double q[4], double* mat){
 /******************************************************************************/
 
 void quat_deriv_to_angvel(const double q[4], const double qdot[4], 
-        double angvel[3]){
+        const bool world, double angvel[3]){
 
     double mat[12]; /* 3 x 4 matrix as 1-D array */
 
-    quat_deriv_to_angvel_mat(q, mat);
-    mv_mult(3, 4, mat, qdot, angvel);
+    quat_deriv_to_angvel_mat(q, world, mat);
+    mv_mult(3, 4, mat, false, qdot, angvel);
 }
 
 /******************************************************************************/
 
-void quat_deriv_from_angvel_mat(const double q[4], double* mat){
+void quat_deriv_from_angvel_mat(const double q[4], const bool world, 
+        double* mat){
 
     /* mat is 4 x 3 */
     const int n = 3;
 
-    mat[n*0+0] = -q[1]; mat[n*0+1] = -q[2]; mat[n*0+2] = -q[3];
-    mat[n*1+0] =  q[0]; mat[n*1+1] =  q[3]; mat[n*1+2] = -q[2];
-    mat[n*2+0] = -q[3]; mat[n*2+1] =  q[0]; mat[n*2+2] =  q[1];
-    mat[n*3+0] =  q[2]; mat[n*3+1] = -q[1]; mat[n*3+2] =  q[0];
+    if (world){
+        mat[n*0+0] = -q[1]; mat[n*0+1] = -q[2]; mat[n*0+2] = -q[3];
+        mat[n*1+0] =  q[0]; mat[n*1+1] =  q[3]; mat[n*1+2] = -q[2];
+        mat[n*2+0] = -q[3]; mat[n*2+1] =  q[0]; mat[n*2+2] =  q[1];
+        mat[n*3+0] =  q[2]; mat[n*3+1] = -q[1]; mat[n*3+2] =  q[0];
+    }
+    else
+    {
+        mat[n*0+0] = -q[1]; mat[n*0+1] = -q[2]; mat[n*0+2] = -q[3];
+        mat[n*1+0] =  q[0]; mat[n*1+1] = -q[3]; mat[n*1+2] =  q[2];
+        mat[n*2+0] =  q[3]; mat[n*2+1] =  q[0]; mat[n*2+2] = -q[1];
+        mat[n*3+0] = -q[2]; mat[n*3+1] =  q[1]; mat[n*3+2] =  q[0];
+    }
 
     for (int i=0; i<4; ++i){
         for (int j=0; j<3; ++j){
@@ -754,12 +845,12 @@ void quat_deriv_from_angvel_mat(const double q[4], double* mat){
 /******************************************************************************/
 
 void quat_deriv_from_angvel(const double q[4], const double angvel[3],
-        double qdot[4]){
+        const bool world, double qdot[4]){
 
     double mat[12]; /* 4 x 3 matrix as 1-D array */
 
-    quat_deriv_from_angvel_mat(q, mat);
-    mv_mult(4, 3, mat, angvel, qdot);
+    quat_deriv_from_angvel_mat(q, world, mat);
+    mv_mult(4, 3, mat, false, angvel, qdot);
 }
 
 /******************************************************************************/
@@ -792,8 +883,7 @@ void quat_rotmat(const double q[4], double* rotmat){
 
 /******************************************************************************/
 
-void quat_shiftmat(const double q[4], const bool forward,
-        double* shiftmat){
+void quat_shiftmat(const double q[4], const bool forward, double* shiftmat){
 
     double conj_q[4];
 
@@ -826,7 +916,7 @@ void quat_shift_vectors(const int n, const double* v, const double q[4],
     double shiftmat[9];  /* 3 x 3 matrix as 1-D array */
 
     quat_shiftmat(q, forward, shiftmat);
-    shift_vectors(n, v, shiftmat, forward, vshift);
+    shift_vectors(n, v, shiftmat, vshift);
 }
 
 /******************************************************************************/
@@ -837,7 +927,7 @@ void quat_shift_tensor2(const double* A, const double q[4],
     double shiftmat[9];  /* 3 x 3 matrix as 1-D array */
 
     quat_shiftmat(q, forward, shiftmat);
-    shift_tensor2(A, shiftmat, forward, Ashift);
+    shift_tensor2(A, shiftmat, Ashift);
 }
 
 /******************************************************************************/
@@ -848,33 +938,37 @@ void quat_shift_tensor3(const double* A, const double q[4],
     double shiftmat[9];  /* 3 x 3 matrix as 1-D array */
 
     quat_shiftmat(q, forward, shiftmat);
-    shift_tensor3(A, shiftmat, forward, Ashift);
+    shift_tensor3(A, shiftmat, Ashift);
 }
 
 /******************************************************************************/
 
 void quat_to_aa(const double q[4], double axis[3], double* angle){
 
-    double sine = sqrt(1.0-q[0]*q[0]);
+    double p[3], q_[4];
 
-    *angle = 2*acos(q[0]);
+    memcpy(q_, q, 4*sizeof(double));
+    if (q_[0] < 0.0){
+        q_[0] = -q_[0]; q_[1] = -q_[1]; q_[2] = -q_[2]; q_[3] = -q_[3];
+    }
 
-    if (*angle > 0.0) {
-        if (*angle < M_PI){
-            axis[0] = q[1]/sine;
-            axis[1] = q[2]/sine;
-            axis[2] = q[3]/sine;
-        }
-        else {
-            double rotmat[9];  /* 3 x 3 matrix as 1-D array */
-            quat_rotmat(q, rotmat);
-            aa_from_rotmat(rotmat, axis, angle);
-        }
+    double s = 0.0;
+    for (int i=1; i<4; ++i){
+        // Only the vector part
+        s = fmax(s, fabs(q_[i]));
+    }
+    if (s == 0.0){
+        // Identity rotation (angle = 0)
+        axis[0] = 1.0; axis[1] = 0.0; axis[2] = 0.0;
+        *angle = 0.0;
     }
     else {
-        axis[0] = 1.0; axis[1] = 0.0; axis[2] = 0.0;
+        // Usual case
+        p[0] = q_[1]/s; p[1] = q_[2]/s; p[2] = q_[3]/s; 
+        double r = norm(3, p);
+        axis[0] = p[0]/r; axis[1] = p[1]/r; axis[2] = p[2]/r;
+        *angle = 2.0*atan2(s*r, q_[0]);
     }
-    aa_fix(axis, angle, true);
 }
 
 /******************************************************************************/
@@ -887,12 +981,12 @@ void quat_to_dcm(const double q[4], double* dcm){
 /******************************************************************************/
 
 void quat_to_euler(const double q[4], enum EulangSeq seq, const bool world,
-        double euler[3]){
+        const double tol, double euler[3]){
 
     double rotmat[9];  /* 3 x 3 matrix as 1-D array */
 
     quat_rotmat(q, rotmat);
-    factor_rotmat(rotmat, seq, world, euler);
+    factor_rotmat(rotmat, seq, world, tol, euler);
 }
 
 /******************************************************************************/
@@ -900,75 +994,52 @@ void quat_to_euler(const double q[4], enum EulangSeq seq, const bool world,
 /******************************************************************************/
 
 /* Returns angle in [0, pi) */
-void aa_fix(double axis[3], double* angle, const bool normalize){
+int aa_fix(double axis[3], double* angle, const bool normalize_axis){
 
-    if (normalize) {
-        double nrm = norm(3, axis);
-        if (!isclose(nrm, 1.0, 1e-14, 1e-14)) {
-            for (int i=0; i<3; ++i) {
-                axis[i] /= nrm;
-            }
-        }
+    int estat; // Returned exit status
+
+    // Check if axis is a zero vector
+    if ((axis[0]==0.0) && (axis[1]==0.0) && (axis[2]==0.0)){
+        return EXIT_FAILURE;
     }
 
-    *angle = fmod(*angle, 2*M_PI);
+    if (normalize_axis) {
+        estat = normalize(3, axis);
+        if (estat == EXIT_FAILURE) {return estat;}
+    }
+    // Get principal signed angle in [-pi, pi]
+    *angle = atan2(sin(*angle), cos(*angle));
 
-    if (*angle < 0.0) {
-        *angle = -*angle;
-        for (int i=0; i<3; ++i) {
-            axis[i] = -axis[i];
-        }
+    // Make the angle non-negative
+    if (*angle < 0.0){
+        *angle = - *angle;
+        axis[0] = -axis[0]; axis[1] = -axis[1]; axis[2] = -axis[2]; 
     }
-    else if (*angle > M_PI) {
-        *angle = 2*M_PI - *angle;
-        for (int i=0; i<3; ++i) {
-            axis[i] = -axis[i];
-        }
-    }
+    return EXIT_SUCCESS;
 }
 
 /******************************************************************************/
 
-/* Generates a random pair of axis-angle. The axis is a random vector from */
-/* the surface of a unit sphere. Algorithm from Allen & Tildesley p. 349.  */
+/* Generates a random pair of axis-angle. */
 void aa_rand(double axis[3], double* angle){
 
-    double zeta1, zeta2, zetasq, rt;
+    double q[4];
 
-    /* Generate angle: A uniform random number from [0.0, 2*pi) */
-    *angle = 2.0*M_PI*rand()/RAND_MAX;
-
-    while (true) {
-        /* Generate two uniform random numbers from [-1, 1) */
-        zeta1 = 2.0*rand()/RAND_MAX - 1.0;
-        zeta2 = 2.0*rand()/RAND_MAX - 1.0;
-
-        zeta1 = 2.0*zeta1 - 1.0;
-        zeta2 = 2.0*zeta2 - 1.0;
-        zetasq = zeta1*zeta1 + zeta2*zeta2;
-        if (zetasq <= 1.0) break;
-    }
-
-    rt = sqrt(1.0-zetasq);
-
-    axis[0] = 2.0*zeta1*rt ;
-    axis[1] = 2.0*zeta2*rt ;
-    axis[2] = 1.0 - 2.0*zetasq ;
-
-    aa_fix(axis, angle, true);
+    quat_rand(q);
+    quat_to_aa(q, axis, angle);
 }
 
 /******************************************************************************/
 
-void aa_rotmat(const double axis[3], const double angle,
-        double* rotmat) {
+void aa_rotmat(const double axis[3], const double angle, double* rotmat) {
 
     const int n = 3;
-    double sine, cosine, icos;
+    double sine, sine_2, cosine, icos;
 
     sine = sin(angle);
     cosine = cos(angle);
-    icos = 1.0 - cosine;
+    sine_2 = sin(angle/2.0);
+    icos = 2.0*sine_2*sine_2; // equals 1.0 - cosine
 
     rotmat[n*0+0] = axis[0]*axis[0]*icos + cosine;
     rotmat[n*0+1] = axis[0]*axis[1]*icos - axis[2]*sine;
@@ -986,56 +1057,64 @@ void aa_rotmat(const double axis[3], const double angle,
 void aa_from_rotmat(const double* rotmat, double axis[3], double* angle){
 
     const int n = 3;
-    double tr, s;
-    double tmp;
-    int k;
+    double s;
 
-    tr = trace(3, rotmat);
-    *angle = acos(0.5*(tr-1.0));
+    // Cos of the angle from the trace
+    double tr = trace(3, rotmat);
+    double cos_angle = (tr - 1.0)/2.0;
+    //Clamp cos_angle to [-1, 1]
+    cos_angle = fmax(-1.0, fmin(1.0, cos_angle));
 
-    if (*angle > 0) {
-        if (*angle < M_PI) {
-            axis[0] = rotmat[n*2+1] - rotmat[n*1+2];
-            axis[1] = rotmat[n*0+2] - rotmat[n*2+0];
-            axis[2] = rotmat[n*1+0] - rotmat[n*0+1];
+    // Sine of the angle from the anti-symmetric vector w
+    double w[] = { 0.5*(rotmat[n*2+1] - rotmat[n*1+2]),
+                   0.5*(rotmat[n*0+2] - rotmat[n*2+0]),
+                   0.5*(rotmat[n*1+0] - rotmat[n*0+1]) };
+    double sin_angle = norm(3, w);
+
+    // Calculate the angle
+    *angle = atan2(sin_angle, cos_angle);
+
+    if (cos_angle >= 0.0){
+        // Angle lies in [0, pi/2]
+        if (sin_angle > 0.0){
+            axis[0] = w[0]/sin_angle;
+            axis[1] = w[1]/sin_angle;
+            axis[2] = w[2]/sin_angle;
         }
         else {
-            /* Find the location of the largest entry in the diagonal of rotmat */
-            k = 0; tmp = rotmat[n*0+0];
-            if (rotmat[n*1+1] > rotmat[n*0+0]) {
-                tmp = rotmat[n*1+1];
-                k = 1;
-            }
-            if (rotmat[n*2+2] > tmp){
-                k = 2;
-            }
-
-            switch (k) {
-                case 0 :
-                    axis[0] = sqrt(rotmat[n*0+0]-rotmat[n*1+1]-rotmat[n*2+2]+1)/2;
-                    s = 1.0/(2*axis[0]);
-                    axis[1] = s*rotmat[n*0+1];
-                    axis[2] = s*rotmat[n*0+2];
-                    break;
-                case 1 :
-                    axis[1] = sqrt(rotmat[n*1+1]-rotmat[n*0+0]-rotmat[n*2+2]+1)/2;
-                    s = 1.0/(2*axis[1]);
-                    axis[0] = s*rotmat[n*0+1];
-                    axis[2] = s*rotmat[n*1+2];
-                    break;
-                case 2 :
-                    axis[2] = sqrt(rotmat[n*2+2]-rotmat[n*0+0]-rotmat[n*1+1]+1)/2;
-                    s = 1.0/(2*axis[2]);
-                    axis[0] = s*rotmat[n*0+2];
-                    axis[1] = s*rotmat[n*1+2];
-                    break;
-            }
+            // angle = 0, axis non-unique
+            *angle = 0.0;
+            axis[0] = 1.0; axis[1] = 0.0; axis[2] = 0.0;
         }
     }
     else {
-        axis[0] = 1.0;
-        axis[1] = 0.0;
-        axis[2] = 0.0;
+        // Find the largest entry on the diagonal of rotmat
+        int k = rotmat[n*0+0] > rotmat[n*1+1] ? 0 : 1;
+        k = rotmat[n*k+k] > rotmat[n*2+2] ? k : 2;
+        switch (k){
+            case 0:
+                axis[0] = sqrt((rotmat[n*0+0]-cos_angle)/(1.0-cos_angle));
+                s = 1.0/(2.0*(1.0-cos_angle)*axis[0]);
+                axis[1] = s*(rotmat[n*1+0]+rotmat[n*0+1]);
+                axis[2] = s*(rotmat[n*2+0]+rotmat[n*0+2]);
+                break;
+            case 1:
+                axis[1] = sqrt((rotmat[n*1+1]-cos_angle)/(1.0-cos_angle));
+                s = 1.0/(2.0*(1.0-cos_angle)*axis[1]);
+                axis[0] = s*(rotmat[n*0+1]+rotmat[n*1+0]);
+                axis[2] = s*(rotmat[n*2+1]+rotmat[n*1+2]);
+                break;
+            case 2:
+                axis[2] = sqrt((rotmat[n*2+2]-cos_angle)/(1.0-cos_angle));
+                s = 1.0/(2*(1.0-cos_angle)*axis[2]);
+                axis[0] = s*(rotmat[n*0+2]+rotmat[n*2+0]);
+                axis[1] = s*(rotmat[n*1+2]+rotmat[n*2+1]);
+                break;
+        }
+    }
+    // Resolve axis aign
+    if ( dot(3, axis, w) < 0.0 ){
+        axis[0] = -axis[0]; axis[1] = -axis[1]; axis[2] = -axis[2];
     }
 
     aa_fix(axis, angle, true);
@@ -1078,14 +1157,13 @@ void aa_rotate_vectors(const int n, const double* v, const double axis[3],
 
 /******************************************************************************/
 
-void aa_shift_vectors(const int n, const double* v, 
-        const double axis[3], const double angle, const bool forward,
-        double* vshift){
+void aa_shift_vectors(const int n, const double* v, const double axis[3], 
+        const double angle, const bool forward, double* vshift){
 
     double shiftmat[9]; /* 3 x 3 matrix as 1-D array */
 
     aa_shiftmat(axis, angle, forward, shiftmat);
-    shift_vectors (n, v, shiftmat, forward, vshift);
+    shift_vectors (n, v, shiftmat, vshift);
 }
 
 /******************************************************************************/
@@ -1096,7 +1174,7 @@ void aa_shift_tensor2(const double* A, const double axis[3],
     double shiftmat[9]; /* 3 x 3 matrix as 1-D array */
 
     aa_shiftmat(axis, angle, forward, shiftmat);
-    shift_tensor2(A, shiftmat, forward, Ashift);
+    shift_tensor2(A, shiftmat, Ashift);
 }
 
 /******************************************************************************/
@@ -1107,7 +1185,22 @@ void aa_shift_tensor3(const double* A, const double axis[3],
     double shiftmat[9];  /* 3 x 3 matrix as 1-D array */
 
     aa_shiftmat(axis, angle, forward, shiftmat);
-    shift_tensor3(A, shiftmat, forward, Ashift);
+    shift_tensor3(A, shiftmat, Ashift);
+}
+
+/******************************************************************************/
+
+void aa_to_quat(const double axis[3], const double angle, double q[4]){
+
+    double half_angle = 0.5*angle;
+    double sn = sin(half_angle);
+    
+    q[0] = cos(half_angle);
+    q[1] = sn*axis[0];
+    q[2] = sn*axis[1];
+    q[3] = sn*axis[2];
+
+    quat_normalized(q, true);
 }
 
 /******************************************************************************/
@@ -1120,52 +1213,29 @@ void aa_to_dcm(const double axis[3], const double angle,
 
 /******************************************************************************/
 
-void aa_to_euler(const double axis[3], const double angle, 
-        enum EulangSeq seq, const bool world, double euler[3]){
+void aa_to_euler(const double axis[3], const double angle, enum EulangSeq seq,
+        const bool world, const double tol, double euler[3]){
 
     double rotmat[9];  /* 3 x 3 matrix as 1-D array */
 
     aa_rotmat(axis, angle, rotmat);
-    factor_rotmat(rotmat, seq, world, euler);
-}
-
-/******************************************************************************/
-
-void aa_to_quat(const double axis[3], const double angle, double q[4]){
-
-    double half_angle = 0.5*angle;
-    double sin_half_angle = sin(half_angle);
-    double nrm;
-
-    q[0] = cos(half_angle);
-    q[1] = sin_half_angle*axis[0];
-    q[2] = sin_half_angle*axis[1];
-    q[3] = sin_half_angle*axis[2];
-
-    /* Normalize the quaternion */
-    nrm = norm(4, q);
-    for (int i=0; i<4; ++i){
-        q[i] /= nrm;
-    }
+    factor_rotmat(rotmat, seq, world, tol, euler);
 }
 
 /******************************************************************************/
                          /* DIRECTION COSINE MATRIX */
 /******************************************************************************/
 
-bool mat_is_dcm(const double* mat){
+bool mat_is_dcm(const double* mat, const double tol){
 
-    return mat_is_rotmat(mat);
+    return mat_is_rotmat(mat, tol);
 }
 
 /******************************************************************************/
 
 void dcm_from_axes(const double* A, const double* B, double* dcm) {
 
-    double A_transpose[9];  /* 3 x 3 matrix as 1-D array */
-
-    transpose(3, 3, A, A_transpose);
-    mm_mult(3, 3, B, 3, A_transpose, dcm);
+    mm_mult(3, 3, B, false, 3, 3, A, true, dcm);
 }
 
 /******************************************************************************/
@@ -1206,7 +1276,7 @@ void dcm_shift_vectors(const int n, const double* v, const double* dcm,
     double shiftmat[9];  /* 3 x 3 matrix as 1-D array */
 
     dcm_shiftmat(dcm, forward, shiftmat);
-    shift_vectors (n, v, shiftmat, forward, vshift);
+    shift_vectors (n, v, shiftmat, vshift);
 }
 
 /******************************************************************************/
@@ -1217,7 +1287,7 @@ void dcm_shift_tensor2(const double* A, const double* dcm, const bool forward,
     double shiftmat[9];  /* 3 x 3 matrix as 1-D array */
 
     dcm_shiftmat(dcm, forward, shiftmat);
-    shift_tensor2(A, shiftmat, forward, Ashift);
+    shift_tensor2(A, shiftmat, Ashift);
 }
 
 /******************************************************************************/
@@ -1228,7 +1298,7 @@ void dcm_shift_tensor3(const double* A, const double* dcm, const bool forward,
     double shiftmat[9];  /* 3 x 3 matrix as 1-D array */
 
     dcm_shiftmat(dcm, forward, shiftmat);
-    shift_tensor3(A, shiftmat, forward, Ashift);
+    shift_tensor3(A, shiftmat, Ashift);
 }
 
 /******************************************************************************/
@@ -1257,12 +1327,12 @@ void dcm_to_aa(const double* dcm, double axis[3], double* angle) {
 /******************************************************************************/
 
 void dcm_to_euler(const double* dcm, enum EulangSeq seq, const bool world,
-        double euler[3]){
+        const double tol, double euler[3]){
 
     double rotmat[9];  /* 3 x 3 matrix as 1-D array */
 
     dcm_rotmat(dcm, rotmat);
-    factor_rotmat(rotmat, seq, world, euler);
+    factor_rotmat(rotmat, seq, world, tol, euler);
 }
 
 /******************************************************************************/
@@ -1312,7 +1382,7 @@ void euler_shift_vectors(const int n, const double* v, const double euler[3],
     double shiftmat[9];  /* 3 x 3 matrix as 1-D array */
 
     euler_shiftmat(euler, seq, world, forward, shiftmat);
-    shift_vectors (n, v, shiftmat, forward, vshift);
+    shift_vectors (n, v, shiftmat, vshift);
 }
 
 /******************************************************************************/
@@ -1324,7 +1394,7 @@ void euler_shift_tensor2(const double* A, const double euler[3],
     double shiftmat[9];  /* 3 x 3 matrix as 1-D array */
 
     euler_shiftmat(euler, seq, world, forward, shiftmat);
-    shift_tensor2(A, shiftmat, forward, Ashift);
+    shift_tensor2(A, shiftmat, Ashift);
 }
 
 /******************************************************************************/
@@ -1336,7 +1406,7 @@ void euler_shift_tensor3(const double* A, const double euler[3],
     double shiftmat[9];  /* 3 x 3 matrix as 1-D array */
 
     euler_shiftmat(euler, seq, world, forward, shiftmat);
-    shift_tensor3(A, shiftmat, forward, Ashift);
+    shift_tensor3(A, shiftmat, Ashift);
 }
 
 /******************************************************************************/
@@ -1373,12 +1443,13 @@ void euler_to_dcm(const double euler[3], enum EulangSeq seq, const bool world,
 /******************************************************************************/
 
 void euler_to_euler(const double euler[3], enum EulangSeq seq, const bool world,
-        enum EulangSeq to_seq, const bool to_world, double to_euler[3]){
+        enum EulangSeq to_seq, const bool to_world, const double tol,
+        double to_euler[3]){
 
     double rotmat[9];  /* 3 x 3 matrix as 1-D array */
 
     euler_rotmat(euler, seq, world, rotmat);
-    factor_rotmat(rotmat, to_seq, to_world, to_euler);
+    factor_rotmat(rotmat, to_seq, to_world, tol, to_euler);
 }
 
 /******************************************************************************/
