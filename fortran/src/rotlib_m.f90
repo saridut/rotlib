@@ -1,20 +1,4 @@
 module rotlib_m
-!!
-!!  Euler angle ranges:
-!!
-!!  * XYZ, ZYX: phi in [-pi,   pi],   theta in [-pi/2, pi/2], psi in [-pi,   pi]  
-!!  * XZY, YZX: phi in [-pi,   pi],   theta in [-pi,   pi],   psi in [-pi/2, pi/2]
-!!  * ZXY, YXZ: phi in [-pi/2, pi/2], theta in [-pi,   pi],   psi in [-pi,   pi]  
-!!
-!!  Euler angle sequence: XYZ (world). First rotation about X, second rotation
-!!  about Y, and the third rotation about Z axis of the world(i.e. fixed) frame.
-!!  This is the same as the sequence used in *Blender*.
-!!
-!!  In contrast, the XYZ sequence is understood in the Aerospace community as:
-!!  XYZ: First rotation about Z-axis, second rotation about Y-axis, and the third
-!!  rotation about X-axis of the body frame.
-!!
-!!  *Reference*: <http://www.geometrictools.com/Documentation/EulerAngles.pdf>
 
 use constants_m, only: math_pi, math_pi_2
 use utils_math_m
@@ -43,53 +27,62 @@ subroutine align(v, old, new, valigned)
     !! to the unit vectors `old`, aligns them in the direction of the unit
     !! vectors `new`.
     real(rp), dimension(:,:), intent(in) :: v
-        !! *(3,n)*. Vectors to align.
+        !! *(3,m)*. Vectors to align.
     real(rp), dimension(:,:), intent(in) :: old
-        !! *(3,m)*. A set of at most three mutually orthogonal unit vectors.
-        !!  `m` must be one of 1, 2 or 3.
+        !! *(3,n)*. A set of at most three mutually orthogonal unit vectors.
+        !!  `n` must be one of 1, 2 or 3.
     real(rp), dimension(:,:), intent(in) :: new
-        !! *(3,m)*. Another set of mutually orthogonal unit vectors of the same
+        !! *(3,n)*. Another set of mutually orthogonal unit vectors of the same
         !! shape as `old`. The angles between the vectors must be the same as
         !! those of `old`.
     real(rp), dimension(:,:), intent(out) :: valigned
-        !! *(3,n)*. Aligned vectors, of the same shape as `v`.
+        !! *(3,m)*. Aligned vectors, of the same shape as `v`.
 
-    real(rp) :: axis(3), z_old(3), z_new(3), axes_old(3,3), &
+    real(rp) :: axis(3), vtmp(3), z_old(3), z_new(3), axes_old(3,3), &
                 axes_new(3,3), dcm(3,3)
     real(rp) :: cos_angle, angle
-    integer :: n
+    integer :: n, estat, min_idx
 
     if ( any(shape(old) /= shape(new)) ) then
         write(*,*) 'Shape mismatch between `old` and `new`.'
         write(*,*) 'Shape of `old` = ', shape(old)
         write(*,*) 'Shape of `new` = ', shape(new)
-        stop 'Shape mismatch.'
+        error stop
     end if
     n = size(old, dim=2)
     if (n == 1) then
         !Angle between old and new
         cos_angle = dot_product(old(:,1), new(:,1))
-        if ( (cos_angle > 1.0_rp) .or. (cos_angle < -1.0_rp) ) then
-            if ( isclose(abs(cos_angle), 1.0_rp, 1e-9_rp, 1e-15_rp) ) then
-                cos_angle = sign(1.0_rp, cos_angle)
-            else
-                stop 'Cos of angle out-of-range.'
-            end if
-        end if
+        call cross(old(:,1), new(:,1), axis)
+        sin_angle = norm2(axis) !Always positive
+        angle = atan2(sin_angle, cos_angle) !angle in [0, pi] as sin_angle > 0.
+        call unitize(axis, estat)
 
-        if ( isclose(cos_angle, 1.0_rp, 1e-9_rp, 1e-15_rp) ) then
-            !Angle = zero: No rotation needed
-            valigned = v
-        else if ( isclose(cos_angle, -1.0_rp, 1e-9_rp, 1e-15_rp) ) then
-            !Angle = pi: Rotation axis not unique. We flip the 
-            ! vectors `v` to align.
-            valigned = -v
-        else
-            angle = acos(cos_angle)
-            !Axis of rotation 
-            call cross(old, new, axis)
-            axis = axis/norm2(axis)
+        if ( estat == 0 ) then
+            !Non-collinear vectors: standard case
+            call aa_fix(axis, angle)
             call aa_rotate_vectors(v, axis, angle, valigned)
+        else
+            !Collinear vectors: parallel or anti-parallel
+            if ( cos_angle > 0.0_rp ) then
+                !angle = 0; no rotation necessary
+                valigned = v
+            else
+                !angle = pi: Rotation axis not unique. Pick a vector by
+                !crossing old(:,1) with a cartesian direction least parallel
+                !to it.
+                !1. Find cartesian direction least parallel to old(:,1)
+                min_idx = minloc(abs(old(:,1)), 1)
+                !2. Create that basis vector
+                vtmp = 0.0_rp
+                vtmp(min_idx) = 1.0_rp
+                !3. Cross old(:,1) with vtmp and unitize to get the rotation
+                ! axis
+                call cross(old(:,1), vtmp, axis) !axis will always have +ve norm.
+                call aa_fix(axis, angle, .true.)
+                !Rotate
+                call aa_rotate_vectors(v, axis, angle, valigned)
+            end if
         end if
     else if (n == 2) then
         !The third vector orthogonal to `old`
@@ -112,20 +105,28 @@ subroutine align(v, old, new, valigned)
 
 !************************************************************************
 
-logical function mat_is_rotmat(mat)
+logical function mat_is_rotmat(mat, tol)
     !! Returns `.true.` if a (3,3) matrix is a rotation matrix.
 
     real(rp), dimension(3,3), intent(in) :: mat
         !! (3,3). Matrix to check.
+    real(rp), intent(in), optional :: tol
+        !! Absolute tolerance for comparing determinant and orthogonality.
+        !! Default value = 1e-14.
     real(rp), dimension(3,3) :: mat_prod
     logical :: det_is_one
     logical :: is_orthogonal
     real(rp), dimension(3,3) :: eye
+    real(rp) :: det_mat, tol_
+
+    tol_ = 1e-14_rp
+    if (present(tol)) tol_ = tol
 
     call identity(eye)
     mat_prod = matmul(mat, transpose(mat))
 
-    det_is_one = isclose(det(mat), 1.0_rp)
+    det_mat = det(mat)
+    det_is_one = abs(det_mat-1.0_rp) <= tol_
     is_orthogonal = allclose(mat_prod, eye)
     mat_is_rotmat = (is_orthogonal .and. det_is_one)
 
@@ -170,26 +171,41 @@ subroutine quat_conjugated(q)
 
 !************************************************************************
 
-subroutine quat_inverted(q)
+subroutine quat_inverted(q, stat)
     !! Inverts a quaternion in-place.
 
     real(rp), dimension(4), intent(in out) :: q
         !! On entry, a quaternion. On return, the inverted quaternion.
+    integer, intent(out), optional :: stat
+        !! Error code. Returns 1 if the norm of q vanishes, else 0.
+    integer :: stat_
+    real(rp) :: nrm_sq
 
-    call quat_conjugated(q)
-    call quat_normalized(q)
+    nrm_sq = dot_product(q, q)
+    if (nrm_sq <= epsilon(nrm)) then
+        stat_ = 1
+    else
+        stat_ = 0
+        call quat_conjugated(q)
+        q = q/nrm_sq
+    end if
+    if (present(stat)) stat = stat_
 
     end subroutine
 
 !************************************************************************
 
-subroutine quat_normalized(q)
+subroutine quat_normalized(q, stat)
     !! Normalizes a quaternion in-place.
 
     real(rp), dimension(4), intent(in out) :: q
         !! On entry, a quaternion. On return, the normalized quaternion.
+    integer, intent(out), optional :: stat
+        !! Error code. Returns 1 if the norm of q vanishes, else 0.
+    integer :: stat_
 
-    q = q /norm2(q)
+    call unitize(q, stat_)
+    if (present(stat)) stat = stat_
 
     end subroutine
 
@@ -201,10 +217,10 @@ logical function quat_is_normalized(q)
 
     real(rp), dimension(4), intent(in) :: q
         !! A quaternion
-    real(rp) :: norm
+    real(rp) :: norm_sq
 
-    norm = norm2(q)
-    if (isclose(norm, 1.0_rp, rel_tol=1e-14_rp)) then
+    norm_sq = dot_product(q, q)
+    if (abs(norm_sq-1.0_rp) <= 50.0_rp*epsilon(norm_sq)) then
         quat_is_normalized =  .true.
     else
         quat_is_normalized =  .false.
@@ -246,24 +262,23 @@ subroutine quat_prod (p, q, pq, normalize)
 !************************************************************************
 
 function quat_angle_between(p, q) result(angle)
-    !! Returns the angle between two _unit_ quaternions
+    !! Returns the angle (in radian) between two _unit_ quaternions along
+    !! the minimal path.
 
     real(rp), dimension(4), intent(in) :: p
         !! Unit quaternion.
     real(rp), dimension(4), intent(in) :: q
         !! Unit quaternion.
-    real(rp) :: angle, cos_angle
-        !! Angle in radian.
+    real(rp) :: q_
 
-    cos_angle = dot_product(p, q)
-    if ( (cos_angle > 1.0_rp) .or. (cos_angle < -1.0_rp) ) then
-        if ( isclose(abs(cos_angle), 1.0_rp, 1e-9_rp, 1e-15_rp) ) then
-            cos_angle = sign(1.0_rp, cos_angle)
-        else
-            stop 'Cos of angle out-of-range.'
-        end if
+    q_ = q
+    d = dot_product(p, q_)
+    if (d < 0.0_rp) then
+        !Negate q_ to ensure both p and q_ lie on the same hemisphere
+        q_ = -q_
     end if
-    angle = acos(cos_angle)
+
+    angle = uvec_angle(p, q_)
 
     end function
 
@@ -283,8 +298,15 @@ subroutine quat_interpolate(q1, q2, t, q)
     real(rp) :: theta
 
     theta = quat_angle_between(q1, q2)
-
-    q = (q1*sin((1.0_rp-t)*theta) + q2*sin(t*theta))/sin(theta)
+    if (theta < 0.03_rp ) then
+        ! cos(0.03) \approx 0.9995, the commonly used cut-off for nLERP
+        ! nLERP
+        q = q1*(1.0_rp-t) + q2*t
+    else
+        ! SLERP
+        q = (q1*sin((1.0_rp-t)*theta) + q2*sin(t*theta))/sin(theta)
+    end if
+    call quat_normalized(q)
 
     end subroutine
 
@@ -302,7 +324,7 @@ subroutine quat_deriv_to_angvel_mat(qdot, mat)
                     qdot(1),  qdot(4), -qdot(3), &
                    -qdot(4),  qdot(1),  qdot(2), &
                     qdot(3), -qdot(2),  qdot(1) ], [3,4])
-    mat = 2*mat
+    mat = 2.0_rp*mat
 
     end subroutine
 
@@ -337,7 +359,7 @@ subroutine quat_deriv_from_angvel_mat (q, mat)
     mat = reshape([-q(2),  q(1), -q(4),  q(3), &
                    -q(3),  q(4),  q(1), -q(2), &
                    -q(4), -q(3),  q(2),  q(1)], [4,3])
-    mat = mat/2
+    mat = mat/2.0_rp
 
     end subroutine
 
@@ -381,17 +403,17 @@ subroutine quat_rotmat (q, rotmat)
     q2q4 = q(2)*q(4)
     q3q4 = q(3)*q(4)
 
-    rotmat(1,1) = 2*(q1sq + q2sq) - 1.0_rp
-    rotmat(2,1) = 2*(q2q3 + q1q4)
-    rotmat(3,1) = 2*(q2q4 - q1q3)
+    rotmat(1,1) = 2.0_rp*(q1sq + q2sq) - 1.0_rp
+    rotmat(2,1) = 2.0_rp*(q2q3 + q1q4)
+    rotmat(3,1) = 2.0_rp*(q2q4 - q1q3)
 
-    rotmat(1,2) = 2*(q2q3 - q1q4)
-    rotmat(2,2) = 2*(q1sq + q3sq) - 1.0_rp
-    rotmat(3,2) = 2*(q3q4 + q1q2)
+    rotmat(1,2) = 2.0_rp*(q2q3 - q1q4)
+    rotmat(2,2) = 2.0_rp*(q1sq + q3sq) - 1.0_rp
+    rotmat(3,2) = 2.0_rp*(q3q4 + q1q2)
 
-    rotmat(1,3) = 2*(q2q4 + q1q3)
-    rotmat(2,3) = 2*(q3q4 - q1q2)
-    rotmat(3,3) = 2*(q1sq + q4sq) - 1.0_rp
+    rotmat(1,3) = 2.0_rp*(q2q4 + q1q3)
+    rotmat(2,3) = 2.0_rp*(q3q4 - q1q2)
+    rotmat(3,3) = 2.0_rp*(q1sq + q4sq) - 1.0_rp
 
     end subroutine
 
@@ -508,24 +530,21 @@ subroutine quat_to_aa (q, axis, angle)
         !! Unit vector along the axis of rotation.
     real(rp),               intent(out) :: angle
         !! Angle in radian.
-    real(rp), dimension(3,3) :: rotmat(3,3)
-    real(rp) :: sine
+    real(rp) :: vnorm
 
-    angle = 2*acos(q(1))
-    sine = sqrt(1.0_rp-q(1)*q(1))
-
-    if (angle > 0.0_rp) then
-        if (angle < math_pi) then
-            axis = q(2:4)/sine
-        else
-            call quat_rotmat(q, rotmat)
-            call aa_from_rotmat(rotmat, axis, angle)
-        end if
-    else
+    !Norm of the vector part
+    vnorm = norm2(q(2:4))
+    if ( vnorm <= epsilon(vnorm) ) then
+        !Identity rotation (angle = 0)
         axis = [1.0_rp, 0.0_rp, 0.0_rp]
+        angle = 0.0_rp
+    else:
+        !Usual case
+        axis = q(2:4)/vnorm
+        angle = 2.0_rp*atan2(vnorm, q(1))
     end if
 
-    call aa_fix(axis, angle, .true.)
+    call aa_fix(axis, angle, .false.)
 
     end subroutine
 
@@ -567,11 +586,11 @@ subroutine quat_to_euler (q, seq, world, euler)
 !*****************************************************************************!
 
 subroutine aa_fix (axis, angle, normalize)
-    !! Modifies `axis` and `angle` to ensure a right handed rotation with
-    !! `angle` \(\in [0, \pi)\).
+    !! Modifies `axis` and `angle` in-place to ensure a right handed rotation
+    !! with `angle` \(\in [0, \pi]\).
     real(rp), dimension(3), intent(in out) :: axis
-        !! Axis of rotation. If this is not a unit vector, set `normalize` to
-        !! ``True``.
+        !! Axis of rotation. Must be a non-zero vector. If this is not a unit
+        !! vector, set `normalize` to ``True``.
     real(rp), intent(in out) :: angle
         !! Angle in radian.
     logical, intent(in), optional :: normalize
@@ -584,13 +603,13 @@ subroutine aa_fix (axis, angle, normalize)
         normalize_ = .true.
     end if
     if (normalize_) call unitize(axis)
-    angle = mod(angle, 2*math_pi)
+    angle = mod(angle, 2.0_rp*math_pi)
     if (angle < 0.0_rp) then
         angle = -angle
         axis = -axis
     end if
     if (angle > math_pi) then
-        angle = 2*math_pi - angle
+        angle = 2.0_rp*math_pi - angle
         axis = -axis
     end if
 
@@ -611,22 +630,22 @@ subroutine aa_rand (axis, angle)
     axis = 0.0_rp
    !Generate angle: A uniform random number from [0, 2*pi)
     call random_number(angle)
-    angle = 2*math_pi*angle
+    angle = 2.0_rp*math_pi*angle
 
     do
         !Generate two uniform random numbers from [-1, 1)
         call random_number(zeta1)
         call random_number(zeta2)
-        zeta1 = 2*zeta1 - 1.0_rp
-        zeta2 = 2*zeta2 - 1.0_rp
-        zetasq = zeta1**2 + zeta2**2
+        zeta1 = 2.0_rp*zeta1 - 1.0_rp
+        zeta2 = 2.0_rp*zeta2 - 1.0_rp
+        zetasq = zeta1*zeta1 + zeta2*zeta2
         if (zetasq <= 1._rp) exit
     end do
 
     rt = sqrt(1.0_rp-zetasq)
-    axis(1) = 2*zeta1*rt
-    axis(2) = 2*zeta2*rt
-    axis(3) = 1.0_rp - 2*zetasq
+    axis(1) = 2.0_rp*zeta1*rt
+    axis(2) = 2.0_rp*zeta2*rt
+    axis(3) = 1.0_rp - 2.0_rp*zetasq
 
     call aa_fix(axis, angle, .true.)
 
@@ -673,45 +692,54 @@ subroutine aa_from_rotmat (rotmat, axis, angle)
         !! Unit vector along the axis.
     real(rp), intent(out) :: angle
         !! Angle of rotation in radian.
-    real(rp) :: tr
-    real(rp) :: s
+    real(rp) :: cos_angle, s, tr
     integer  :: k
+    !Threshold for switching to symmetric extraction
+    real(rp), parameter :: TOL = 1.0e-7_rp
 
     tr = rotmat(1,1) + rotmat(2,2) + rotmat(3,3)
-    angle = acos((tr-1.0_rp)/2)
 
-    if (angle > 0.0_rp) then
-        if (angle < math_pi) then
+    cos_angle = (tr-1.0_rp)/2.0_rp
+    !Clamp cos_angle to [-1, 1]
+    cos_angle = max(-1.0_rp, min(1.0_rp, cos_angle))
+    angle = acos(cos_angle)
+
+    if (angle > epsilon(angle)) then
+        if (angle < math_pi-TOL) then
             axis(1) = rotmat(3,2) - rotmat(2,3)
             axis(2) = rotmat(1,3) - rotmat(3,1)
             axis(3) = rotmat(2,1) - rotmat(1,2)
         else
             !Find the largest entry in the diagonal of rotmat
             k = maxloc([rotmat(1,1), rotmat(2,2), rotmat(3,3)], 1)
-
             select case (k)
                 case (1)
-                    axis(1) = sqrt(rotmat(1,1)-rotmat(2,2)-rotmat(3,3)+1.0_rp)/2
-                    s = 1.0_rp/(2*axis(1))
-                    axis(2) = s*rotmat(1,2)
-                    axis(3) = s*rotmat(1,3)
+                    !Clamp sqrt argument to >= 0
+                    axis(1) = sqrt(max(0.0_rp, &
+                              rotmat(1,1)-rotmat(2,2)-rotmat(3,3)+1.0_rp))/2.0_rp
+                    s = 1.0_rp/(2.0_rp*axis(1))
+                    !Average off-diagonals to cancel noise
+                    axis(2) = s*(rotmat(1,2)+rotmat(2,1))/2.0_rp
+                    axis(3) = s*(rotmat(1,3)+rotmat(3,1))/2.0_rp
                 case (2)
-                    axis(2) = sqrt(rotmat(2,2)-rotmat(1,1)-rotmat(3,3)+1.0_rp)/2
-                    s = 1.0_rp/(2*axis(2))
-                    axis(1) = s*rotmat(1,2)
-                    axis(3) = s*rotmat(2,3)
+                    axis(2) = sqrt(max(0.0_rp, &
+                              rotmat(2,2)-rotmat(1,1)-rotmat(3,3)+1.0_rp))/2.0_rp
+                    s = 1.0_rp/(2.0_rp*axis(2))
+                    axis(1) = s*(rotmat(1,2)+rotmat(2,1))/2.0_rp
+                    axis(3) = s*(rotmat(2,3)+rotmat(3,2))/2.0_rp
                 case (3)
-                    axis(3) = sqrt(rotmat(3,3)-rotmat(1,1)-rotmat(2,2)+1.0_rp)/2
-                    s = 1.0_rp/(2*axis(3))
-                    axis(1) = s*rotmat(1,3)
-                    axis(2) = s*rotmat(2,3)
+                    axis(3) = sqrt(max(0.0_rp, &
+                              rotmat(3,3)-rotmat(1,1)-rotmat(2,2)+1.0_rp))/2.0_rp
+                    s = 1.0_rp/(2.0_rp*axis(3))
+                    axis(1) = s*(rotmat(1,3)+rotmat(3,1))/2.0_rp
+                    axis(2) = s*(rotmat(2,3)+rotmat(3,2))/2.0_rp
             end select
         end if
     else
         axis = [1.0_rp, 0.0_rp, 0.0_rp]
     end if
 
-    !Ensuring that angle lies in [0, pi)
+    !Ensuring that angle lies in [0, pi]
     call aa_fix(axis, angle, .true.)
 
     end subroutine
@@ -834,12 +862,12 @@ subroutine aa_to_quat(axis, angle, q)
     real(rp), dimension(3), intent(in) :: axis
         !! Unit vector along the axis.
     real(rp), intent(in) :: angle
-        !! Angle of rotation in radian. `0 <= angle < pi`.
+        !! Angle of rotation in radian. `0 <= angle <= pi`.
     real(rp), dimension(4), intent(out) :: q
         !! Unit quaternion.
 
-    q(1) = cos(angle/2)
-    q(2:4) = sin(angle/2)*axis
+    q(1) = cos(0.5_rp*angle)
+    q(2:4) = sin(0.5_rp*angle)*axis
 
     !Normalize to ensure unit quaternion
     call quat_normalized(q)
@@ -1115,7 +1143,8 @@ subroutine euler_rotmat (euler, seq, world, rotmat)
     case ('ZYX')
         call rotmat_zyx(euler_, rotmat)
     case default
-        stop 'unknown value of seq'
+        write(*,*) 'seq = ', seq
+        error stop 'seq out of allowed values.'
     end select
 
     if (.not. world) rotmat = transpose(rotmat)
@@ -1372,7 +1401,8 @@ subroutine factor_rotmat (rotmat, seq, world, euler)
     case ('ZYX')
         call factor_rotmat_zyx(rotmat_, euler)
     case default
-        stop 'Unknown value of seq'
+        write(*,*) 'seq = ', seq
+        error stop 'seq out of allowed values.'
     end select
 
     if (.not. world) euler = -euler

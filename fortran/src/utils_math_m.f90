@@ -25,8 +25,7 @@
 !********************************************************************************!
 
 module utils_math_m
-    !!Various (mostly linear algebra) functions, particularly for use with small
-    !!matrices.
+    !!Various utility functions, particularly for use with small matrices.
 
 use, intrinsic :: ieee_arithmetic, only: ieee_is_nan, ieee_is_finite
 use constants_m
@@ -49,178 +48,37 @@ end interface swap
 
 contains
 
-!************************************************************************
-
-elemental subroutine rad2deg(rad, deg)
-
-    real(rp), intent(in) :: rad
-    real(rp), intent(out) :: deg
-
-    deg = (180.0_rp/math_pi)*rad
-
-    end subroutine
-
-!************************************************************************
-
-elemental subroutine deg2rad(deg, rad)
-
-    real(rp), intent(in) :: deg
-    real(rp), intent(out) :: rad
-
-    rad = (math_pi/180.0_rp)*deg
-
-    end subroutine
-
-!************************************************************************
-
-subroutine cross(a, b, c)
-    !!  Calculates the cross product between two 3-element vectors
-    real(rp), dimension(3), intent(in)  :: a
-    real(rp), dimension(3), intent(in)  :: b
-    real(rp), dimension(3), intent(out) :: c
-        !! Cross product of `a` and `b`; **c** = **a** x **b**
-    
-    c(1) = a(2)*b(3) - a(3)*b(2)
-    c(2) = a(3)*b(1) - a(1)*b(3)
-    c(3) = a(1)*b(2) - a(2)*b(1)
-
-    end subroutine
-
 !******************************************************************************
 
-subroutine cross_mat(a, mat)
-    !! Calculates the cross product matrix of a 3-element vector. The cross
-    !! product matrix **A** of **a** is defined as **a** x **b** = **A** . **b**,
-    !! where **b** is another 3-element vector.
-    real(rp), dimension(3), intent(in)    :: a
-    real(rp), dimension(3,3), intent(out) :: mat
-        !! Cross product matrix of `a`
-    
-    mat = 0.0_rp
-    mat(2,1) =  a(3)
-    mat(3,1) = -a(2)
-    mat(1,2) = -a(3)
-    mat(3,2) =  a(1)
-    mat(1,3) =  a(2)
-    mat(2,3) = -a(1)
+elemental subroutine swap_integer(a, b)
+    integer, intent(in out) :: a
+    integer, intent(in out) :: b
+    integer :: temp
 
+    temp = a
+    a = b
+    b = temp
     end subroutine
 
-!******************************************************************************
+elemental subroutine swap_real(a, b)
+    real(rp), intent(in out) :: a
+    real(rp), intent(in out) :: b
+    real(rp) :: temp
 
-subroutine outer(a, b, c)
-    !! Calculates the outer product of two vectors, \(c_{ij} = a_i  b_j\).
-    real(rp), dimension(:), intent(in)    :: a
-        !! (m,) array
-    real(rp), dimension(:), intent(in)    :: b
-        !! (n,) array
-    real(rp), dimension(:,:), intent(out) :: c
-        !! (m,n) array; Outer product
-    integer :: m, n
-    integer :: i, j
-
-    m = size(a)
-    n = size(b)
-
-    do j = 1, n
-        do i = 1, m
-            c(i,j) = a(i)*b(j)
-        end do
-    end do
-
+    temp = a
+    a = b
+    b = temp
     end subroutine
 
-!******************************************************************************
+elemental subroutine swap_complex(a, b)
+    complex(rp), intent(in out) :: a
+    complex(rp), intent(in out) :: b
+    complex(rp) :: temp
 
-function scalar_triple_product (a, b, c) result(res)
-    !! Returns the scalar triple product **a**.(**b** x **c**)
-    real(rp), dimension(3), intent(in)  :: a
-    real(rp), dimension(3), intent(in)  :: b
-    real(rp), dimension(3), intent(in)  :: c
-    real(rp)  :: res
-
-    res = a(1)*( b(2)*c(3)-c(2)*b(3) ) - a(2)*( b(1)*c(3)-c(1)*b(3) ) &
-            + a(3)*( b(1)*c(2)-c(1)*b(2) )
-
-    end function
-
-!******************************************************************************
-
-subroutine vector_triple_product (a, b, c, d)
-    !! Returns the vector triple product **d** = **a** x (**b** x **c**)
-    real(rp), dimension(3), intent(in)  :: a
-    real(rp), dimension(3), intent(in)  :: b
-    real(rp), dimension(3), intent(in)  :: c
-    real(rp), dimension(3), intent(out) :: d
-     !! Vector triple product
-
-    d = b*( a(1)*c(1) + a(2)*c(2) + a(3)*c(3) )  &
-        - c*( a(1)*b(1) + a(2)*b(2) + a(3)*b(3) )
-
+    temp = a
+    a = b
+    b = temp
     end subroutine
-
-!******************************************************************************
-
-function det(A) result(res)
-    !!  Returns the determinant of an (N x N) matrix, where N = 2, 3, or 4.
-    !!
-    !!  Original routine by [David Simpson](http://www.davidgsimpson.com/software.html)
-    !!  @note For a general NxN matrix do an LU decomp
-    !""
-    real(rp), dimension(:,:), intent(in) :: A
-        !! (N,N) array, where N = 2, 3, or 4.
-    real(rp) :: res
-    integer :: nrows
-
-    nrows = size(A, 1)
-
-    if (nrows==2) then
-        res = A(1,1)*A(2,2) - A(1,2)*A(2,1)
-
-    else if (nrows==3) then
-        res = A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2)  &
-            - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)  &
-            + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1)
-
-    else if (nrows==4) then
-        res = A(1,1) * ( A(2,2) * (A(3,3)*A(4,4) - A(3,4)*A(4,3))    &
-                       + A(2,3) * (A(3,4)*A(4,2) - A(3,2)*A(4,4))    &
-                       + A(2,4) * (A(3,2)*A(4,3) - A(3,3)*A(4,2)) )  &
-            - A(1,2) * ( A(2,1) * (A(3,3)*A(4,4) - A(3,4)*A(4,3))    &
-                       + A(2,3) * (A(3,4)*A(4,1) - A(3,1)*A(4,4))    &       
-                       + A(2,4) * (A(3,1)*A(4,3) - A(3,3)*A(4,1)) )  &
-            + A(1,3) * ( A(2,1) * (A(3,2)*A(4,4) - A(3,4)*A(4,2))    &
-                       + A(2,2) * (A(3,4)*A(4,1) - A(3,1)*A(4,4))    &
-                       + A(2,4) * (A(3,1)*A(4,2) - A(3,2)*A(4,1)) )  &
-            - A(1,4) * ( A(2,1) * (A(3,2)*A(4,3) - A(3,3)*A(4,2))    &       
-                       + A(2,2) * (A(3,3)*A(4,1) - A(3,1)*A(4,3))    &
-                       + A(2,3) * (A(3,1)*A(4,2) - A(3,2)*A(4,1)) )
-
-     else
-         stop 'matrix size must be 2, 3, or 4'
-     end if
-
-    end function
-
-!******************************************************************************
-
-function trace(mat) result (res)
-    !! Returns the trace of a square matrix
-
-    real(rp), intent(in) :: mat(:,:)
-        !! (N,N) array
-    real(rp) :: res
-    integer :: nrows
-    integer :: i
-
-    nrows = size(mat, 1)
-    res = 0.0_rp
-
-    do i = 1, nrows
-        res = res + mat(i,i)
-    end do
-
-    end function
 
 !******************************************************************************
  
@@ -336,55 +194,229 @@ logical function allclose_rank3(a, b, rel_tol, abs_tol)
 
     end function
 
-!******************************************************************************
+!************************************************************************
 
-elemental subroutine swap_integer(a, b)
-    integer, intent(in out) :: a
-    integer, intent(in out) :: b
-    integer :: temp
+elemental subroutine rad2deg(rad, deg)
 
-    temp = a
-    a = b
-    b = temp
+    real(rp), intent(in) :: rad
+    real(rp), intent(out) :: deg
+
+    deg = (180.0_rp/math_pi)*rad
+
     end subroutine
 
-elemental subroutine swap_real(a, b)
-    real(rp), intent(in out) :: a
-    real(rp), intent(in out) :: b
-    real(rp) :: temp
+!************************************************************************
 
-    temp = a
-    a = b
-    b = temp
-    end subroutine
+elemental subroutine deg2rad(deg, rad)
 
-elemental subroutine swap_complex(a, b)
-    complex(rp), intent(in out) :: a
-    complex(rp), intent(in out) :: b
-    complex(rp) :: temp
+    real(rp), intent(in) :: deg
+    real(rp), intent(out) :: rad
 
-    temp = a
-    a = b
-    b = temp
+    rad = (math_pi/180.0_rp)*deg
+
     end subroutine
 
 !******************************************************************************
 
-subroutine unitize(a)
-    !! Normalizes a vector in-place. If the magnitude of the vector is nearly
-    !! zero, no normalization takes place and the vector is returned as is with
-    !! a warning message.
-    real(rp), dimension(:), intent(in out)  :: a
-        !! (m,) array
-    real(rp) :: norm
+elemental function sinc(x) result(res)
+    !! Calculates sin(x)/x elementwise.
+    !
+    ! At |x|=1e-4, the first omitted term from the Taylor expansion is 
+    ! of the order of 1e-18, comfortably below double-precision rounding error
+    ! near 1.
 
-    norm = norm2(a)
-
-    if (isclose(norm, 0.0_rp, rel_tol=1.e-15_rp, abs_tol=0.0_rp)) then
-        write(*,*) '[unitize] norm close to zero'
+    if (abs(x) < 1e-4_rp) then
+        res = 1.0_rp - x*x/6.0_rp
     else
-        a = a/norm2(a)
+        res = sin(x)/x
     end if
+
+    end function
+
+!******************************************************************************
+
+function norm(v) result(res)
+    !! Calculates the 2-norm of a vector.
+    real(rp), dimension(:), intent(in) :: v
+    real(rp) :: res
+    real(rp) :: s, snorm, tmp
+    integer :: i
+
+    ! scaling factor
+    s = 0.0_rp
+    do i = 1, size(v)
+        s = max(s, abs(v(i)))
+    end do
+
+    if (s == 0.0_rp) then
+        res = 0.0_rp ! norm of a zero vector is zero
+        return
+    end if
+
+    ! calculate the square of the scaled norm
+    snorm = 0.0_rp
+    tmp = 0.0_rp
+    do i = 1, size(v)
+        tmp = a[i]/scale; snorm += (tmp*tmp)
+    end do
+
+    ! unscale and return
+    res = s*sqrt(snorm)
+
+    end function
+
+!******************************************************************************
+
+subroutine normalize(v, estat)
+    !! Normalizes a vector in-place. If the magnitude of the vector is zero, 
+    !! the vector is not modified and an optional error status of `1` is returned.
+    real(rp), dimension(:), intent(in out) :: v
+        !! A vector
+    integer, intent(out), optional :: estat
+        !! Error status. Equals `1` in case of a zero vector, and `0` otherwise.
+    real(rp) :: s, snorm
+    integer :: i
+
+    ! scaling factor
+    s = 0.0_rp
+    do i = 1, size(v)
+        s = max(s, abs(v(i)))
+    end do
+
+    if (s == 0.0_rp) then
+        ! cannot normalize a zero vector
+        if (present(estat)) estat = 1
+        return
+    end if
+
+    v = v/s ! scale the vector
+    snorm = sqrt(dot_product(v, v)) ! scaled norm
+    v = v/snorm ! Divide by the scaled norm
+    if (present(estat)) estat = 0 ! Set optional error status
+
+    end subroutine
+
+!************************************************************************
+
+subroutine cross(a, b, c)
+    !!  Calculates the cross product between two 3-element vectors.
+    real(rp), dimension(3), intent(in)  :: a
+    real(rp), dimension(3), intent(in)  :: b
+    real(rp), dimension(3), intent(out) :: c
+        !! Cross product of `a` and `b`; **c** = **a** x **b**
+    
+    c(1) = a(2)*b(3) - a(3)*b(2)
+    c(2) = a(3)*b(1) - a(1)*b(3)
+    c(3) = a(1)*b(2) - a(2)*b(1)
+
+    end subroutine
+
+!******************************************************************************
+
+subroutine cross_mat(a, mat)
+    !! Calculates the cross product matrix of a 3-element vector. The cross
+    !! product matrix **A** of **a** is defined as **a** x **b** = **A** . **b**,
+    !! where **b** is another 3-element vector.
+    real(rp), dimension(3), intent(in)    :: a
+    real(rp), dimension(3,3), intent(out) :: mat
+        !! Cross product matrix of `a`
+    
+    mat = 0.0_rp
+    mat(2,1) =  a(3)
+    mat(3,1) = -a(2)
+    mat(1,2) = -a(3)
+    mat(3,2) =  a(1)
+    mat(1,3) =  a(2)
+    mat(2,3) = -a(1)
+
+    end subroutine
+
+!******************************************************************************
+
+function vec_angle_3d (a, b) result(res)
+    !! Returns the angle (in radian) between two vectors in 3D.
+
+    real(rp), dimension(3), intent(in) :: a
+    real(rp), dimension(3), intent(in) :: b
+    real(rp) :: res
+    real(rp) :: ab, c(3), c_mag
+
+    call cross(a, b, c)
+    c_mag = norm(c)
+    ab = dot_product(a, b)
+    res = atan2(c_mag, ab)
+
+    end function
+
+!******************************************************************************
+
+function uvec_angle (u, v) result(res)
+    !! Returns the angle (in radian) between two unit vectors using Kahan's half
+    !! angle formula.
+
+    real(rp), dimension(:), intent(in) :: u
+        !! Unit vector
+    real(rp), dimension(:), intent(in) :: v
+        !! Unit vector
+    real(rp) :: res
+    real(rp) :: s_mag, d_mag
+
+    s_mag = norm(u+v)
+    d_mag = norm(u-v)
+    res = 2.0_rp*atan2(d_mag, s_mag)
+
+    end function
+
+!******************************************************************************
+
+function scalar_triple_product (a, b, c) result(res)
+    !! Returns the scalar triple product **a**.(**b** x **c**)
+    real(rp), dimension(3), intent(in)  :: a
+    real(rp), dimension(3), intent(in)  :: b
+    real(rp), dimension(3), intent(in)  :: c
+    real(rp)  :: res
+
+    res = a(1)*( b(2)*c(3)-c(2)*b(3) ) - a(2)*( b(1)*c(3)-c(1)*b(3) ) &
+            + a(3)*( b(1)*c(2)-c(1)*b(2) )
+
+    end function
+
+!******************************************************************************
+
+subroutine vector_triple_product (a, b, c, d)
+    !! Returns the vector triple product **d** = **a** x (**b** x **c**)
+    real(rp), dimension(3), intent(in)  :: a
+    real(rp), dimension(3), intent(in)  :: b
+    real(rp), dimension(3), intent(in)  :: c
+    real(rp), dimension(3), intent(out) :: d
+     !! Vector triple product
+
+    d = b*( a(1)*c(1) + a(2)*c(2) + a(3)*c(3) )  &
+        - c*( a(1)*b(1) + a(2)*b(2) + a(3)*b(3) )
+
+    end subroutine
+
+!******************************************************************************
+
+subroutine outer(a, b, c)
+    !! Calculates the outer product of two vectors, \(c_{ij} = a_i  b_j\).
+    real(rp), dimension(:), intent(in)    :: a
+        !! (m,) array
+    real(rp), dimension(:), intent(in)    :: b
+        !! (n,) array
+    real(rp), dimension(:,:), intent(out) :: c
+        !! (m,n) array; Outer product
+    integer :: m, n
+    integer :: i, j
+
+    m = size(a)
+    n = size(b)
+
+    do j = 1, n
+        do i = 1, m
+            c(i,j) = a(i)*b(j)
+        end do
+    end do
 
     end subroutine
 
@@ -485,6 +517,69 @@ subroutine logspace(start, finish, num, val, base)
     end do
 
     end subroutine
+
+!******************************************************************************
+
+function det(A) result(res)
+    !!  Returns the determinant of an (N x N) matrix, where N = 2, 3, or 4.
+    !!
+    !!  Original routine by [David Simpson](http://www.davidgsimpson.com/software.html)
+    !!  @note For a general NxN matrix do an LU decomp
+    !""
+    real(rp), dimension(:,:), intent(in) :: A
+        !! (N,N) array, where N = 2, 3, or 4.
+    real(rp) :: res
+    integer :: nrows
+
+    nrows = size(A, 1)
+
+    if (nrows==2) then
+        res = A(1,1)*A(2,2) - A(1,2)*A(2,1)
+
+    else if (nrows==3) then
+        res = A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2)  &
+            - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)  &
+            + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1)
+
+    else if (nrows==4) then
+        res = A(1,1) * ( A(2,2) * (A(3,3)*A(4,4) - A(3,4)*A(4,3))    &
+                       + A(2,3) * (A(3,4)*A(4,2) - A(3,2)*A(4,4))    &
+                       + A(2,4) * (A(3,2)*A(4,3) - A(3,3)*A(4,2)) )  &
+            - A(1,2) * ( A(2,1) * (A(3,3)*A(4,4) - A(3,4)*A(4,3))    &
+                       + A(2,3) * (A(3,4)*A(4,1) - A(3,1)*A(4,4))    &       
+                       + A(2,4) * (A(3,1)*A(4,3) - A(3,3)*A(4,1)) )  &
+            + A(1,3) * ( A(2,1) * (A(3,2)*A(4,4) - A(3,4)*A(4,2))    &
+                       + A(2,2) * (A(3,4)*A(4,1) - A(3,1)*A(4,4))    &
+                       + A(2,4) * (A(3,1)*A(4,2) - A(3,2)*A(4,1)) )  &
+            - A(1,4) * ( A(2,1) * (A(3,2)*A(4,3) - A(3,3)*A(4,2))    &       
+                       + A(2,2) * (A(3,3)*A(4,1) - A(3,1)*A(4,3))    &
+                       + A(2,3) * (A(3,1)*A(4,2) - A(3,2)*A(4,1)) )
+
+     else
+         error stop 'Matrix rank must be 2, 3, or 4.'
+     end if
+
+    end function
+
+!******************************************************************************
+
+function trace(mat) result (res)
+    !! Returns the trace of a square matrix
+
+    real(rp), intent(in) :: mat(:,:)
+        !! (N,N) array
+    real(rp) :: res
+    integer :: nrows
+    integer :: i
+
+    nrows = size(mat, 1)
+    res = 0.0_rp
+
+    do i = 1, nrows
+        res = res + mat(i,i)
+    end do
+
+    end function
 
 !******************************************************************************
 
@@ -643,7 +738,7 @@ subroutine orth(a)
     m = size(a, 1)
 
     do i = 1, m
-        a(i,:) = a(i,:)/norm2(a(i,:)) 
+        a(i,:) = a(i,:)/norm(a(i,:)) 
         do j = (i+1), m
             a(j,:) = a(j,:) - dot_product(a(j,:),a(i,:))*a(i,:)
         end do
@@ -654,12 +749,14 @@ subroutine orth(a)
 !******************************************************************************
 
 subroutine invert_mat33(a, inv_a)
-    !! Inverts a 3x3 matrix.
+    !! Inverts a 3x3 matrix with non-zero determinant.
     !!
     !!*Reference:* https://www.geometrictools.com/Documentation/LaplaceExpansionTheorem.pdf
 
     real(rp), dimension(3,3),  intent(in) :: a
+        !! Matrix
     real(rp), dimension(3,3), intent(out) :: inv_a
+        !! Matrix inverse
     real(rp) :: det_a
 
     inv_a(1,1) =   a(2,2)*a(3,3) - a(2,3)*a(3,2)
@@ -755,7 +852,9 @@ subroutine dsyevc3(a, w)
     ! ----------------------------------------------------------------------------
     ! .. Arguments ..
       REAL(RP), DIMENSION(3,3), INTENT(IN) :: A
-      REAL(RP), DIMENSION(3), INTENT(OUT) ::  W(3)
+        !! Symmetric input matrix.
+      REAL(RP), DIMENSION(3), INTENT(OUT) ::  W
+        !! Storage buffer for eigenvalues.
 
      !.. Local Variables ..
       REAL(RP) ::  M, C1, C0
@@ -793,7 +892,7 @@ subroutine dsyevc3(a, w)
       W(1) = W(2) + C
       W(2) = W(2) - S
 
-      END SUBROUTINE
+      end subroutine
 
 !******************************************************************************
 
