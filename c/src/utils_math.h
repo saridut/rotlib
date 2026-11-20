@@ -1,3 +1,4 @@
+/** @file */
 #ifndef UTILS_MATH_H
 #define UTILS_MATH_H
 
@@ -7,6 +8,11 @@ extern "C" {
 
 #include <stdbool.h>
 #include <complex.h>
+
+/**
+ * @defgroup util_math Math utilities
+ * @{
+ */
 
 /** @{ */
 
@@ -117,7 +123,7 @@ double norm(const int n, const double* a);
  * `out:` The normalized vector if `a` is non-zero, otherwise unchanged.
  * @returns `EXIT_FAILURE` if `a` is a zero vector, else `EXIT_SUCCESS`.
  */
-int normalize(const int n, double* a);
+int normalized(const int n, double* a);
 
 /**
  * @brief Calculates the dot product of two vectors.
@@ -366,6 +372,10 @@ void add_transpose(const int n, double* A);
  */
 void mult_transpose(const int nrows, const int ncols, const double* A,
         double* B);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

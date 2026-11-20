@@ -9,7 +9,7 @@ extern "C" {
 
 typedef VSLStreamStatePtr RandomStream;
 
-unsigned int get_random_seed();
+unsigned int get_random_seed(const char* fn);
 
 RandomStream init_stream(const unsigned int seed);
 

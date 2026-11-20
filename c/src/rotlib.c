@@ -510,7 +510,7 @@ void align(const int m, const double* v, const int n, const double* old,
         // angle will be in [0, pi] as sin_angle >= 0
         angle = atan2(sin_angle, cos_angle);
         // try normalizing the axis
-        estat = normalize(3, axis);
+        estat = normalized(3, axis);
         if (estat == EXIT_SUCCESS){
             // Non-collinear vectors: standard case
             aa_rotate_vectors(m, v, axis, angle, valigned);
@@ -526,8 +526,8 @@ void align(const int m, const double* v, const int n, const double* old,
                 //crossing old with a cartesian direction least parallel to it.  
                 //
                 //1. Find cartesian direction least parallel to old.
-                int min_idx = fabs(old[0]) < fabs(old[1]) ? 0 : 1;
-                min_idx = fabs(old[min_idx]) < fabs(old[2]) ? min_idx : 2;
+                int min_idx = fabs(old[0]) <= fabs(old[1]) ? 0 : 1;
+                min_idx = fabs(old[min_idx]) <= fabs(old[2]) ? min_idx : 2;
 
                 //2. Create that basis vector
                 double vtmp[3] = {0.0, 0.0, 0.0};
@@ -545,10 +545,10 @@ void align(const int m, const double* v, const int n, const double* old,
     else if (n == 2) {
         //The third vector orthogonal to `old`. 
         cross(old, old+3, z_old);
-        estat = normalize(3, z_old); // Norm always +ve
+        estat = normalized(3, z_old); // Norm always +ve
         //The third vector orthogonal to `new`
         cross(new, new+3, z_new);
-        estat = normalize(3, z_new); // Norm always +ve
+        estat = normalized(3, z_new); // Norm always +ve
         //The `old` and new `frames`
         memcpy(axes_old, old, 6*sizeof(double));
         memcpy(axes_old+6, z_old, 3*sizeof(double));
@@ -686,7 +686,7 @@ int quat_inverted(double q[4]){
 /* Performs in-place normalization of a quaternion */
 int quat_normalized(double q[4], const bool canonicalize){
 
-    int estat = normalize(4, q);
+    int estat = normalized(4, q);
     if (estat == EXIT_FAILURE){
         return estat;
     }
@@ -1004,7 +1004,7 @@ int aa_fix(double axis[3], double* angle, const bool normalize_axis){
     }
 
     if (normalize_axis) {
-        estat = normalize(3, axis);
+        estat = normalized(3, axis);
         if (estat == EXIT_FAILURE) {return estat;}
     }
     // Get principal signed angle in [-pi, pi]
@@ -1233,7 +1233,7 @@ bool mat_is_dcm(const double* mat, const double tol){
 
 /******************************************************************************/
 
-void dcm_from_axes(const double* A, const double* B, double* dcm) {
+void dcm_from_frames(const double* A, const double* B, double* dcm) {
 
     mm_mult(3, 3, B, false, 3, 3, A, true, dcm);
 }

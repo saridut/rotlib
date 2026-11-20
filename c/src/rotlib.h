@@ -19,7 +19,7 @@ enum EulangSeq {ES_XYZ, ES_XZY, ES_YXZ, ES_YZX, ES_ZXY, ES_ZYX};
 /******************************************************************************/
 
 /**
- * @defgroup util Utility
+ * @defgroup util_rot Rotation utilities
  * @{
  */
 
@@ -126,6 +126,7 @@ int quat_inverted(double q[4]);
  * quaternion `q` (in canonical form if `canonicalize` is ``true``).
  * @param[in] canonicalize  Whether to canonicalize the output.
  * @returns `EXIT_FAILURE` if it is a zero-quaternion, else `EXIT_SUCCESS`.
+ * @see normalized
  */
 int quat_normalized(double q[4], const bool canonicalize);
 
@@ -629,7 +630,7 @@ bool mat_is_dcm(const double* mat, const double tol);
  * @param[out] dcm `3 x 3` direction cosine matrix of frame B with respect to
  * frame A.
  */
-void dcm_from_axes(const double* A, const double* B, double* dcm);
+void dcm_from_frames(const double* A, const double* B, double* dcm);
 
 /** @brief Returns the rotation matrix corresponding to a direction cosine
  * matrix.

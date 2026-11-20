@@ -144,7 +144,7 @@ double norm(const int n, const double* a){
 /******************************************************************************/
 
 /* Normalizes a vector in-place */
-int normalize(const int n, double* a){
+int normalized(const int n, double* a){
 
     /* scaling factor */
     double scale = 0.0;
