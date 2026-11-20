@@ -25,7 +25,7 @@
 !********************************************************************************!
 
 module utils_math_m
-    !!Various utility functions, particularly for use with small matrices.
+    !! Various utility functions, particularly for use with small matrices.
 
 use, intrinsic :: ieee_arithmetic, only: ieee_is_nan, ieee_is_finite
 use constants_m
@@ -83,20 +83,20 @@ elemental subroutine swap_complex(a, b)
 !******************************************************************************
  
 elemental logical function isclose(a, b, rel_tol, abs_tol)
-    !!  Checks if two floating point numbers of type double are close within
-    !!  tolerance.
+    !! Checks if two floating point numbers of type double are close within
+    !! tolerance.
     !!
-    !!  Based on python implementation at
-    !!  <https://github.com/PythonCHB/close_pep/blob/master/is_close.py>.
-    !!  The *method='weak'* option is used here.
+    !! Based on python implementation at
+    !! <https://github.com/PythonCHB/close_pep/blob/master/is_close.py>.
+    !! The `method='weak'` option is used here.
     !""
 
     real(rp), intent(in)    :: a
     real(rp), intent(in)    :: b
     real(rp), intent(in), optional    :: rel_tol
-        !! Relative tolerance, `rel_tol` >= 0, default 1e-10
+        !! Relative tolerance, `rel_tol >= 0`, default 1e-10
     real(rp), intent(in), optional    :: abs_tol
-        !! Absolute tolerance, `abs_tol` >= 0, default 0.0
+        !! Absolute tolerance, `abs_tol >= 0`, default 0.0
     real(rp) :: rel_tol_
     real(rp) :: abs_tol_
     real(rp) :: diff
@@ -109,6 +109,7 @@ elemental logical function isclose(a, b, rel_tol, abs_tol)
     
     if (a == b) then  ! short-circuit exact equality
         isclose = .true.
+        return
     end if
     
     if ((.not. ieee_is_finite(a)) .or. (.not. ieee_is_finite(b))) then
@@ -116,6 +117,7 @@ elemental logical function isclose(a, b, rel_tol, abs_tol)
          ! one infinity and one finite number. Two infinities of opposite sign
          ! would otherwise have an infinite relative tolerance.
          isclose = .false.
+        return
     end if
     
     diff = abs(b - a)
@@ -127,19 +129,21 @@ elemental logical function isclose(a, b, rel_tol, abs_tol)
 !******************************************************************************
 
 logical function allclose_rank1(a, b, rel_tol, abs_tol)
-    !!  Checks if two rank-1 floating point arrays of type double are close within
-    !!  tolerance.
+    !! Checks if two rank-1 floating point arrays of type double are close within
+    !! tolerance.
     !""
     real(rp), dimension(:), intent(in) :: a
-        !! (m,) array
+        !! `(m,)` array
     real(rp), dimension(:), intent(in) :: b
-        !! (m,) array
+        !! `(m,)` array
     real (rp), intent(in), optional :: rel_tol
         !! Relative tolerance; default 1e-10
     real (rp), intent(in), optional :: abs_tol
         !! Absolute tolerance; default 0.0
-    real (rp) :: rel_tol_ = 1e-10_rp
-    real (rp) :: abs_tol_ = 0.0_rp
+    real (rp) :: abs_tol_, rel_tol_ 
+
+    rel_tol_ = 1e-10_rp
+    abs_tol_ = 0.0_rp
 
     if (present(rel_tol)) rel_tol_ = rel_tol
     if (present(abs_tol)) abs_tol_ = abs_tol
@@ -150,19 +154,21 @@ logical function allclose_rank1(a, b, rel_tol, abs_tol)
 
 
 logical function allclose_rank2(a, b, rel_tol, abs_tol)
-    !!  Checks if two rank-2 floating point arrays of type double are close within
-    !!  tolerance.
+    !! Checks if two rank-2 floating point arrays of type double are close within
+    !! tolerance.
     !""
     real(rp), dimension(:,:), intent(in) :: a
-        !! (m,n) array
+        !! `(m,n)` array
     real(rp), dimension(:,:), intent(in) :: b
-        !! (m,n) array
+        !! `(m,n)` array
     real (rp), intent(in), optional :: rel_tol
         !! Relative tolerance; default 1e-10
     real (rp), intent(in), optional :: abs_tol
         !! Absolute tolerance; default 0.0
-    real (rp) :: rel_tol_ = 1e-10_rp
-    real (rp) :: abs_tol_ = 0.0_rp
+    real (rp) :: abs_tol_, rel_tol_ 
+
+    rel_tol_ = 1e-10_rp
+    abs_tol_ = 0.0_rp
 
     if (present(rel_tol)) rel_tol_ = rel_tol
     if (present(abs_tol)) abs_tol_ = abs_tol
@@ -173,19 +179,21 @@ logical function allclose_rank2(a, b, rel_tol, abs_tol)
 
 
 logical function allclose_rank3(a, b, rel_tol, abs_tol)
-    !!  Checks if two rank-3 floating point arrays of type double are close within
-    !!  tolerance.
+    !! Checks if two rank-3 floating point arrays of type double are close within
+    !! tolerance.
     !""
     real(rp), dimension(:,:,:), intent(in) :: a
-        !! (m,n,p) array
+        !! `(m,n,p)` array
     real(rp), dimension(:,:,:), intent(in) :: b
-        !! (m,n,p) array
+        !! `(m,n,p)` array
     real (rp), intent(in), optional :: rel_tol
         !! Relative tolerance; default 1e-10
     real (rp), intent(in), optional :: abs_tol
         !! Absolute tolerance; default 0.0
-    real (rp) :: rel_tol_ = 1e-10_rp
-    real (rp) :: abs_tol_ = 0.0_rp
+    real (rp) :: abs_tol_, rel_tol_ 
+
+    rel_tol_ = 1e-10_rp
+    abs_tol_ = 0.0_rp
 
     if (present(rel_tol)) rel_tol_ = rel_tol
     if (present(abs_tol)) abs_tol_ = abs_tol
@@ -224,6 +232,8 @@ elemental function sinc(x) result(res)
     ! At |x|=1e-4, the first omitted term from the Taylor expansion is 
     ! of the order of 1e-18, comfortably below double-precision rounding error
     ! near 1.
+    real(rp), intent(in) :: x
+    real(rp) :: res
 
     if (abs(x) < 1e-4_rp) then
         res = 1.0_rp - x*x/6.0_rp
@@ -257,7 +267,8 @@ function norm(v) result(res)
     snorm = 0.0_rp
     tmp = 0.0_rp
     do i = 1, size(v)
-        tmp = a[i]/scale; snorm += (tmp*tmp)
+        tmp = v(i)/s
+        snorm = snorm + tmp*tmp
     end do
 
     ! unscale and return
@@ -267,7 +278,7 @@ function norm(v) result(res)
 
 !******************************************************************************
 
-subroutine normalize(v, estat)
+subroutine normalized(v, estat)
     !! Normalizes a vector in-place. If the magnitude of the vector is zero, 
     !! the vector is not modified and an optional error status of `1` is returned.
     real(rp), dimension(:), intent(in out) :: v
@@ -299,7 +310,7 @@ subroutine normalize(v, estat)
 !************************************************************************
 
 subroutine cross(a, b, c)
-    !!  Calculates the cross product between two 3-element vectors.
+    !! Calculates the cross product between two 3-element vectors.
     real(rp), dimension(3), intent(in)  :: a
     real(rp), dimension(3), intent(in)  :: b
     real(rp), dimension(3), intent(out) :: c
@@ -334,16 +345,18 @@ subroutine cross_mat(a, mat)
 !******************************************************************************
 
 function vec_angle_3d (a, b) result(res)
-    !! Returns the angle (in radian) between two vectors in 3D.
+    !! Returns the angle (in radian) between two non-zero vectors in 3D.
 
     real(rp), dimension(3), intent(in) :: a
     real(rp), dimension(3), intent(in) :: b
     real(rp) :: res
-    real(rp) :: ab, c(3), c_mag
+    real(rp) :: ab, a_(3), b_(3), c(3), c_mag
 
-    call cross(a, b, c)
+    a_ = a/maxval(abs(a))
+    b_ = b/maxval(abs(b))
+    call cross(a_, b_, c)
     c_mag = norm(c)
-    ab = dot_product(a, b)
+    ab = dot_product(a_, b_)
     res = atan2(c_mag, ab)
 
     end function
@@ -401,11 +414,11 @@ subroutine vector_triple_product (a, b, c, d)
 subroutine outer(a, b, c)
     !! Calculates the outer product of two vectors, \(c_{ij} = a_i  b_j\).
     real(rp), dimension(:), intent(in)    :: a
-        !! (m,) array
+        !! `(m,)` array
     real(rp), dimension(:), intent(in)    :: b
-        !! (n,) array
+        !! `(n,)` array
     real(rp), dimension(:,:), intent(out) :: c
-        !! (m,n) array; Outer product
+        !! `(m,n)` array; Outer product
     integer :: m, n
     integer :: i, j
 
@@ -424,20 +437,30 @@ subroutine outer(a, b, c)
 
 subroutine linspace(start, finish, num, val, step)
     !! Generates evenly spaced numbers over a specified interval. Both end
-    !! points are included. If `start` < `finish`, the returned step size (if
+    !! points are included. If `start` > `finish`, the returned step size (if
     !! `step` is present) will be negative.
+    !!
+    !! Values are interpolated directly from the endpoints to avoid overflow
+    !! in the endpoint difference. Floating-point rounding can make adjacent
+    !! spacings unequal or produce repeated values. The supplied endpoints
+    !! are assigned exactly.
     !""
     real(rp), intent(in) :: start
-        !! Starting point
+        !! Finite starting point
     real(rp), intent(in) :: finish
-        !! Ending point, `finish` /= `start`
+        !! Finite ending point, `finish /= start`
     integer, intent(in) :: num
         !! Number of values to generate, `num >= 2`
-    real(rp), dimension(:), intent(out) :: val
-        !! (`num`,) array; Generated values
+    real(rp), dimension(:), intent(in out) :: val
+        !! `(n,)` array, where `n >= num`. Generated values. Elements beyond
+        !! the first `num` values are left as is.
     real(rp), intent(out), optional :: step
-        !! Step size
-    real(rp) :: step_
+        !! Nominal step size, which may differ from adjacent output spacings
+        !! because of rounding. For `num=2`, its calculation can overflow if
+        !! the endpoint difference is not representable. No step is calculated
+        !! when this argument is absent.
+    real(rp) :: intervals, t, difference
+    logical :: opposite_signs
     integer :: i
 
     if (num < 2) then
@@ -445,7 +468,7 @@ subroutine linspace(start, finish, num, val, step)
         stop
     end if
 
-    if (num < size(val)) then
+    if (num > size(val)) then
         write(*,*) '[linspace] `size(val)` must be >= `num`'
         stop
     end if
@@ -455,39 +478,58 @@ subroutine linspace(start, finish, num, val, step)
         stop
     end if
 
-    val = 0.0_rp
+    intervals = real(num-1, rp)
+    opposite_signs = (start < 0.0_rp .and. finish > 0.0_rp) .or. &
+                     (start > 0.0_rp .and. finish < 0.0_rp)
 
-    step_ = (finish-start)/(num-1)
+    val(1) = start; val(num) = finish
 
-    if (present(step)) step = step_
-
-    val(1) = start
-    val(num) = finish
-
-    do i = 2, (num-1)
-        val(i) = start + (i-1)*step_
-    end do
+    if (opposite_signs) then
+        if (present(step)) then
+            if (num == 2) then
+                step = finish-start
+            else
+                step = finish/intervals - start/intervals
+            end if
+        end if
+        do i = 2, num-1
+            t = real(i-1, rp)/intervals
+            val(i) = (1.0_rp-t)*start + t*finish
+        end do
+    else
+        difference = finish-start
+        if (present(step)) step = difference/intervals
+        do i = 2, num-1
+            t = real(i-1, rp)/intervals
+            val(i) = start + t*difference
+        end do
+    end if
 
     end subroutine
 
 !******************************************************************************
 
 subroutine logspace(start, finish, num, val, base)
-    !!  Generates numbers spaced evenly on a log scale.
-    !!  In linear space, the sequence starts at `base ** start`
-    !!  (`base` to the power of `start`) and ends with `base ** stop`
+    !! Generates numbers spaced evenly on a log scale.
+    !! In linear space, the sequence starts at `base ** start`
+    !! (`base` to the power of `start`) and ends with `base ** finish`
+    !!
+    !! Exponents are generated by `linspace`. Floating-point rounding can
+    !! make adjacent ratios unequal or produce repeated values. The endpoint
+    !! powers are subject to rounding, overflow, and underflow as well.
     !""
     real(rp), intent(in) :: start
-        !! Starting point, `base ** start` is the starting value
+        !! Finite starting exponent; `base ** start` is the starting value
     real(rp), intent(in) :: finish
-        !! Ending point, `finish` /= `start`,  `base ** start`
+        !! Finite ending exponent, `finish /= start`; `base ** finish`
         !! is the ending value
     integer, intent(in) :: num
         !! Number of values to generate, `num >= 2`
-    real(rp), dimension(:), intent(out) :: val
-        !! (`num`,) array; Generated values
+    real(rp), dimension(:), intent(in out) :: val
+        !! `(n,)` array, where `n >= num`. Generated values. Elements beyond
+        !! the first `num` values are left as is.
     real(rp), intent(in), optional :: base
-        !! Base of the logspace, default 10
+        !! Base of the logspace. Must be finite and positive, default is 10.
     real(rp) :: base_
     integer :: i
 
@@ -496,7 +538,7 @@ subroutine logspace(start, finish, num, val, base)
         stop
     end if
 
-    if (num < size(val)) then
+    if (num > size(val)) then
         write(*,*) 'logspace `size(val)` must be >= `num`'
         stop
     end if
@@ -506,7 +548,6 @@ subroutine logspace(start, finish, num, val, base)
         stop
     end if
 
-    val = 0.0_rp
     base_ = 10.0_rp
     if (present(base)) base_ = base
 
@@ -521,13 +562,13 @@ subroutine logspace(start, finish, num, val, base)
 !******************************************************************************
 
 function det(A) result(res)
-    !!  Returns the determinant of an (N x N) matrix, where N = 2, 3, or 4.
+    !! Returns the determinant of an (N x N) matrix, where N = 2, 3, or 4.
     !!
-    !!  Original routine by [David Simpson](http://www.davidgsimpson.com/software.html)
-    !!  @note For a general NxN matrix do an LU decomp
+    !! Original routine by [David Simpson](http://www.davidgsimpson.com/software.html)
+    !! @note For a general NxN matrix do an LU decomp
     !""
     real(rp), dimension(:,:), intent(in) :: A
-        !! (N,N) array, where N = 2, 3, or 4.
+        !! `(N,N)` array, where N = 2, 3, or 4.
     real(rp) :: res
     integer :: nrows
 
@@ -567,7 +608,7 @@ function trace(mat) result (res)
     !! Returns the trace of a square matrix
 
     real(rp), intent(in) :: mat(:,:)
-        !! (N,N) array
+        !! `(N,N)` array
     real(rp) :: res
     integer :: nrows
     integer :: i
@@ -586,7 +627,7 @@ function trace(mat) result (res)
 subroutine identity(mat_eye)
     !! Creates an identity matrix of size n x n.
     real(rp), dimension(:,:), intent(out) :: mat_eye
-        !! (n,n) array
+        !! `(n,n)` array
     integer :: nrows
     integer :: i
 
@@ -605,9 +646,9 @@ subroutine identity(mat_eye)
 subroutine get_diagonal(mat, d)
     !! Returns the diagonal elements of a square matrix.
     real(rp), dimension(:,:), intent(in) :: mat
-        !! (n,n) array
+        !! `(n,n)` array
     real(rp), dimension(:), intent(out) :: d
-        !! (n,) array; contains the entries of the main diagonal
+        !! `(n,)` array; contains the entries of the main diagonal
     integer :: n
     integer :: i
     
@@ -624,7 +665,7 @@ subroutine get_diagonal(mat, d)
 subroutine add_transpose(mat)
     !! Adds a square matrix and its transpose in place: \(A_{ij} = A_{ij } + A_{ji}\)
     real(rp), dimension(:,:), intent(in out) :: mat
-        !! (n,n) array
+        !! `(n,n)` array
     integer :: n
     integer :: i
     integer :: j
@@ -675,7 +716,7 @@ subroutine subtract_transpose(mat)
 
     !Putting the diagonal to zero
     do i = 1, n
-        mat(i,j) = 0.0_rp
+        mat(i,i) = 0.0_rp
     end do
 
     end subroutine
@@ -687,9 +728,9 @@ subroutine multiply_transpose(A, B)
     !! \(\mathbf{\mathrm{B}} = \mathbf{\mathrm{A}} \cdot \mathbf{\mathrm{A}}^T\)
     !""
     real(rp), dimension(:,:), intent(in) :: A
-        !! (m,n) array
+        !! `(m,n)` array
     real(rp), dimension(:,:), intent(out) :: B
-        !! (m,m) array
+        !! `(m,m)` array
         !A is m x n, A^T is n x m, so B is m x m
 
     B = matmul(A, transpose(A))
@@ -699,13 +740,13 @@ subroutine multiply_transpose(A, B)
 !******************************************************************************
 
 function get_quad_form(A, x) result(res)
-    !!  Calculates the quadratic form *x^T A x*, where A is an *n x n* matrix and *x* is a
-    !!  vector of length *n*
+    !! Calculates the quadratic form *x^T A x*, where A is an *n x n* matrix and *x* is a
+    !! vector of length *n*
     !""
     real(rp), dimension(:,:), intent(in) :: A
-        !! (n,n) array
+        !! `(n,n)` array
     real(rp), dimension(:), intent(in) :: x
-        !! (n,) array
+        !! `(n,)` array
     real(rp) :: res
     integer :: n
     integer :: i, j
@@ -723,24 +764,29 @@ function get_quad_form(A, x) result(res)
 
 !******************************************************************************
 
-subroutine orth(a)
-    !! Orthogonalizes a set of vectors in-place using Gram-Schmidt orthonormalization
+subroutine orth_mgs(a, estat)
+    !! Orthogonalizes a set of non-zero vectors in-place using modified
+    !! Gram-Schmidt orthonormalization.
     !! 
-    !! *Reference:* Golub and Van Loan, Matrix Computations, 3rd edition, Section 5.2.8,
-    !! Algorithm 5.2.5, p. 231.
+    !! *Reference:* Golub and Van Loan, Matrix Computations, 4th edition,
+    !! Section 5.2.8, Algorithm 5.2.6, p. 255.
 
     real(rp), dimension(:,:), intent(in out) :: a
-        !! (m,n) array, where m <= n. The first m columns of the matrix are
-        !!  overwritten with the orthogonal basis vectors.
-    integer :: m
-    integer :: i, j
+        !! `(m,n)` rank `n` array, where `m >= n`, storing the vectors
+        !! column-wise. On return, the columns of the matrix are overwritten
+        !! with the orthogonal vectors.
+    integer, intent(out) :: estat
+        !! Error code. Returns `1` if during execution a column is found to be
+        !! zero, `0` otherwise. A return with `estat=1` may leave `a` partially
+        !! overwritten.
+    integer :: j, k, n
 
-    m = size(a, 1)
-
-    do i = 1, m
-        a(i,:) = a(i,:)/norm(a(i,:)) 
-        do j = (i+1), m
-            a(j,:) = a(j,:) - dot_product(a(j,:),a(i,:))*a(i,:)
+    n = size(a, 2)
+    do k = 1, n
+        call normalized(a(:,k), estat)
+        if (estat == 1) return
+        do j = k+1, n
+            a(:,j) = a(:,j) - dot_product(a(:,k),a(:,j)) * a(:,k)
         end do
     end do
 
@@ -751,148 +797,111 @@ subroutine orth(a)
 subroutine invert_mat33(a, inv_a)
     !! Inverts a 3x3 matrix with non-zero determinant.
     !!
-    !!*Reference:* https://www.geometrictools.com/Documentation/LaplaceExpansionTheorem.pdf
+    !! *Reference:* https://www.geometrictools.com/Documentation/LaplaceExpansionTheorem.pdf
 
     real(rp), dimension(3,3),  intent(in) :: a
         !! Matrix
     real(rp), dimension(3,3), intent(out) :: inv_a
         !! Matrix inverse
-    real(rp) :: det_a
+    real(rp) :: as(3,3), det_as, s
 
-    inv_a(1,1) =   a(2,2)*a(3,3) - a(2,3)*a(3,2)
-    inv_a(2,1) = -(a(2,1)*a(3,3) - a(2,3)*a(3,1))
-    inv_a(3,1) =   a(2,1)*a(3,2) - a(2,2)*a(3,1)
+    s = maxval(abs(a)) ! scale
+    as = a/s ! scaled a
 
-    inv_a(1,2) = -(a(1,2)*a(3,3) - a(1,3)*a(3,2))
-    inv_a(2,2) =   a(1,1)*a(3,3) - a(1,3)*a(3,1)
-    inv_a(3,2) = -(a(1,1)*a(3,2) - a(1,2)*a(3,1))
+    inv_a(1,1) =   as(2,2)*as(3,3) - as(2,3)*as(3,2)
+    inv_a(2,1) = -(as(2,1)*as(3,3) - as(2,3)*as(3,1))
+    inv_a(3,1) =   as(2,1)*as(3,2) - as(2,2)*as(3,1)
 
-    inv_a(1,3) =   a(1,2)*a(2,3) - a(1,3)*a(2,2)
-    inv_a(2,3) = -(a(1,1)*a(2,3) - a(1,3)*a(2,1))
-    inv_a(3,3) =   a(1,1)*a(2,2) - a(1,2)*a(2,1)
+    inv_a(1,2) = -(as(1,2)*as(3,3) - as(1,3)*as(3,2))
+    inv_a(2,2) =   as(1,1)*as(3,3) - as(1,3)*as(3,1)
+    inv_a(3,2) = -(as(1,1)*as(3,2) - as(1,2)*as(3,1))
 
-    !Determinant
-    det_a = a(1,1)*inv_a(1,1) + a(1,2)*inv_a(2,1) + a(1,3)*inv_a(3,1)
-    inv_a = inv_a/det_a
+    inv_a(1,3) =   as(1,2)*as(2,3) - as(1,3)*as(2,2)
+    inv_a(2,3) = -(as(1,1)*as(2,3) - as(1,3)*as(2,1))
+    inv_a(3,3) =   as(1,1)*as(2,2) - as(1,2)*as(2,1)
+
+    !Determinant of the scaled matrix
+    det_as = as(1,1)*inv_a(1,1) + as(1,2)*inv_a(2,1) + as(1,3)*inv_a(3,1)
+    inv_a = inv_a/det_as
     
+    ! Unscale
+    inv_a = inv_a/s
+
     end subroutine
 
 !******************************************************************************
 
 subroutine eigval_33rsym(a, ev)
-    !! Calculates the eigenvalues of a 3 x 3 real symmetric matrix. The
-    !! eigenvalues calculated are in decreasing order. Only the diagonal and
-    !! lower triangular part of the matrix is accessed.
+    !! Calculates the eigenvalues of a finite real symmetric 3 x 3 matrix,
+    !! in decreasing order. The input matrix is not modified.
     !!
-    !! *Reference:* https://en.wikipedia.org/wiki/Eigenvalue_algorithm#cite_note-Smith-12
+    !! Uses maximum-entry scaling and Jacobi rotations to avoid overflow in
+    !! intermediate products and cancellation in cubic-equation formulas near
+    !! repeated eigenvalues. Diagonal matrices are handled directly.
+    !! Iteration stops when the largest off-diagonal entry is at most machine
+    !! epsilon times the largest absolute diagonal entry of the scaled matrix.
     !!
-    !! See also David Eberly's notes and implementation at 
-    !! https://www.geometrictools.com/Documentation/RobustEigenSymmetric3x3.pdf
+    !! Accuracy is relative to the matrix scale; high relative accuracy for
+    !! very small eigenvalues or very small eigenvalue gaps is not guaranteed.
+    !! Rescaling can overflow if an eigenvalue is outside the range of `rp`,
+    !! or underflow if it is too small to represent.
+    !!
+    !! *Reference:* J. Kopp, Efficient numerical diagonalization of Hermitian
+    !! 3 x 3 matrices, https://arxiv.org/abs/physics/0610206
 
     real(rp), dimension(3,3), intent(in) :: a
+        !! Finite symmetric input matrix. Both triangles must be supplied.
     real(rp), dimension(3), intent(out) :: ev
-    real(rp), dimension(3,3) :: eye
-    real(rp), dimension(3,3) :: b
-    real(rp) :: p, q, r
-    real(rp) :: p1, p2
-    real(rp) :: phi
+        !! Eigenvalues, with `ev(1) >= ev(2) >= ev(3)`.
+    real(rp) :: b(3,3), scale, off, diagonal_scale
+    real(rp) :: delta, tangent, cosine, sine, x, y
+    integer :: p, q, k
 
-    !Sum of the elements in the lower triangular part
-    p1 = a(2,1)**2 + a(3,1)**2 + a(3,2)**2 
-
-    if ( isclose(p1, 0.0_rp) ) then
-        !Matrix a is diagonal
-        ev(1) = a(1,1); ev(2) = a(2,2); ev(3) = a(3,3)
-        return
+    if (a(1,2) == 0.0_rp .and. a(1,3) == 0.0_rp .and. &
+        a(2,3) == 0.0_rp) then
+        ! Preserve diagonal entries exactly, including the zero matrix.
+        ev = [a(1,1), a(2,2), a(3,3)]
     else
-        q = (a(1,1) + a(2,2) + a(3,3))/3.0_rp
-        p2 = (a(1,1) - q)**2 + (a(2,2) - q)**2 + (a(3,3) - q)**2 + 2*p1
-        p = sqrt(p2/6.0_rp)
+        scale = maxval(abs(a))
+        b = a/scale
+        do
+            ! Annihilate the largest off-diagonal entry.
+            p = 1; q = 2
+            if (abs(b(1,3)) > abs(b(p,q))) then
+                p = 1; q = 3
+            end if
+            if (abs(b(2,3)) > abs(b(p,q))) then
+                p = 2; q = 3
+            end if
+            off = b(p,q)
+            diagonal_scale = max(abs(b(1,1)), abs(b(2,2)), abs(b(3,3)))
+            if (abs(off) <= epsilon(1.0_rp)*diagonal_scale) exit
 
-        call identity(eye)
+            ! Stable rotation tangent with magnitude at most one. Avoid
+            ! dividing the diagonal difference by a possibly tiny off-diagonal.
+            delta = 0.5_rp*(b(q,q)-b(p,p))
+            tangent = off / (delta + sign(hypot(delta, off), delta))
+            cosine = 1.0_rp/sqrt(1.0_rp+tangent*tangent)
+            sine = tangent*cosine
 
-        b = (a - q*eye)/p
-        r = 0.5_rp*det(b)
-
-        !r must be within [-1, 1] in exact computation; but need to handle
-        !slightly out of range in computation.
-        if (r <= -1.0_rp) then
-            phi = math_pi/3.0_rp
-        else if ( r >= 1.0_rp) then
-            phi = 0.0_rp
-        else
-            phi = acos(r)/3.0_rp
-        end if
-
-        !Eigen values are ordered as ev(3) <= ev(2) <= ev(1) 
-        ev(1) = q + 2*p*cos(phi)
-        ev(3) = q + 2*p*cos(phi + (2*math_pi/3.0_rp))
-        ev(2) = 3*q - ev(1) - ev(3)
+            b(p,p) = b(p,p) - tangent*off
+            b(q,q) = b(q,q) + tangent*off
+            b(p,q) = 0.0_rp; b(q,p) = 0.0_rp
+            k = 6-p-q ! The remaining row/column index.
+            x = b(k,p); y = b(k,q)
+            b(k,p) = cosine*x - sine*y
+            b(p,k) = b(k,p)
+            b(k,q) = sine*x + cosine*y
+            b(q,k) = b(k,q)
+        end do
+        ev = [b(1,1), b(2,2), b(3,3)] * scale
     end if
 
+    if (ev(1) < ev(2)) call swap(ev(1), ev(2))
+    if (ev(1) < ev(3)) call swap(ev(1), ev(3))
+    if (ev(2) < ev(3)) call swap(ev(2), ev(3))
+
     end subroutine
-
-!******************************************************************************
-
-subroutine dsyevc3(a, w)
-    !!author: Joachim Kopp
-    !!date: 2006
-    !!
-    !! Calculates the eigenvalues of a symmetric 3x3 matrix A using Cardano's
-    !! analytical algorithm.
-    !! Only the diagonal and upper triangular parts of A are accessed. The access
-    !! is read-only.
-    !!
-    !! Copyright (C) 2006  Joachim Kopp
-    !  https://www.mpi-hd.mpg.de/personalhomes/globes/3x3/index.html
-    ! ----------------------------------------------------------------------------
-    ! Parameters:
-    !   A: The symmetric input matrix
-    !   W: Storage buffer for eigenvalues
-    ! ----------------------------------------------------------------------------
-    ! .. Arguments ..
-      REAL(RP), DIMENSION(3,3), INTENT(IN) :: A
-        !! Symmetric input matrix.
-      REAL(RP), DIMENSION(3), INTENT(OUT) ::  W
-        !! Storage buffer for eigenvalues.
-
-     !.. Local Variables ..
-      REAL(RP) ::  M, C1, C0
-      REAL(RP) ::  DE, DD, EE, FF
-      REAL(RP) ::  P, SQRTP, Q, C, S, PHI
-  
-     !Determine coefficients of characteristic poynomial. We write
-     !      | A   D   F  |
-     ! A =  | D*  B   E  |
-     !      | F*  E*  C  |
-
-      DE    = A(1,2) * A(2,3)
-      DD    = A(1,2)**2
-      EE    = A(2,3)**2
-      FF    = A(1,3)**2
-      M     = A(1,1) + A(2,2) + A(3,3)
-      C1    = ( A(1,1)*A(2,2) + A(1,1)*A(3,3) + A(2,2)*A(3,3) ) &
-               - (DD + EE + FF)
-      C0    = A(3,3)*DD + A(1,1)*EE + A(2,2)*FF - A(1,1)*A(2,2)*A(3,3) &
-               - 2.0_RP * A(1,3)*DE
-
-      P     = M**2 - 3.0_RP * C1
-      Q     = M*(P - (3.0_RP/2.0_RP)*C1) - (27.0_RP/2.0_RP)*C0
-      SQRTP = SQRT(ABS(P))
-
-      PHI   = 27.0_RP * ( 0.25_RP * C1**2 * (P - C1) &
-                + C0 * (Q + (27.0_RP/4.0_RP)*C0) )
-      PHI   = (1.0_RP/3.0_RP) * ATAN2(SQRT(ABS(PHI)), Q)
-
-      C     = SQRTP * COS(PHI)
-      S     = (1.0_RP/MATH_SQRT3) * SQRTP * SIN(PHI)
-
-      W(2) = (1.0_RP/3.0_RP) * (M - C)
-      W(3) = W(2) + S
-      W(1) = W(2) + C
-      W(2) = W(2) - S
-
-      end subroutine
 
 !******************************************************************************
 
