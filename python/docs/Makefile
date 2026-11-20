@@ -6,7 +6,6 @@ ALL_DOCS = ../../docs
 PACKAGE_NAME = rotlib
 MODULE_PATH = ../$(PACKAGE_NAME)
 SOURCE_DIR = source
-BUILD_DIR  = build
 OUT_DIR = $(ALL_DOCS)/python_api
 
 .PHONY: doc
@@ -27,5 +26,4 @@ clean :
 clobber :
 	rm -rf "$(SOURCE_DIR)"/$(PACKAGE_NAME)*.rst \
 		"$(SOURCE_DIR)"/modules.rst \
-		"$(BUILD_DIR)"/* \
 		"$(OUT_DIR)"/*
