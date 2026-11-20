@@ -1,0 +1,27 @@
+var utils__math_8h =
+[
+    [ "add_transpose", "group__util__math.html#ga8f52d674debe8a86fcf2401b99541e36", null ],
+    [ "allclose", "group__util__math.html#ga4461f85252255177d0fd48e08626497b", null ],
+    [ "cross", "group__util__math.html#ga23a3f6a3fe6915ec26c6fb31d8e9a6d4", null ],
+    [ "cross_mat", "group__util__math.html#ga62b26c600b3c2aa5b976d7099eb1d1fb", null ],
+    [ "det", "group__util__math.html#gae4f1d844429b4baa72e0aafb2199e072", null ],
+    [ "dot", "group__util__math.html#ga553829e617a894bf1b22ea5cc9d025d3", null ],
+    [ "eye", "group__util__math.html#ga9e5a532999197529ac97f44c8af08263", null ],
+    [ "isclose", "group__util__math.html#gaf51332b496b9a3f668a1dc2150ae4530", null ],
+    [ "kron_delta", "group__util__math.html#gaf2d46ec764904a273421d13f90986e2c", null ],
+    [ "mat_mean", "group__util__math.html#ga5d0e926b67ec434b051ce4b0ddd31131", null ],
+    [ "mm_mult", "group__util__math.html#ga85096c39df1e138d001a4874d2444bde", null ],
+    [ "mult_transpose", "group__util__math.html#ga5b0c77e7b174623b232de08affb5fe4d", null ],
+    [ "mv_mult", "group__util__math.html#gaebcc5bab6f91a19e17ae659236a7f6a4", null ],
+    [ "norm", "group__util__math.html#gaf371209817385229ee6ec6a46466d80e", null ],
+    [ "normalized", "group__util__math.html#ga6d2852a58d70310144061531b6385436", null ],
+    [ "outer", "group__util__math.html#gaeb6bb554bbd5501b88535c931548c297", null ],
+    [ "scalar_triple_product", "group__util__math.html#gabfac5b3927a3d4e3f53a6330882a21aa", null ],
+    [ "sinc", "group__util__math.html#gafe17515bb800483d081a6dddf52e9a80", null ],
+    [ "trace", "group__util__math.html#ga85c60bd4593601a1b525725d89e23722", null ],
+    [ "transpose", "group__util__math.html#ga46b5e8e5e61ba6cb9ca34d108f7a66df", null ],
+    [ "uvec_angle", "group__util__math.html#gab0ac11480f9ed92e4e83384e9f72c2b6", null ],
+    [ "vec_angle_3d", "group__util__math.html#gac68ce0c80a8b7c6cda698bfaf2493c82", null ],
+    [ "vec_mean", "group__util__math.html#ga09a82735da5cc601fba989eebc8d4864", null ],
+    [ "vector_triple_product", "group__util__math.html#ga91d80a9a8994a28338224063775ab5b0", null ]
+];

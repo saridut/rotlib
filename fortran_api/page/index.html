@@ -1,0 +1,251 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for rotlib">
+    <meta name="author" content="Sarit Dutta" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>User Guide &ndash; rotlib</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+      <link href="../css/user.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">rotlib <small>1.0.1</small></a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="index.html">User Guide</a></li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>User Guide</h1>
+    <div class="container p-2 mb-4 bg-light border rounded-3">
+      <div class="row align-items-center justify-content-between">
+        <div class="col">
+          <ul class="list-inline" style="margin-bottom:0px; display:inline">
+              <li class="list-inline-item" id="author"><i class="fa fa-pencil"></i> Sarit Dutta</li>
+          </ul>
+        </div>
+        <div class="col">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-end mb-0">
+              <li class="breadcrumb-item active" aria-current="page">User Guide</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+
+    <div class="col-9" id='text'>
+      <h1>Conventions</h1>
+<h2>Active and passive rotations</h2>
+<p>In the following, all functions dealing with rotations perform <em>active</em>
+rotations following the right-hand rule. E.g., <code>aa_rotate_vectors</code> actively
+rotates vectors about an axis through an angle in a given frame.</p>
+<p><em>Passive</em> rotation operations are referred to as <em>shifting</em>. They are performed
+using a <em>shifter</em> matrix. Conceptually, these can be thought of as transforming
+(or shifting) the components of a fixed vector (or tensor) from one frame to
+another. E.g. <code>aa_shift_vectors</code> transforms the components of a set of
+vectors from frame A to frame B, where frame B is obtained by rotating frame A
+about an axis through an angle and the set of vectors as well as the axis are
+resolved in frame A. The transformation from A to B is referred to as the
+<em>forward</em> direction, whereas that from B to A is called the <em>reverse</em>
+direction. Note that the axis is resolved in frame A irrespective of the
+direction.</p>
+<h2>Quaternions</h2>
+<p>Quaternions are represented by a vector of four elements, where the first
+element represents the scalar part and the latter three represent the
+vector part. Thus, assuming 0-based indexing, <code>q = q[0] + q[1]*i + q[2]*j + q[3]*k</code>.</p>
+<p>A unit (or normalized) quaternion, used for representing orientations (or
+rotations) in 3-space is a quaternion whose magnitude is unity. It is related
+to a 3-D rotation about an axis <code>u</code> through an angle <code>theta</code> via the
+following relations (assuming 0-based indexing):</p>
+<div class="codehilite"><pre><span></span><code>q[0] = cos(theta/2)
+q[1] = u[0] * sin(theta/2)
+q[2] = u[1] * sin(theta/2)
+q[3] = u[2] * sin(theta/2)
+</code></pre></div>
+
+<p>In the canonical form, the first non-zero element of a unit quaternion is
+positive.</p>
+<p>Multiplication of quaternions and rotations by unit quaternions follow
+Hamilton's convention. See, e.g.,</p>
+<ul>
+<li>Kuipers, J. B., <em>Quaternions and Rotation Sequences</em>, 1999, Princeton
+  University Press, Princeton, NJ</li>
+<li>Hanson, A. J., <em>Visualizing Quaternions</em>, 2006, Morgan Kaufmann Publishers,
+  San Francisco, CA</li>
+</ul>
+<h2>Axis-angle</h2>
+<p>The axis-angle representation consists of a unit vector pointing along the axis
+of rotation and an angle (in radian) of rotation. The rotation follows the
+right-hand rule for positive angles. In the canonical form the angle is
+restricted to lie in [0, pi].</p>
+<h2>Direction cosine matrix (DCM)</h2>
+<p>The DCM gives the orientation of a frame B with respect to another frame A, and
+transforms vector components from A to B. Its entries are the dot products of
+B's basis vectors with A's basis vectors, with both sets expressed in the same
+orthonormal frame F. Let <code>a_i</code> be the basis vectors of frame A and <code>b_i</code> those
+of frame B resolved in a fixed frame F. The DCM is <code>D_ij = b_i . a_j</code>. In
+matrix notation, <code>D = B . A^T</code> for row-wise storage of the basis vectors and
+<code>D = B^T . A</code> assuming column-wise storage. If A and F coincide, then
+<code>D = B</code> (row-based) or <code>D = B^T</code> (column-based).</p>
+<h2>Euler angles</h2>
+<p>Euler angles are represented as three-element vectors, along with a rotation
+sequence and a boolean flag <code>world</code> specifying the frame of rotation. The
+elements represent rotations about X, Y, and Z, respectively. The order of
+rotations is specified by a separate argument <code>seq</code>.</p>
+<p>E.g.  <code>ea = [phi, theta, psi], seq = 'YZX', world=True</code> indicates a rotation
+by <code>theta</code> along 'Y', followed by another rotation by <code>psi</code> along 'Z', and
+finally a third rotation about 'X' by <code>phi</code>, where the rotations are with
+respect to a fixed frame called the <em>world</em> frame. If <code>world=False</code>, the
+rotations are performed with respect to the moving <em>body</em> frame.</p>
+<p>The following table describes ranges of returned principal representations,
+they do not restrict angles accepted by the construction functions.</p>
+<table>
+<thead>
+<tr>
+<th>Sequence</th>
+<th>phi</th>
+<th>theta</th>
+<th>psi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>XYZ, ZYX</td>
+<td>[-pi, pi]</td>
+<td>[-pi/2, pi/2]</td>
+<td>[-pi, pi]</td>
+</tr>
+<tr>
+<td>XZY, YZX</td>
+<td>[-pi, pi]</td>
+<td>[-pi, pi]</td>
+<td>[-pi/2, pi/2]</td>
+</tr>
+<tr>
+<td>ZXY, YXZ</td>
+<td>[-pi/2, pi/2]</td>
+<td>[-pi, pi]</td>
+<td>[-pi, pi]</td>
+</tr>
+</tbody>
+</table>
+<p>Functions that extract Euler angles accept a non-negative tolerance parameter
+<code>tol</code>. In factorizing a rotation matrix near a singularity, if the absolute
+value of the cosine of the middle angle is less than or equal to <code>tol</code>, one of
+the outer angles is set to zero as per the following table.</p>
+<table>
+<thead>
+<tr>
+<th>Sequence</th>
+<th>Angle set to zero</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>XYZ, XZY</td>
+<td>phi</td>
+</tr>
+<tr>
+<td>YXZ, YZX</td>
+<td>theta</td>
+</tr>
+<tr>
+<td>ZXY, ZYX</td>
+<td>psi</td>
+</tr>
+</tbody>
+</table>
+<p>Note that applying the above convention near, but not exactly at a singularity,
+can introduce reconstruction error of the order of <code>tol</code>; it is not a
+guaranteed reconstruction-error bound.</p>
+<p><em>Reference:</em> D. Eberly,
+<a href="http://www.geometrictools.com/Documentation/EulerAngles.pdf">Euler angle formulas</a>.</p>
+    </div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              rotlib
+ was developed by Sarit Dutta<br>              &copy; 2026 <a rel="license" href="https://opensource.org/licenses/MIT">MIT</a>
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+<br>&copy; <a rel="license" href="https://opensource.org/licenses/MIT">MIT</a>             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

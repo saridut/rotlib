@@ -1,0 +1,26 @@
+var group__quat =
+[
+    [ "quat_angle_between", "group__quat.html#gabe19b0200ab7e391cff96fe944337d6f", null ],
+    [ "quat_canonicalized", "group__quat.html#gafe3963467f951cd8c8c8531099e31eed", null ],
+    [ "quat_conjugated", "group__quat.html#ga3ea6cbc6cca2528c5020ce155aa34256", null ],
+    [ "quat_deriv_from_angvel", "group__quat.html#ga6beeceb9c8638e3e3ee990f76971e9bf", null ],
+    [ "quat_deriv_from_angvel_mat", "group__quat.html#ga2523f579dead2746e2a45436981db978", null ],
+    [ "quat_deriv_to_angvel", "group__quat.html#gaeb86274b56f4934b21f70c8e930492c0", null ],
+    [ "quat_deriv_to_angvel_mat", "group__quat.html#ga62017dba86af1d3e254bc3571c703bc5", null ],
+    [ "quat_identity", "group__quat.html#ga94cf2ce629864c9d7520731e77c6a277", null ],
+    [ "quat_interpolate", "group__quat.html#ga3b1e03df4f9d996f72bf189faff87927", null ],
+    [ "quat_inverted", "group__quat.html#ga128160ba39f636a3cd06a3bec081b45f", null ],
+    [ "quat_is_normalized", "group__quat.html#ga56529f3c064eb52346bf9e56d4250ea6", null ],
+    [ "quat_normalized", "group__quat.html#gad5e01ab47b604e29df5dca3b54eb4068", null ],
+    [ "quat_prod", "group__quat.html#ga991bf70b07df87f4714d1798430da686", null ],
+    [ "quat_rand", "group__quat.html#ga645e647cf665fb2eae38863d899d9c0f", null ],
+    [ "quat_rotate_vectors", "group__quat.html#gad413ff8ffc4b57aaf75862941dde3107", null ],
+    [ "quat_rotmat", "group__quat.html#gacd2afdc615f8fa9486ff715a60eece24", null ],
+    [ "quat_shift_tensor2", "group__quat.html#ga7cdc6386843f2c8459a585e6c5e50e36", null ],
+    [ "quat_shift_tensor3", "group__quat.html#gab87ac819ef43dd39b3ea66a7a6e1b762", null ],
+    [ "quat_shift_vectors", "group__quat.html#ga27fdf1fa53fefe36e682fad88f7e639d", null ],
+    [ "quat_shiftmat", "group__quat.html#ga1d4a893c43764ebfa9037e63bb6efc53", null ],
+    [ "quat_to_aa", "group__quat.html#gaf451915b1c4ff2feed69653b693f49dc", null ],
+    [ "quat_to_dcm", "group__quat.html#ga1ce424d72b085f6eba62646bb89358be", null ],
+    [ "quat_to_euler", "group__quat.html#ga488f8da6faaa3eb765a0326f98ea7079", null ]
+];
