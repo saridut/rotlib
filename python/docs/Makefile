@@ -1,26 +1,31 @@
 # Minimal makefile for Sphinx documentation
-#
 
-# You can set these variables from the command line, and also
-# from the environment for the first two.
-SPHINXOPTS    ?=
-SPHINXBUILD   ?= sphinx-build
-SOURCEDIR     = _source
-BUILDDIR      = _build
-DOCTREEDIR    = $(BUILDDIR)/doctrees
-OUTDIR        = ../../docs/python_api
+SHELL = /bin/bash
 
-# Put it first so that "make" without argument is like "make help".
-help:
-	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+ALL_DOCS = ../../docs
+PACKAGE_NAME = rotlib
+MODULE_PATH = ../$(PACKAGE_NAME)
+SOURCE_DIR = source
+BUILD_DIR  = build
+OUT_DIR = $(ALL_DOCS)/python_api
 
-.PHONY: help clean Makefile
+.PHONY: doc
+doc: $(ALL_DOCS)/rotconv.md
+	if [ ! -d $(OUT_DIR) ]; then mkdir -p $(OUT_DIR); fi
+	cp $^ $(SOURCE_DIR)
+	sphinx-build -b html "$(SOURCE_DIR)" "$(OUT_DIR)"
 
+.PHONY: rst
+rst:
+	sphinx-apidoc -M -e -f -d 2 -o "$(SOURCE_DIR)" "$(MODULE_PATH)"
+
+.PHONY: clean
 clean :
-	rm -rf "$(OUTDIR)"/* "$(DOCTREEDIR)"/*
+	rm -rf "$(OUT_DIR)"/*
 
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
-	@$(SPHINXBUILD) -b $@ -d "$(DOCTREEDIR)" "$(SOURCEDIR)" "$(OUTDIR)"
-
+.PHONY: clobber
+clobber :
+	rm -rf "$(SOURCE_DIR)"/$(PACKAGE_NAME)*.rst \
+		"$(SOURCE_DIR)"/modules.rst \
+		"$(BUILD_DIR)"/* \
+		"$(OUT_DIR)"/*
