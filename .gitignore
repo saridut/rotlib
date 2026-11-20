@@ -1,6 +1,9 @@
 # Prerequisites
 *.d
 
+# Compiled object files
+*.o
+
 # Fortran module files
 *.mod
 *.smod
@@ -14,50 +17,44 @@
 *.dylib
 
 # Compiled Static libraries
-*.lai
-*.la
 *.a
 *.lib
 
 # Temporary and binary files
 *~
 *.py[cod]
-*.cfg
-!.isort.cfg
-!setup.cfg
 *.orig
 *.log
-*.pot
-*/__pycache__/*
-.cache/*
+__pycache__/
+.cache/
+.ruff_cache/
 .*.swp
-*/.ipynb_checkpoints/*
+.ipynb_checkpoints/
 .DS_Store
 
 # Package files
-*.egg
-*.eggs/
-python/.installed.cfg
 *.egg-info
 
 # Unittest and coverage
 python/htmlcov/*
-python/.coverage
-python/.coverage.*
-python/.tox
+.coverage
+.coverage.*
+python/.tox/
 python/junit*.xml
 python/coverage.xml
 python/.pytest_cache/
 
 # Build and docs folder/files
 gh-pages/
-docs/c_api
-docs/fortran_api
-docs/python_api
+docs/c_api/
+docs/fortran_api/
+docs/python_api/
+c/test/test_rotlib
+fortran/test/test_rotlib
+python/build/
 python/dist/*
 python/docs/_build/*
 python/cover/*
-python/MANIFEST
 
 # Per-project virtualenvs
 python/.venv*/
